@@ -9,6 +9,6 @@ on:
 
 jobs:
   deploy:
-    uses: ./.github/workflows/deploy-back.yml
+    uses: ZzicGo_be/.github/workflows/deploy-back.yml
     with:
       ref: ${{ github.ref }}
