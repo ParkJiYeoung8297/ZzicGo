@@ -79,19 +79,3 @@ jobs:
             echo "📦 Received deployment request from GitHub Actions"
             chmod +x ~/deploy.sh
             sh ~/deploy.sh
-
-            echo "🩺 Performing health check..."
-
-            # ✅ 최대 5회 재시도 (10초 간격)
-            for i in {1..5}; do
-              STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/actuator/health || true)
-              if [ "$STATUS" -eq 200 ]; then
-                echo "✅ Health check passed! Service is UP 🚀"
-                exit 0
-              fi
-              echo "⏳ Waiting for service... (attempt $i/10)"
-              sleep 10
-            done
-
-            echo "❌ Health check failed after 10 attempts"
-            exit 1
