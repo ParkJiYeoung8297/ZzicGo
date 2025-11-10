@@ -1,0 +1,51 @@
+name: Deploy Vite React App to EC2
+
+on:
+  push:
+    branches:
+      - develop
+    paths:
+      - "ZzicGo_fe/**"
+  workflow_dispatch:  # 👈 수동 실행 허용
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ✅ 1. 리포지토리 체크아웃
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ✅ 2. Node 설치
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.19.1
+
+      # ✅ 3. 의존성 설치 및 빌드
+      - name: Install dependencies & Build
+        run: |
+          cd ZzicGo_fe
+          npm ci
+          npm run build
+
+      # ✅ 4. EC2로 dist 업로드
+      - name: Upload dist to EC2
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "ZzicGo_fe/dist/*"
+          target: "/home/ubuntu/frontend/dist"
+
+      # ✅ 5. Nginx 재시작
+      - name: Restart Nginx on EC2
+        uses: appleboy/ssh-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            sudo systemctl restart nginx
