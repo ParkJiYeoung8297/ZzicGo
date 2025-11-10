@@ -41,11 +41,8 @@ jobs:
           target: "/home/ubuntu/frontend"
 
       # ✅ 5. Nginx 재시작
-      - name: Restart Nginx on EC2
-        uses: appleboy/ssh-action@v0.1.4
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            sudo systemctl restart nginx
+      - name: Restart Nginx
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" | tr -d '\r' > private_key.pem
+          chmod 600 private_key.pem
+          ssh -i private_key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} "sudo systemctl restart nginx"
