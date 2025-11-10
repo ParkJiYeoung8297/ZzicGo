@@ -3,9 +3,9 @@ name: Backend Build & Deploy
 on:
   push:
     branches:
-      - develop           # develop 브랜치로 push 시에만 실행
+      - develop
     paths:
-      - "ZzicGo_be/**"    # 백엔드 폴더 변경 시에만 동작
+      - "ZzicGo_be/**"
 
 jobs:
   # ✅ 1️⃣ Build Job
@@ -43,7 +43,7 @@ jobs:
   deploy:
     name: Deploy to EC2
     runs-on: ubuntu-latest
-    needs: build   # ✅ build job이 성공해야 실행됨
+    needs: build
 
     steps:
       - name: Download build artifact
@@ -52,33 +52,46 @@ jobs:
           name: ZzicGo-be-jar
           path: .
 
-      - name: Deploy to EC2
+      # ✅ EC2로 jar 파일 전송
+      - name: Transfer JAR to EC2
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
           EC2_USER: ${{ secrets.EC2_USER }}
           EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
         run: |
-          APP_DIR="/home/ubuntu/backend/app"
-          SERVICE_NAME="zzicgo.service"
-
-          echo "📦 Deploying application to EC2..."
-
-          # ✅ SSH 키 임시 파일 생성 (멀티라인 처리 주의)
-          echo "${EC2_SSH_KEY}" > private_key.pem
+          echo "$EC2_SSH_KEY" | tr -d '\r' > private_key.pem
           chmod 600 private_key.pem
 
-          # ✅ 최신 JAR 파일 찾기
           JAR_FILE=$(ls *.jar | sort | tail -n 1)
           echo "✅ Found JAR: $JAR_FILE"
 
-          # ✅ EC2로 전송
-          scp -i private_key.pem -o StrictHostKeyChecking=no "$JAR_FILE" $EC2_USER@$EC2_HOST:$APP_DIR/
+          scp -i private_key.pem -o StrictHostKeyChecking=no "$JAR_FILE" $EC2_USER@$EC2_HOST:/home/ubuntu/backend/app/
 
-          # ✅ 서비스 재시작
-          ssh -i private_key.pem -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "
-            sudo systemctl daemon-reload
-            sudo systemctl restart $SERVICE_NAME
-            sudo systemctl status $SERVICE_NAME --no-pager
-          "
+      # ✅ EC2에서 배포 스크립트 실행 및 헬스체크
+      - name: Execute Deploy Script & Health Check
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          command_timeout: 10m
+          script: |
+            echo "📦 Received deployment request from GitHub Actions"
+            chmod +x ~/deploy.sh
+            sh ~/deploy.sh
 
-          echo "✅ Deployment completed successfully!"
+            echo "🩺 Performing health check..."
+
+            # ✅ 최대 5회 재시도 (10초 간격)
+            for i in {1..5}; do
+              STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/actuator/health || true)
+              if [ "$STATUS" -eq 200 ]; then
+                echo "✅ Health check passed! Service is UP 🚀"
+                exit 0
+              fi
+              echo "⏳ Waiting for service... (attempt $i/10)"
+              sleep 10
+            done
+
+            echo "❌ Health check failed after 10 attempts"
+            exit 1
