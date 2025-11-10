@@ -1,0 +1,86 @@
+name: Backend Deploy (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        required: true
+        type: string
+
+jobs:
+  # ✅ 1️⃣ Build Job
+  build:
+    name: Build Spring Boot
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Grant execute permission for gradlew
+        run: |
+          cd ZzicGo_be
+          chmod +x gradlew
+
+      - name: Build with Gradle
+        run: |
+          cd ZzicGo_be
+          ./gradlew clean build -x test
+
+      # ✅ 빌드 결과물 업로드 (배포 job에서 사용하기 위해)
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZzicGo-be-jar
+          path: ZzicGo_be/build/libs/*.jar
+
+  # ✅ 2️⃣ Deploy Job
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+    needs: build  # ✅ build job이 성공해야 실행됨
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ZzicGo-be-jar
+          path: .
+
+      - name: Deploy to EC2
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+        run: |
+          LOG_FILE="/home/ec2-user/app/deploy.log"
+          APP_DIR="/home/ec2-user/app"
+          SERVICE_NAME="zzicgo.service"
+
+          echo "📦 Deploying application..." > deploy.log
+
+          # ✅ 최신 JAR 파일 이름 찾기
+          JAR_FILE=$(ls *.jar | sort | tail -n 1)
+
+          # ✅ EC2로 전송
+          scp -i $EC2_SSH_KEY -o StrictHostKeyChecking=no "$JAR_FILE" $EC2_USER@$EC2_HOST:$APP_DIR/
+
+          # ✅ 서비스 재시작
+          ssh -i $EC2_SSH_KEY -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "
+            echo 'Stopping $SERVICE_NAME...' >> $LOG_FILE
+            sudo systemctl stop $SERVICE_NAME
+            sleep 3
+            echo 'Starting $SERVICE_NAME...' >> $LOG_FILE
+            sudo systemctl start $SERVICE_NAME
+            echo '✅ Deployment finished at $(date '+%Y-%m-%d %H:%M:%S')' >> $LOG_FILE
+          "
+
+          echo "✅ EC2 deployment finished successfully."
