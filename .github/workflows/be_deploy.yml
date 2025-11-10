@@ -62,6 +62,10 @@ jobs:
           SERVICE_NAME="zzicgo.service"
 
           echo "📦 Deploying application to EC2..."
+          
+          # ✅ SSH 키 임시 파일 생성
+        echo "$EC2_SSH_KEY" > private_key.pem
+        chmod 600 private_key.pem
 
           # ✅ 최신 JAR 파일 찾기
           JAR_FILE=$(ls *.jar | sort | tail -n 1)
