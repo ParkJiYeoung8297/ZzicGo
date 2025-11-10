@@ -39,7 +39,7 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ZzicGo-be-jar
+          name: ZzicGo-be-0.0.1-jar
           path: ZzicGo_be/build/libs/*.jar
 
   # ✅ 2️⃣ Deploy Job
@@ -52,7 +52,7 @@ jobs:
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
-          name: ZzicGo-be-jar
+          name: ZzicGo-be-0.0.1-jar
           path: .
 
       - name: Deploy to EC2
@@ -61,11 +61,10 @@ jobs:
           EC2_USER: ${{ secrets.EC2_USER }}
           EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
         run: |
-          LOG_FILE="/home/ec2-user/app/deploy.log"
-          APP_DIR="/home/ec2-user/app"
+          APP_DIR="/home/ubuntu/backend/app"
           SERVICE_NAME="zzicgo.service"
 
-          echo "📦 Deploying application..." > deploy.log
+          echo "📦 Deploying application to EC2..."
 
           # ✅ 최신 JAR 파일 이름 찾기
           JAR_FILE=$(ls *.jar | sort | tail -n 1)
@@ -75,12 +74,9 @@ jobs:
 
           # ✅ 서비스 재시작
           ssh -i $EC2_SSH_KEY -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "
-            echo 'Stopping $SERVICE_NAME...' >> $LOG_FILE
-            sudo systemctl stop $SERVICE_NAME
-            sleep 3
-            echo 'Starting $SERVICE_NAME...' >> $LOG_FILE
-            sudo systemctl start $SERVICE_NAME
-            echo '✅ Deployment finished at $(date '+%Y-%m-%d %H:%M:%S')' >> $LOG_FILE
+            sudo systemctl daemon-reload
+            sudo systemctl restart $SERVICE_NAME
+            sudo systemctl status $SERVICE_NAME --no-pager
           "
 
           echo "✅ EC2 deployment finished successfully."
