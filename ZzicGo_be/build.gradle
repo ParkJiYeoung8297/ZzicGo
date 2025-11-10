@@ -5,8 +5,15 @@ plugins {
 }
 
 group = 'com'
-version = 'be-0.0.1-SNAPSHOT'
+version = '0.0.1-SNAPSHOT'
 description = 'Demo project for Spring Boot'
+
+// ✅ jar 이름 커스터마이징 (Spring Boot는 bootJar 기준)
+bootJar {
+	archiveBaseName.set("ZzicGo-be")
+	archiveVersion.set(version)
+	archiveClassifier.set("")         // ✅ -plain 제거
+}
 
 java {
 	toolchain {
