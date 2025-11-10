@@ -72,10 +72,10 @@ jobs:
           echo "✅ Found JAR: $JAR_FILE"
 
           # ✅ EC2로 전송
-          scp -i $EC2_SSH_KEY -o StrictHostKeyChecking=no "$JAR_FILE" $EC2_USER@$EC2_HOST:$APP_DIR/
+           scp -i private_key.pem -o StrictHostKeyChecking=no "$JAR_FILE" $EC2_USER@$EC2_HOST:$APP_DIR/
 
           # ✅ 서비스 재시작
-          ssh -i $EC2_SSH_KEY -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "
+          ssh -i private_key.pem $EC2_SSH_KEY -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "
             sudo systemctl daemon-reload
             sudo systemctl restart $SERVICE_NAME
             sudo systemctl status $SERVICE_NAME --no-pager
