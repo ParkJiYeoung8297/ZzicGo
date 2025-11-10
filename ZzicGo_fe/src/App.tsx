@@ -7,7 +7,7 @@ function App() {
 
   useEffect(() => {
     apiClient
-    .get<string>('api/z1/test')
+    .get<string>('/api/z1/test')
     .then((res) => {
       console.log('✅ 서버 응답:', res.data);
       setMessage(res.data);
