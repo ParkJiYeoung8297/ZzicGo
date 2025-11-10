@@ -1,16 +1,14 @@
 name: Backend Deploy Trigger
 
 on:
-  pull_request:
-    types: [closed]  # PR이 닫힐 때 (merge 포함)
-    branches: [develop]  # develop으로 병합된 경우만
+  push:
+    branches:
+      - develop
     paths:
-      - "ZzicGo_be/**"  # ✅ backend 폴더 변경 시만 실행
+      - "ZzicGo_be/**"
 
 jobs:
-  call-backend:
-    if: github.event.pull_request.merged == true  # ✅ 이미 branches 필터로 develop 제한됨
-    uses: ./../ZzicGo_be/.github/workflows/deploy-back.yml  # ✅ 상대경로로 하위 workflow 호출
-
+  deploy:
+    uses: ./.github/workflows/deploy-back.yml
     with:
-      ref: ${{ github.event.pull_request.head.sha }}  # ✅ PR에서 merge된 커밋을 정확히 지정
+      ref: ${{ github.ref }}
