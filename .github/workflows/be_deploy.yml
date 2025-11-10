@@ -1,42 +1,57 @@
-name: Backend Deploy
+name: Backend Build & Deploy
 
 on:
   push:
     branches:
-      - develop      # ✅ develop 브랜치로 push 될 때만 실행
+      - develop           # develop 브랜치로 push 시에만 실행
     paths:
-      - "ZzicGo_be/**"  # ✅ 백엔드 코드 변경 시에만 동작
+      - "ZzicGo_be/**"    # 백엔드 폴더 변경 시에만 동작
 
 jobs:
-  build-and-deploy:
-    name: Build & Deploy to EC2
+  # ✅ 1️⃣ Build Job
+  build:
+    name: Build Spring Boot
     runs-on: ubuntu-latest
 
     steps:
-      # ✅ 1️⃣ 코드 체크아웃
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ✅ 2️⃣ JDK 17 설정
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      # ✅ 3️⃣ Gradle 실행 권한 부여
       - name: Grant execute permission for gradlew
         run: |
           cd ZzicGo_be
           chmod +x gradlew
 
-      # ✅ 4️⃣ 빌드 수행
       - name: Build with Gradle
         run: |
           cd ZzicGo_be
           ./gradlew clean build -x test
 
-      # ✅ 5️⃣ EC2로 배포
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZzicGo-be-jar
+          path: ZzicGo_be/build/libs/*.jar
+
+  # ✅ 2️⃣ Deploy Job (Build 성공 시에만 실행)
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+    needs: build   # ✅ build job이 성공해야 실행됨
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ZzicGo-be-jar
+          path: .
+
       - name: Deploy to EC2
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
@@ -49,7 +64,7 @@ jobs:
           echo "📦 Deploying application to EC2..."
 
           # ✅ 최신 JAR 파일 찾기
-          JAR_FILE=$(ls ZzicGo_be/build/libs/*.jar | sort | tail -n 1)
+          JAR_FILE=$(ls *.jar | sort | tail -n 1)
           echo "✅ Found JAR: $JAR_FILE"
 
           # ✅ EC2로 전송
@@ -62,4 +77,4 @@ jobs:
             sudo systemctl status $SERVICE_NAME --no-pager
           "
 
-          echo "✅ Deployment to EC2 completed successfully!"
+          echo "✅ Deployment completed successfully!"
