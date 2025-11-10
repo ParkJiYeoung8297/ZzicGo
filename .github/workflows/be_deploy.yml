@@ -6,6 +6,7 @@ on:
       - develop
     paths:
       - "ZzicGo_be/**"
+  workflow_dispatch:  # 👈 수동 실행 허용
 
 jobs:
   # ✅ 1️⃣ Build Job
