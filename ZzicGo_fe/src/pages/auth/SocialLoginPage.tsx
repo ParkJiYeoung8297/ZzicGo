@@ -1,0 +1,79 @@
+// src/pages/auth/SocialLoginPage.tsx
+import { useSocialLogin } from "../../hooks/useSocialLogin";
+import SocialButton from "../../components/auth/SocialButton";
+import { SiNaver} from "react-icons/si";
+import { RiKakaoTalkFill } from "react-icons/ri";
+import { FcGoogle } from "react-icons/fc";
+
+
+export default function SocialLoginPage() {
+  const { handleSocialLogin } = useSocialLogin();
+
+  return (
+    <div className="w-full min-h-screen flex flex-col justify-center items-center px-8">
+
+      {/* 헤더 */}
+      <div className="w-full max-w-sm flex flex-col gap-4 mb-10">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-1">오늘 하루</h2>
+        <h1 className="text-4xl font-extrabold text-black">ZzicGo</h1>
+      </div>
+
+      {/* 버튼 영역 */}
+      <div className="w-full max-w-sm flex flex-col gap-4 font-semibold">
+        <SocialButton
+          provider="naver"
+          text="네이버로 시작하기"
+          bgColor="bg-[#03C75A] hover:bg-[#02b550]"
+          textColor="text-white"
+          icon={<SiNaver />}
+          onClick={() => handleSocialLogin("naver")}
+        />
+
+        <SocialButton
+          provider="kakao"
+          text="카카오로 시작하기"
+          bgColor="bg-[#FEE500] hover:bg-[#fada00]"
+          icon={<RiKakaoTalkFill className="text-2xl" />}
+          onClick={() => handleSocialLogin("kakao")}
+        />
+
+        <SocialButton
+          provider="google"
+          text="Google로 시작하기"
+          bgColor="bg-white hover:bg-gray-50"
+          border="border border-gray-300"
+          icon={<FcGoogle />}
+          onClick={() => handleSocialLogin("google")}
+        />
+      </div>
+    </div>
+  );
+}
+
+
+// export default function SocialLogin() {
+//   const handleNaverLogin = () => {
+//     window.location.href =
+//       "https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=YOUR_CLIENT_ID&redirect_uri=http://localhost:3000/oauth/callback&state=test";
+//   };
+
+//   return (
+//     <div className="flex flex-col items-center justify-center min-h-[70vh]">
+//       <h2 className="text-2xl font-bold mb-6">Login with Social Account</h2>
+
+//       <button
+//         onClick={handleNaverLogin}
+//         className="w-64 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition mb-3"
+//       >
+//         Login with Naver
+//       </button>
+
+//       <button
+//         disabled
+//         className="w-64 py-3 bg-gray-300 text-gray-600 rounded-lg cursor-not-allowed"
+//       >
+//         (Coming Soon) Kakao Login
+//       </button>
+//     </div>
+//   );
+// }

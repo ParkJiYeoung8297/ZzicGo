@@ -5,14 +5,15 @@ import InstallPromptBanner from "./components/InstallPromptBanner";
 
 
 import RootLayout from "./layouts/RootLayout";
+import LoginLayout from "./layouts/LoginLayout";
 
 // 페이지 컴포넌트들 ...
 import NotFoundPage from "./pages/common/NotFoundPage";
 import SplashPage from "./pages/common/SplashPage";
-// import MainPage from "./pages/MainPage";
+import MainPage from "./pages/MainPage";
 
 // 📄 소셜 로그인 관련 컴포넌트
-import SocialLogin from "./components/auth/SocialLogin";
+import SocialLoginPage from "./pages/auth/SocialLoginPage";
 import OauthRedirect from "./pages/auth/OauthRedirect";
 import SocialCallback from "./pages/auth/SocialCallback";
 // import SocialSignupForm from "./pages/auth/SocialSignupForm";
@@ -20,26 +21,36 @@ import SocialCallback from "./pages/auth/SocialCallback";
 
 
 const router = createBrowserRouter([
-    // ✅ Splash는 독립 페이지로 렌더링
+
+  // ✅ 1️⃣ Splash — 첫 진입
   {
     path: "/",
     element: <SplashPage />,
+    errorElement: <NotFoundPage />,
+    
   },
+
+  // ✅ 2️⃣ 로그인 관련 그룹
   {
-    path: "/",
-    element: <RootLayout />,
+    path: "/login",
+    element: <LoginLayout />,
     errorElement: <NotFoundPage />,
     children: [
+      { index: true, element: <SocialLoginPage /> }, // ✅ 처음엔 SplashPage
       // { index: true, element: <SplashPage /> }, // ✅ 처음엔 SplashPage
-      // 소셜 로그인
-      { path: "login", element: <SocialLogin /> },
-      { path: "/oauth-redirect", element: <OauthRedirect /> },
-      // { path: "/social-signup", element: <SocialSignupForm /> },
-      // { path: "/social-signup/details", element: <SocialSignupDetailPage /> },
-      { path: "/oauth/callback", element: <SocialCallback /> },
+      { path: "oauth-redirect", element: <OauthRedirect /> },
+      { path: "oauth/callback", element: <SocialCallback /> },
+      { path: "oauth2/code/:provider", element: <SocialCallback /> },
+    ],
+  },
 
-      // Spring Boot OAuth2 기본 콜백 경로 추가
-      { path: "/login/oauth2/code/:provider", element: <SocialCallback /> },
+    // ✅ 3️⃣ 앱 내부 (로그인 후)
+  {
+    path: "/",
+    element:  <RootLayout />,
+    errorElement: <NotFoundPage />,
+    children: [
+      { path: "/main", element: <MainPage /> },
 
     ],
   },
