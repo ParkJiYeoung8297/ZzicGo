@@ -1,6 +1,7 @@
 import "./index.css";
 // import { useEffect, useState } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import InstallPromptBanner from "./components/InstallPromptBanner";
 
 
 import RootLayout from "./layouts/RootLayout";
@@ -45,7 +46,12 @@ const router = createBrowserRouter([
 ]);
 
 export default function App() {
-  return <RouterProvider router={router} />;
+  return <>
+    <RouterProvider router={router} />
+    <InstallPromptBanner /> {/* ✅ 앱 전체에서 배너 감시 */}
+  
+  </>
+  
 }
 
 
