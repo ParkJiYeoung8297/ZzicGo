@@ -1,5 +1,5 @@
 import "./index.css";
-import { useEffect, useState } from "react";
+// import { useEffect, useState } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 
@@ -8,7 +8,7 @@ import RootLayout from "./layouts/RootLayout";
 // 페이지 컴포넌트들 ...
 import NotFoundPage from "./pages/common/NotFoundPage";
 import SplashPage from "./pages/common/SplashPage";
-import MainPage from "./pages/MainPage";
+// import MainPage from "./pages/MainPage";
 
 // 📄 소셜 로그인 관련 컴포넌트
 import SocialLogin from "./components/auth/SocialLogin";
