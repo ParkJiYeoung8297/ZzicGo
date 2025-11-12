@@ -9,8 +9,9 @@ export default function SplashPage() {
     return () => clearTimeout(timer);
   }, [navigate]);
 
+
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-white overflow-hidden">
+    <div className="fixed inset-0 flex items-center justify-center bg-white overflow-hidden ">
        <div className="w-[70vw] h-[70vh] flex items-center justify-center">
         <video
           src="/splash.mp4"
@@ -18,12 +19,9 @@ export default function SplashPage() {
           muted
           playsInline
           preload="auto"
-          className="max-w-[80vw] max-h-[80vh] object-contain"
+          className="max-w-sm w-[70vw] max-h-[80vh] object-contain"
         />
-
-
       </div>
-
     </div>
   );
 }
