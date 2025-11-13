@@ -1,5 +1,8 @@
 package com.ZzicGo.controller;
 
+import com.ZzicGo.global.CustomException;
+import com.ZzicGo.global.CustomResponse;
+import com.ZzicGo.global.GeneralErrorCode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -18,7 +21,9 @@ public class TestController {
             @ApiResponse(responseCode = "200", description = "테스트 성공")
     })
     @GetMapping("/test")
-    public String test() {
-        return "Hello from Spring Boot 👋";
+    public CustomResponse<String> test() {
+        String response = "Hello from Spring Boot 👋";
+//        throw new CustomException(GeneralErrorCode.INTERNAL_SERVER_ERROR_500);
+        return CustomResponse.ok(response);
     }
 }
