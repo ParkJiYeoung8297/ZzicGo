@@ -1,8 +1,8 @@
 package com.ZzicGo.domain.challenge;
 
+import com.ZzicGo.domain.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 @Entity
 @Table(name = "challenge")
-public class Challenge {
+public class Challenge  extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,10 +26,5 @@ public class Challenge {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ChallengeStatus status; // ACTIVATE, STOP
-
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
-
-    private LocalDateTime updatedAt;
 }
 

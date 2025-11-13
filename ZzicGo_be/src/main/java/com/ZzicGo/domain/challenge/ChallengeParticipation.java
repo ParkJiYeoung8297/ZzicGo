@@ -1,9 +1,9 @@
 package com.ZzicGo.domain.challenge;
 
+import com.ZzicGo.domain.common.BaseEntity;
 import com.ZzicGo.domain.user.User;
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
                 )
         }
 )
-public class ChallengeParticipation {
+public class ChallengeParticipation extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,19 +39,12 @@ public class ChallengeParticipation {
     @Column(nullable = false)
     private ParticipationStatus status; // activate, deactivate
 
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
-
-    private LocalDateTime updatedAt;
-
     public void leave() {
         this.status = ParticipationStatus.LEFT;
-        this.updatedAt = LocalDateTime.now();
     }
 
     public void reJoin() {
         this.status = ParticipationStatus.JOINED;
-        this.updatedAt = LocalDateTime.now();
     }
 }
 
