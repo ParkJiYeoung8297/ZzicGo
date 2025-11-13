@@ -1,5 +1,6 @@
 package com.ZzicGo.domain.user;
 
+import com.ZzicGo.domain.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 @Builder
 @Entity
 @Table(name = "user")
-public class User {
+public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,9 +52,9 @@ public class User {
 
     private LocalDateTime lastLoginAt;
 
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
+    public void updateLastLogin() {
+        this.lastLoginAt = LocalDateTime.now();
+    }
 
-    private LocalDateTime updatedAt;
 }
 

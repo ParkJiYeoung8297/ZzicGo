@@ -23,3 +23,21 @@ spring:
 logging:
   level:
     root: INFO
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-expire-ms: 3600000        # 1시간
+  refresh-expire-ms: 1209600000    # 14일
+
+
+naver:
+  client-id: ${NAVER_CLIENT_ID}
+  client-secret: ${NAVER_CLIENT_SECRET}
+  redirect-uri: https://zzicgo.com/login/oauth2/code/naver
+  authorization-grant-type: authorization_code
+  scope:
+    - name
+    - email
+    - gender
+    - birthday
+  client-name: Naver
