@@ -57,8 +57,8 @@ public class NaverAuthService {
         }
 
         // 4) JWT 발급
-        String accessToken = jwtProvider.createAccessToken(user.getId(), user.getRole().name());
-        String refreshToken = jwtProvider.createRefreshToken(user.getId(), user.getRole().name());
+        String accessToken = jwtProvider.createAccessToken(user.getId(), user.getProviderId() , user.getRole().name());
+        String refreshToken = jwtProvider.createRefreshToken(user.getId(), user.getProviderId(), user.getRole().name());
 
         return new AuthResponseDto.LoginResponse(accessToken, refreshToken, isNew);
     }
