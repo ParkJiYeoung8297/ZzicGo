@@ -24,7 +24,7 @@ public class SecurityConfig {
     private static final String[] PERMIT_ALL_URL_ARRAY = {
 //            "/api/z1/**",  // 이건 api 개발 이후에 구체적인 api 주소로 변경하기
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**", "/swagger-ui.html",
-            "/api/z1/auth/**","/error"
+            "/api/z1/auth/**", "/api/z1/auth/naver", "/error"
     };
 
     @Value("${cors.allowed-origin}")
