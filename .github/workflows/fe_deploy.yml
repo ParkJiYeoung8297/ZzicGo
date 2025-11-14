@@ -22,23 +22,23 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 18.19.1
+          node-version: 20.19.0   # Node 버전도 Fix
 
-      # 3. 🔥 GitHub Secrets로 .env.production 생성
-    - name: Create .env
-      run: |
-        cd ZzicGo_fe
+      # 3. 🔥 GitHub Secrets로 .env 생성
+      - name: Create .env
+        run: |
+          cd ZzicGo_fe
 
-        # 기존 파일 삭제 (있어도 없어도 OK)
-        rm -f .env
+          # 기존 파일 삭제
+          rm -f .env
 
-        # 새로 생성
-        echo "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}" >> .env
-        echo "VITE_NAVER_CLIENT_ID=${{ secrets.VITE_NAVER_CLIENT_ID }}" >> .env
-        echo "VITE_NAVER_REDIRECT_URI=${{ secrets.VITE_NAVER_REDIRECT_URI }}" >> .env
+          # 새로 생성
+          echo "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}" >> .env
+          echo "VITE_NAVER_CLIENT_ID=${{ secrets.VITE_NAVER_CLIENT_ID }}" >> .env
+          echo "VITE_NAVER_REDIRECT_URI=${{ secrets.VITE_NAVER_REDIRECT_URI }}" >> .env
 
-        echo "✅ .env created:"
-        cat .env
+          echo "✅ .env created:"
+          cat .env
 
       # 4. 의존성 설치 + 빌드
       - name: Install dependencies & Build
