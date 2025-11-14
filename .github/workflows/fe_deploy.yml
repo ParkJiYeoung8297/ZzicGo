@@ -54,8 +54,9 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "ZzicGo_fe/dist/*"
-          target: "/home/ubuntu/frontend/dist"
+          source: "ZzicGo_fe/dist"
+          target: "/home/ubuntu/frontend"
+
 
       # 6. Nginx 재시작
       - name: Restart Nginx
