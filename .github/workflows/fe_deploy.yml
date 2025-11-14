@@ -1,3 +1,4 @@
+# .github/workflows/fe_deploy.yml
 name: Deploy Vite React App to EC2
 
 on:
@@ -6,41 +7,51 @@ on:
       - develop
     paths:
       - "ZzicGo_fe/**"
-  workflow_dispatch:  # 👈 수동 실행 허용
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # ✅ 1. 리포지토리 체크아웃
+      # 1. Checkout
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ✅ 2. Node 설치
+      # 2. Node 설치
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: 18.19.1
 
-      # ✅ 3. 의존성 설치 및 빌드
+      # 3. 🔥 GitHub Secrets로 .env.production 생성
+      - name: Create .env.production
+        run: |
+          cd ZzicGo_fe
+          echo "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}" >> .env.production
+          echo "VITE_NAVER_CLIENT_ID=${{ secrets.VITE_NAVER_CLIENT_ID }}" >> .env.production
+          echo "VITE_NAVER_REDIRECT_URI=${{ secrets.VITE_NAVER_REDIRECT_URI }}" >> .env.production
+          echo "✅ .env.production created:"
+          cat .env.production
+
+      # 4. 의존성 설치 + 빌드
       - name: Install dependencies & Build
         run: |
           cd ZzicGo_fe
           npm ci
-          npm run build
+          npm run build --mode production
 
-      # ✅ 4. EC2로 dist 업로드
+      # 5. EC2로 dist 업로드
       - name: Upload dist to EC2
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "ZzicGo_fe/dist"
-          target: "/home/ubuntu/frontend"
+          source: "ZzicGo_fe/dist/*"
+          target: "/home/ubuntu/frontend/dist"
 
-      # ✅ 5. Nginx 재시작
+      # 6. Nginx 재시작
       - name: Restart Nginx
         run: |
           echo "${{ secrets.EC2_SSH_KEY }}" | tr -d '\r' > private_key.pem

@@ -9,7 +9,7 @@ export default function MainPage() {
       <header className="flex items-center justify-between mb-4">
         <IoIosNotificationsOutline className="text-3xl text-gray-800" />
         <img
-          src="/src/assets/profile_cheetah.png"
+          src="profile_cheetah.png"
           alt="profile"
           className="w-10 h-10 rounded-full border border-gray-200"
         />
