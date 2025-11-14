@@ -9,6 +9,7 @@ import LoginLayout from "./layouts/LoginLayout";
 // 페이지 컴포넌트들 ...
 import NotFoundPage from "./pages/common/NotFoundPage";
 import SplashPage from "./pages/common/SplashPage";
+import NewUserWelcomePage from "./pages/common/NewUserWelcomePage";
 import MainPage from "./pages/MainPage";
 
 // 📄 소셜 로그인 관련 컴포넌트
@@ -36,6 +37,8 @@ const router = createBrowserRouter([
       { path: "naver/callback", element: <NaverCallbackPage /> },
     ],
   },
+
+  { path: "/welcome", element: <NewUserWelcomePage />, errorElement: <NotFoundPage />, },
 
     // ✅ 3️⃣ 앱 내부 (로그인 후)
   {
