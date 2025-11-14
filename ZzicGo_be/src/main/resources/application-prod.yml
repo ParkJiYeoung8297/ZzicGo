@@ -16,7 +16,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create # 맨 처음만 create하고, 이후는 none으로 변경
+      ddl-auto: none # 맨 처음만 create하고, 이후는 none으로 변경
     open-in-view: false
     defer-datasource-initialization: true
 
