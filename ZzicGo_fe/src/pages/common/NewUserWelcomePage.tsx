@@ -6,7 +6,7 @@ export default function NewUserWelcomePage() {
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-white px-6">
       <img
-        src="/src/assets/cheetah_camera.png"
+        src="cheetah_camera.png"
         alt="welcome"
         className="w-48 h-48 mb-8"
       />
