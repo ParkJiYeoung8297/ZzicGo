@@ -1,0 +1,18 @@
+package com.ZzicGo.exception;
+
+import com.ZzicGo.global.BaseCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+
+@Getter
+@RequiredArgsConstructor
+public enum UserException implements BaseCode {
+    NOT_EXIST_USER("USER_404","존재하지 않는 사용자입니다.",HttpStatus.NOT_FOUND),
+    NO_PERMISSION("USER403", "권한이 없습니다.", HttpStatus.FORBIDDEN);
+
+    private final String code;
+    private final String message;
+    private final HttpStatus httpStatus;
+
+}
