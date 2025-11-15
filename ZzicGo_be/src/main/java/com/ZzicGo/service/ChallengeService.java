@@ -14,12 +14,14 @@ import com.ZzicGo.repository.ChallengeRepository;
 import com.ZzicGo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ChallengeService {
 
     private final ChallengeRepository challengeRepository;
@@ -33,6 +35,22 @@ public class ChallengeService {
                         c.getId(),
                         c.getName(),
                         c.getDescription()
+                ))
+                .toList();
+    }
+
+    public List<ChallengeResponseDto.MyChallenge> getMyActiveChallenges(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(UserException.NOT_EXIST_USER));
+
+        List<ChallengeParticipation> myChallenges = challengeParticipationRepository
+                .findAllByUserAndStatus(user, ParticipationStatus.JOINED);
+
+        return myChallenges.stream()
+                .map(cp -> new ChallengeResponseDto.MyChallenge(
+                        cp.getId(),
+                        cp.getChallenge().getId(),
+                        cp.getChallenge().getName()
                 ))
                 .toList();
     }
@@ -71,18 +89,19 @@ public class ChallengeService {
         return "챌린지 참여 성공";
     }
 
-    public List<ChallengeResponseDto.MyChallenge> getMyActiveChallenges(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(UserException.NOT_EXIST_USER));
+    public String leaveChallenge(Long participationId, Long userId) {
+        ChallengeParticipation cp = challengeParticipationRepository.findById(participationId)
+                .orElseThrow(() -> new CustomException(ChallenegeException.PARTICIPATION_NOT_FOUND));
 
-        List<ChallengeParticipation> myChallenges = challengeParticipationRepository.findAllByUserAndStatus(user, ParticipationStatus.JOINED);
+        if (!cp.getUser().getId().equals(userId)) {
+            throw new CustomException(UserException.NO_PERMISSION);
+        }
 
-        return myChallenges.stream()
-                .map(cp -> new ChallengeResponseDto.MyChallenge(
-                        cp.getId(),
-                        cp.getChallenge().getId(),
-                        cp.getChallenge().getName()
-                ))
-                .toList();
+        if (cp.getStatus() == ParticipationStatus.LEFT) {
+            throw new CustomException(ChallenegeException.PARTICIPATION_ALREADY_LEFT);
+        }
+        cp.leave();
+
+        return "챌린지 탈퇴 성공";
     }
 }

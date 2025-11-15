@@ -6,6 +6,7 @@ import com.ZzicGo.dto.ChallengeResponseDto;
 import com.ZzicGo.global.CustomResponse;
 import com.ZzicGo.service.ChallengeService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -40,6 +41,20 @@ public class ChallengeController {
         List<ChallengeResponseDto.Challenge> result = challengeService.getAllActiveChallenges();
         return CustomResponse.ok(result);
     }
+    @Operation(summary = "나의 챌린지 조회", description = "현재 로그인한 사용자가 참여 중인 챌린지 목록을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "COMMON200", description = "나의 챌린지 조회 성공",
+                    content = @Content(schema = @Schema(implementation = AuthResponseDto.LoginResponse.class))),
+            @ApiResponse(responseCode = "USER_404", description = "존재하지 않는 사용자입니다.", content = @Content),
+    })
+    @GetMapping("/me")
+    public CustomResponse<List<ChallengeResponseDto.MyChallenge>> getMyChallenges(
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        Long userId = user.getUserId();
+        List<ChallengeResponseDto.MyChallenge> result = challengeService.getMyActiveChallenges(userId);
+        return CustomResponse.ok(result);
+    }
 
     @Operation(summary = "챌린지 참여 API", description = "특정 챌린지에 사용자가 참여합니다.")
     @ApiResponses({
@@ -51,6 +66,7 @@ public class ChallengeController {
     })
     @PostMapping("/{challengeId}/me")
     public CustomResponse joinChallenge(
+            @Parameter(description = "챌린지 ID", example = "1")
             @PathVariable Long challengeId,
             @AuthenticationPrincipal CustomUserDetails user
             ){
@@ -60,15 +76,26 @@ public class ChallengeController {
 
     }
 
-    @Operation(summary = "나의 챌린지 조회", description = "현재 로그인한 사용자가 참여 중인 챌린지 목록을 조회합니다.")
-    @GetMapping("/me")
-    public CustomResponse<List<ChallengeResponseDto.MyChallenge>> getMyChallenges(
+    @Operation(summary = "챌린지 탈퇴", description = "현재 로그인한 사용자가 챌린지 참여를 종료합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "COMMON200", description = "챌린지 탈퇴 성공",
+                    content = @Content(schema = @Schema(implementation = AuthResponseDto.LoginResponse.class))),
+            @ApiResponse(responseCode = "USER403", description = "권한이 없습니다.", content = @Content),
+            @ApiResponse(responseCode = "PARTICIPATION404", description = "유저의 챌린지 참여 정보가 없습니다.", content = @Content),
+            @ApiResponse(responseCode = "PARTICIPATION400", description = "이미 참여 중인 챌린지입니다.", content = @Content),
+    })
+    @PostMapping("/participations/{participationId}/me")
+    public CustomResponse leaveChallenge(
+            @Parameter(description = "챌린지 참여 ID", example = "1")
+            @PathVariable Long participationId,
             @AuthenticationPrincipal CustomUserDetails user
     ) {
         Long userId = user.getUserId();
-        List<ChallengeResponseDto.MyChallenge> result = challengeService.getMyActiveChallenges(userId);
-        return CustomResponse.ok(result);
+        String msg = challengeService.leaveChallenge(participationId, userId);
+        return CustomResponse.ok(msg);
     }
+
+
 
 
 
