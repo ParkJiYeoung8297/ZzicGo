@@ -42,7 +42,7 @@ const router = createBrowserRouter([
 
     // ✅ 3️⃣ 앱 내부 (로그인 후)
   {
-    path: "/main",
+    path: "/",
     element:  <RootLayout />,
     errorElement: <NotFoundPage />,
     children: [
