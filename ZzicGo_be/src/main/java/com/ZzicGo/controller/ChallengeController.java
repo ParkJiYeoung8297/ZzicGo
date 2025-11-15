@@ -36,8 +36,8 @@ public class ChallengeController {
             @ApiResponse(responseCode = "CHALLENGE404", description = "존재하지 않는 챌린지입니다.", content = @Content),
     })
     @GetMapping("/")
-    public CustomResponse<List<ChallengeResponseDto.Challenges>> getChallenges(){
-        List<ChallengeResponseDto.Challenges> result = challengeService.getAllActiveChallenges();
+    public CustomResponse<List<ChallengeResponseDto.Challenge>> getChallenges(){
+        List<ChallengeResponseDto.Challenge> result = challengeService.getAllActiveChallenges();
         return CustomResponse.ok(result);
     }
 
@@ -49,7 +49,7 @@ public class ChallengeController {
             @ApiResponse(responseCode = "CHALLENGE404", description = "존재하지 않는 챌린지입니다.", content = @Content),
             @ApiResponse(responseCode = "PARTICIPATION400", description = "이미 참여 중인 챌린지입니다.", content = @Content),
     })
-    @PostMapping("/{challengeId}")
+    @PostMapping("/{challengeId}/me")
     public CustomResponse joinChallenge(
             @PathVariable Long challengeId,
             @AuthenticationPrincipal CustomUserDetails user
@@ -59,6 +59,17 @@ public class ChallengeController {
         return CustomResponse.ok(result);
 
     }
+
+    @Operation(summary = "나의 챌린지 조회", description = "현재 로그인한 사용자가 참여 중인 챌린지 목록을 조회합니다.")
+    @GetMapping("/me")
+    public CustomResponse<List<ChallengeResponseDto.MyChallenge>> getMyChallenges(
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        Long userId = user.getUserId();
+        List<ChallengeResponseDto.MyChallenge> result = challengeService.getMyActiveChallenges(userId);
+        return CustomResponse.ok(result);
+    }
+
 
 
 }

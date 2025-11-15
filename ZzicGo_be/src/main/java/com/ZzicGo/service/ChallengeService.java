@@ -26,10 +26,10 @@ public class ChallengeService {
     private final UserRepository userRepository;
     private final ChallengeParticipationRepository challengeParticipationRepository;
 
-    public List<ChallengeResponseDto.Challenges> getAllActiveChallenges() {
+    public List<ChallengeResponseDto.Challenge> getAllActiveChallenges() {
         List<Challenge> list = challengeRepository.findAllByStatus(ChallengeStatus.ACTIVATE);
         return list.stream()
-                .map( c-> new ChallengeResponseDto.Challenges(
+                .map( c-> new ChallengeResponseDto.Challenge(
                         c.getId(),
                         c.getName(),
                         c.getDescription()
@@ -69,6 +69,20 @@ public class ChallengeService {
 
         challengeParticipationRepository.save(newParticipation);
         return "챌린지 참여 성공";
+    }
 
+    public List<ChallengeResponseDto.MyChallenge> getMyActiveChallenges(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(UserException.NOT_EXIST_USER));
+
+        List<ChallengeParticipation> myChallenges = challengeParticipationRepository.findAllByUserAndStatus(user, ParticipationStatus.JOINED);
+
+        return myChallenges.stream()
+                .map(cp -> new ChallengeResponseDto.MyChallenge(
+                        cp.getId(),
+                        cp.getChallenge().getId(),
+                        cp.getChallenge().getName()
+                ))
+                .toList();
     }
 }

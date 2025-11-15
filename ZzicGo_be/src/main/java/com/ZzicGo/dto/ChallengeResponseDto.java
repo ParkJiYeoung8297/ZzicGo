@@ -9,9 +9,17 @@ public class ChallengeResponseDto {
 
     @Getter
     @AllArgsConstructor
-    public static class Challenges {
+    public static class Challenge {
         private Long challengeId;
         private String name;
         private String description;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class MyChallenge{
+        private Long participationId;
+        private Long challengeId;
+        private String name;
     }
 }
