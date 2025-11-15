@@ -27,7 +27,7 @@ public class HistoryService {
     public Long createHistory(Long participationId, HistoryRequestDto.CreateHistoryRequest request, Long loginUserId) {
 
         ChallengeParticipation participation = participationRepository.findById(participationId)
-                .orElseThrow(() -> new CustomException(ChallenegeException.CHALLENGE_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ChallenegeException.PARTICIPATION_NOT_FOUND));
 
         // 🔥 참여 주인인지 검증
         if (!participation.getUser().getId().equals(loginUserId)) {

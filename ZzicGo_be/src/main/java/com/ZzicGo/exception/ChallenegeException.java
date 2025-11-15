@@ -16,7 +16,7 @@ public enum ChallenegeException implements BaseCode {
     // 참여 관련
     PARTICIPATION_NOT_FOUND("PARTICIPATION404", "유저의 챌린지 참여 정보가 없습니다.", HttpStatus.NOT_FOUND),
     PARTICIPATION_FORBIDDEN("PARTICIPATION403", "본인의 참여가 아니므로 접근할 수 없습니다.", HttpStatus.FORBIDDEN),
-    PARTICIPATION_ALREADY_JOINED("PARTICIPATION400", "이미 참여 중인 챌린지입니다.",HttpStatus.BAD_REQUEST),;
+    PARTICIPATION_ALREADY_JOINED("PARTICIPATION400", "이미 참여 중인 챌린지입니다.",HttpStatus.BAD_REQUEST);
 
     private final String code;
     private final String message;

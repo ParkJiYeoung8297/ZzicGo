@@ -1,10 +1,15 @@
 package com.ZzicGo.controller;
 
 import com.ZzicGo.config.jwt.CustomUserDetails;
+import com.ZzicGo.dto.AuthResponseDto;
 import com.ZzicGo.dto.ChallengeResponseDto;
 import com.ZzicGo.global.CustomResponse;
 import com.ZzicGo.service.ChallengeService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,6 +29,12 @@ public class ChallengeController {
             summary = "전체 챌린지 목록 조회",
             description = "활성화된 챌린지들의 이름과 설명을 조회합니다."
     )
+    @ApiResponses({
+            @ApiResponse(responseCode = "COMMON200", description = "챌린지 목록 조회 성공",
+                    content = @Content(schema = @Schema(implementation = AuthResponseDto.LoginResponse.class))),
+            @ApiResponse(responseCode = "USER_404", description = "존재하지 않는 사용자입니다.", content = @Content),
+            @ApiResponse(responseCode = "CHALLENGE404", description = "존재하지 않는 챌린지입니다.", content = @Content),
+    })
     @GetMapping("/")
     public CustomResponse<List<ChallengeResponseDto.Challenges>> getChallenges(){
         List<ChallengeResponseDto.Challenges> result = challengeService.getAllActiveChallenges();
@@ -31,6 +42,13 @@ public class ChallengeController {
     }
 
     @Operation(summary = "챌린지 참여 API", description = "특정 챌린지에 사용자가 참여합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "COMMON200", description = "챌린지 참여 성공",
+                    content = @Content(schema = @Schema(implementation = AuthResponseDto.LoginResponse.class))),
+            @ApiResponse(responseCode = "USER_404", description = "존재하지 않는 사용자입니다.", content = @Content),
+            @ApiResponse(responseCode = "CHALLENGE404", description = "존재하지 않는 챌린지입니다.", content = @Content),
+            @ApiResponse(responseCode = "PARTICIPATION400", description = "이미 참여 중인 챌린지입니다.", content = @Content),
+    })
     @PostMapping("/{challengeId}")
     public CustomResponse joinChallenge(
             @PathVariable Long challengeId,
