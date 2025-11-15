@@ -11,10 +11,11 @@ export default defineConfig({
           manifest: {
             name: "ZzicGo",
             short_name: "ZzicGo",
-            start_url: ".",
+            start_url: "/",
+            scope: "/",
             display: "standalone",
-            background_color: "#000000",
-            theme_color: "#000000",
+            background_color: "#ffffffff",
+            theme_color: "#ffffffff",
             icons: [
               {
                 src: "/icon-192.png",
