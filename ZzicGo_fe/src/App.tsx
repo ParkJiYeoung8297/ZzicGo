@@ -23,15 +23,12 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <SplashPage />,
-    errorElement: <NotFoundPage />,
-    
   },
 
   // ✅ 2️⃣ 로그인 관련 그룹
   {
     path: "/login",
     element: <LoginLayout />,
-    errorElement: <NotFoundPage />,
     children: [
       { index: true, element: <SocialLoginPage /> }, // ✅ 처음엔 SplashPage
       { path: "naver/callback", element: <NaverCallbackPage /> },
@@ -42,14 +39,15 @@ const router = createBrowserRouter([
 
     // ✅ 3️⃣ 앱 내부 (로그인 후)
   {
-    path: "/",
-    element:  <RootLayout />,
-    errorElement: <NotFoundPage />,
+    path: "/main",
+    element: <RootLayout />,
     children: [
-      { path: "/main", element: <MainPage /> },
-
+      { index: true, element: <MainPage /> }, 
     ],
   },
+
+  // 4️⃣ NotFound
+  { path: "*", element: <NotFoundPage /> },
 ]);
 
 export default function App() {
