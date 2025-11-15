@@ -5,6 +5,7 @@ import com.ZzicGo.domain.history.History;
 import com.ZzicGo.domain.history.ImageUrl;
 import com.ZzicGo.dto.HistoryRequestDto;
 import com.ZzicGo.exception.ChallenegeException;
+import com.ZzicGo.exception.HistoryException;
 import com.ZzicGo.global.CustomException;
 import com.ZzicGo.repository.ChallengeParticipationRepository;
 import com.ZzicGo.repository.HistoryRepository;
@@ -42,13 +43,13 @@ public class HistoryService {
         );
 
         if (existsToday) {
-            throw new CustomException(ChallenegeException.HISTORY_ALREADY_TODAY);
+            throw new CustomException(HistoryException.HISTORY_ALREADY_TODAY);
         }
 
         // 🔥 사진 개수 검증 (max 3)
         List<String> urls = request.getImageUrls();
         if (urls != null && urls.size() > 3) {
-            throw new CustomException(ChallenegeException.HISTORY_IMAGE_LIMIT);
+            throw new CustomException(HistoryException.HISTORY_IMAGE_LIMIT);
         }
 
         // 📌 History 생성
