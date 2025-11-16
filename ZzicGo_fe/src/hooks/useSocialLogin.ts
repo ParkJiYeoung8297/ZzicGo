@@ -7,7 +7,6 @@ export function useSocialLogin() {
         const redirectUri = import.meta.env.VITE_NAVER_REDIRECT_URI;
         const state = Math.random().toString(36).substring(2, 15);
         const naverUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${clientId}&state=${state}&redirect_uri=${encodeURIComponent(redirectUri)}`;
-        console.log("redirectUri: ", import.meta.env.VITE_NAVER_REDIRECT_URI);
         window.location.href = naverUrl;
         break;
 

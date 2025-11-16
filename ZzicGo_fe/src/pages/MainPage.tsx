@@ -1,7 +1,10 @@
 import { IoIosNotificationsOutline } from "react-icons/io";
 import Calendar from "../components/Calendar";
+import { useNavigate } from "react-router-dom";
+import { PATH } from "../constants/paths";
 
 export default function MainPage() {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-white px-5 pt-5 pb-16">
       
@@ -27,7 +30,10 @@ export default function MainPage() {
       </div>
 
       <div className="mt-12 text-center">
-        <button className="text-gray-700 text-lg font-semibold underline">
+        <button
+          className="text-gray-700 text-lg font-semibold underline"
+          onClick={() => navigate(PATH.Z1_CHALLENGES)}
+        >
           + 챌린지 추가
         </button>
       </div>

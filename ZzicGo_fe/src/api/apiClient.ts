@@ -13,7 +13,16 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem("accessToken");
 
-  if (token) {
+  // JWT를 제외하고 싶은 경로
+  const publicPaths = [
+    "/api/z1/challenges/",
+  ];
+
+  const isPublic = publicPaths.some(path =>
+    config.url?.startsWith(path)
+  );
+
+  if (!isPublic && token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
 

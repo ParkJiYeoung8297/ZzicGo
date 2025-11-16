@@ -2,6 +2,8 @@ import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import InstallPromptBanner from "./components/InstallPromptBanner";
 
+// 경로 상수화
+import { PATH } from "./constants/paths";
 
 import RootLayout from "./layouts/RootLayout";
 import LoginLayout from "./layouts/LoginLayout";
@@ -10,7 +12,9 @@ import LoginLayout from "./layouts/LoginLayout";
 import NotFoundPage from "./pages/common/NotFoundPage";
 import SplashPage from "./pages/common/SplashPage";
 import NewUserWelcomePage from "./pages/common/NewUserWelcomePage";
+
 import MainPage from "./pages/MainPage";
+import FindChallengesPage from "./pages/FindChallengesPage";
 
 // 📄 소셜 로그인 관련 컴포넌트
 import SocialLoginPage from "./pages/auth/SocialLoginPage";
@@ -21,28 +25,30 @@ const router = createBrowserRouter([
 
   // ✅ 1️⃣ Splash — 첫 진입
   {
-    path: "/",
+    path: PATH.SPLASH,
     element: <SplashPage />,
   },
 
   // ✅ 2️⃣ 로그인 관련 그룹
   {
-    path: "/login",
+    path: PATH.LOGIN,
     element: <LoginLayout />,
     children: [
-      { index: true, element: <SocialLoginPage /> }, // ✅ 처음엔 SplashPage
-      { path: "naver/callback", element: <NaverCallbackPage /> },
+      { index: true, element: <SocialLoginPage /> }, 
+      { path: PATH.NAVER_CALLBACK, element: <NaverCallbackPage /> },
     ],
   },
 
-  { path: "/welcome", element: <NewUserWelcomePage />, errorElement: <NotFoundPage />, },
+  { path: PATH.WELCOME, element: <NewUserWelcomePage />, errorElement: <NotFoundPage />, },
 
     // ✅ 3️⃣ 앱 내부 (로그인 후)
   {
-    path: "/main",
+    path: PATH.Z1_ROOT,
     element: <RootLayout />,
     children: [
       { index: true, element: <MainPage /> }, 
+      { path: PATH.Z1_CHALLENGES, element: < FindChallengesPage/> },
+
     ],
   },
 

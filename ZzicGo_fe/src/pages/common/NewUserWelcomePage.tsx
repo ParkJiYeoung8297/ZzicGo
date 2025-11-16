@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { PATH } from "../../constants/paths";
 
 export default function NewUserWelcomePage() {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ export default function NewUserWelcomePage() {
       </p>
 
       <button
-        onClick={() => navigate("/main")}
+        onClick={() => navigate(PATH.Z1_MAIN)}
         className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold 
                    px-10 py-3 rounded-xl shadow-md active:scale-95 transition"
       >
