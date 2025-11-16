@@ -1,6 +1,3 @@
-import { AiOutlineHeart } from "react-icons/ai";
-import type { Challenge } from "../../hooks/useChallenges";
-
 interface Props {
   challengeId: number;
   name: string;
