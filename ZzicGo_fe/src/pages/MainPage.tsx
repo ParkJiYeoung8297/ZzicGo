@@ -7,10 +7,13 @@ import GenericModal from "../components/GeneralModal";
 import ChallengeLeaveContent from "../components/challenge/ChallengeLeaveContent";
 import { useState } from "react";
 import apiClient from "../api/apiClient";
+import BottomSheetModal from "../components/GeneralBottomSheetModal";
+import CameraSelectSheet from "../components/challenge/CameraSelectSheet";
 
 export default function MainPage() {
   const navigate = useNavigate();
   const { myChallenges, loading } = useMyChallenges();
+  const [cameraSheetOpen, setCameraSheetOpen] = useState(false);
 
   // 🔥 모달 상태
   const [openModal, setOpenModal] = useState(false);
@@ -76,6 +79,24 @@ export default function MainPage() {
         />
       </GenericModal>
 
+      {/* 카메라 모달창 */}
+      <BottomSheetModal
+        open={cameraSheetOpen}
+        onClose={() => setCameraSheetOpen(false)}
+      >
+        <CameraSelectSheet
+          onCamera={() => {
+            setCameraSheetOpen(false);
+            alert("카메라 촬영하기 실행");
+          }}
+          onGallery={() => {
+            setCameraSheetOpen(false);
+            alert("앨범에서 선택 실행");
+          }}
+        />
+      </BottomSheetModal>
+
+
       {/* 로딩 */}
       {loading && (
         <div className="mt-10 text-center text-gray-400">불러오는 중...</div>
@@ -87,15 +108,35 @@ export default function MainPage() {
           {myChallenges.map((c) => (
             <div
               key={c.participationId}
-              className="bg-yellow-300 rounded-xl px-4 py-3 text-gray-900 shadow flex items-center justify-between cursor-pointer"
-              onClick={() => handleSelectChallenge(c)} // 🔥 클릭 시 팝업
+              className="bg-white rounded-xl px-4 py-3 shadow border flex items-center justify-between cursor-pointer"
+              onClick={() => handleSelectChallenge(c)}   // 🔥 챌린지 클릭 → 탈퇴 팝업
             >
-              <span className="font-semibold">{c.name}</span>
-              <span className="text-sm text-green-700 font-bold">P</span>
+              {/* 왼쪽: 하트 + 이름 */}
+              <div className="flex items-center gap-2">
+                <span className="text-2xl text-yellow-700">♡</span>
+                <span className="font-semibold text-gray-900">{c.name}</span>
+              </div>
+
+              {/* 오른쪽 카메라 버튼 */}
+              <button
+                className="text-2xl"
+                onClick={(e) => {
+                  e.stopPropagation(); // ❗ 탈퇴 팝업 안 뜨도록 방지
+                  setCameraSheetOpen(true);
+                }}
+              >
+                <div>
+                  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#666666">
+                    <path d="M440-440ZM120-120q-33 0-56.5-23.5T40-200v-480q0-33 23.5-56.5T120-760h126l74-80h240v80H355l-73 80H120v480h640v-360h80v360q0 33-23.5 56.5T760-120H120Zm640-560v-80h-80v-80h80v-80h80v80h80v80h-80v80h-80ZM440-260q75 0 127.5-52.5T620-440q0-75-52.5-127.5T440-620q-75 0-127.5 52.5T260-440q0 75 52.5 127.5T440-260Zm0-80q-42 0-71-29t-29-71q0-42 29-71t71-29q42 0 71 29t29 71q0 42-29 71t-71 29Z"/>
+                  </svg>
+                </div>
+
+              </button>
             </div>
           ))}
         </div>
       )}
+
 
       {/* 참여 중인 챌린지가 없을 때 */}
       {!loading && myChallenges.length === 0 && (
