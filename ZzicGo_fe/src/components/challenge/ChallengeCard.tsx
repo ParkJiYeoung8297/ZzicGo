@@ -1,14 +1,21 @@
 import { AiOutlineHeart } from "react-icons/ai";
-import type { Challenge } from "../hooks/userChallenges";
+import type { Challenge } from "../../hooks/useChallenges";
 
-export default function ChallengeCard({ name, description }: Challenge) {
+interface Props {
+  challengeId: number;
+  name: string;
+  description: string;
+  onClick?: () => void;
+}
+
+export default function ChallengeCard({ name, description, onClick }: Props) {
   return (
-    <div className="w-full bg-white rounded-xl p-5 shadow-sm flex justify-between items-center mt-4">
-      <div>
-        <p className="text-lg font-semibold">{name}</p>
-        <p className="text-gray-400 mt-2 text-sm">{description}</p>
-      </div>
-      <AiOutlineHeart size={26} className="text-yellow-800" />
+    <div
+      onClick={onClick}
+      className="bg-white rounded-xl p-4 shadow-sm mb-3 cursor-pointer"
+    >
+      <p className="font-semibold">{name}</p>
+      <p className="text-gray-500 text-sm">{description}</p>
     </div>
   );
 }

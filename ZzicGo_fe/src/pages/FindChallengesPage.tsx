@@ -2,9 +2,56 @@ import FilterBar from "../components/challenge/FilterBar";
 import ChallengeCard from "../components/challenge/ChallengeCard";
 import { useChallenges } from "../hooks/useChallenges";
 import { AiOutlineSearch } from "react-icons/ai";
+import { useState } from "react";
+import apiClient from "../api/apiClient";
+import GenericModal from "../components/GeneralModal";
+import ChallengeJoinContent from "../components/challenge/ChallengeJoinContent";
+import { useNavigate } from "react-router-dom";
+
+
 
 export default function FindChallengesPage() {
+  const navigate = useNavigate();
   const { challenges, loading } = useChallenges();
+
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedChallenge, setSelectedChallenge] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
+
+
+
+  //👇 Challenge 선택 시 팝업 열기
+  const handleSelectChallenge = (id: number, name: string) => {
+    setSelectedChallenge({ id, name });
+    setOpenModal(true);
+  };
+
+  //👇 참여하기 API 요청
+  const handleJoin = async () => {
+    const token = localStorage.getItem("accessToken");
+    console.log(token)
+
+    if (!selectedChallenge) return;
+
+    if (!token) {
+        alert("로그인이 필요합니다.");
+        navigate("/login");
+        return;
+    }
+
+
+    try {
+      await apiClient.post(`/api/z1/challenges/${selectedChallenge.id}/me`);
+      alert("참여가 완료되었습니다!");
+      setOpenModal(false);
+    } catch (err: any) {{
+      console.error(err);
+      alert(err.response?.data?.message || "오류가 발생했습니다.");
+}
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#F5F5F5] pb-10">
@@ -13,6 +60,15 @@ export default function FindChallengesPage() {
         <div className="flex items-center gap-2">
           <p className="text-lg font-bold">챌린지 찾아보기</p>
         </div>
+
+        {/* 모달창 */}
+          <GenericModal open={openModal} onClose={() => setOpenModal(false)}>
+            <ChallengeJoinContent
+                challengeName={selectedChallenge?.name || ""}
+                onClose={() => setOpenModal(false)}
+                onConfirm={handleJoin}
+            />
+        </GenericModal>
 
         <FilterBar />
 
@@ -39,6 +95,7 @@ export default function FindChallengesPage() {
             challengeId={item.challengeId}
             name={item.name}
             description={item.description}
+            onClick={() => handleSelectChallenge(item.challengeId, item.name)}
           />
         ))}
       </div>
