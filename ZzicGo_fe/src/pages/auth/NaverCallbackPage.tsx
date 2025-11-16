@@ -2,6 +2,7 @@
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../../api/apiClient";
+import { PATH } from "../../constants/paths";
 
 export default function NaverCallbackPage() {
   const navigate = useNavigate();
@@ -35,10 +36,10 @@ export default function NaverCallbackPage() {
 
         // 신규 회원이면 환영페이지나, 팝업 띄우기
         if (isNewUser) {
-          // navigate("/welcome");
+          navigate(PATH.WELCOME);
         } 
 
-        navigate("/main");
+        navigate(PATH.Z1_MAIN);
 
       })
       .catch((err) => {
