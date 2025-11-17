@@ -5,6 +5,8 @@ import com.ZzicGo.domain.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -25,27 +27,34 @@ public class TermsAgreement extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 유저
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    // 동의한 약관 (버전에 대한 FK)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "term_id", nullable = false)
     private Terms terms;
 
-    // true = 동의 / false = 비동의 or 철회
     @Column(name = "is_agreed", nullable = false)
     private boolean isAgreed;
 
-    // === 로직 ===
+    @Column(name = "agreed_at", nullable = false)
+    private LocalDateTime agreedAt;
+
     public void agree() {
         this.isAgreed = true;
     }
 
     public void revoke() {
         this.isAgreed = false;
+    }
+
+    public void updateAgreement(boolean isAgreed) {
+        // 기존 isAgreed = false 이고 요청이 true일 때만 업데이트
+        if (!this.isAgreed && isAgreed) {
+            this.isAgreed = true;
+        }
+        // NOTE: false로 바꾸는 건 허용하지 않음
     }
 }
 
