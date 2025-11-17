@@ -79,4 +79,5 @@ jobs:
           script: |
             echo "📦 Received deployment request from GitHub Actions"
             chmod +x ~/deploy.sh
-            sh ~/deploy.sh
+            bash ~/deploy.sh
+
