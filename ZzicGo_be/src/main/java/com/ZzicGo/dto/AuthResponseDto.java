@@ -1,5 +1,7 @@
 package com.ZzicGo.dto;
 
+import java.util.List;
+
 public class AuthResponseDto {
 
     public record NaverTokenResponse(
@@ -20,6 +22,18 @@ public class AuthResponseDto {
                 String gender,
                 String birthday,
                 String birthyear
+        ) {}
+    }
+
+    public record NaverAgreementResponse(
+            String result,
+            String accessToken,
+            List<AgreementInfos> agreementInfos
+    ) {
+        public record AgreementInfos(
+                String termCode,
+                String clientId,
+                String agreeDate
         ) {}
     }
 
