@@ -13,31 +13,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
-
-    // 🔥 JWT 검사가 필요 없는 URL 리스트
-    private static final String[] EXCLUDED_URLS = {
-            "/actuator", "/actuator/",
-            "/actuator/health", "/actuator/info",
-            "/error",
-            "/v3/api-docs", "/v3/api-docs/",
-            "/swagger-ui", "/swagger-ui/",
-            "/swagger-resources"
-    };
-
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getServletPath();
-
-        return Arrays.stream(EXCLUDED_URLS)
-                .anyMatch(path::startsWith);
-    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -77,4 +58,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
+
 }
+
