@@ -3,6 +3,7 @@ package com.ZzicGo.service;
 import com.ZzicGo.domain.terms.Terms;
 import com.ZzicGo.domain.terms.TermsAgreement;
 import com.ZzicGo.domain.user.User;
+import com.ZzicGo.dto.TermsResponseDto;
 import com.ZzicGo.exception.TermsException;
 import com.ZzicGo.exception.UserException;
 import com.ZzicGo.global.CustomException;
@@ -53,5 +54,28 @@ public class TermsAgreementService {
                 .build();
 
         termsAgreementRepository.save(newAgreement);
+    }
+
+    public TermsResponseDto.AgreementStatus getMyAgreementStatus(Long userId, Long termsId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(UserException.NOT_EXIST_USER));
+
+        Terms terms = termsRepository.findById(termsId)
+                .orElseThrow(() -> new CustomException(TermsException.TERMS_NOT_FOUND));
+
+        TermsAgreement agreement = termsAgreementRepository
+                .findByUserAndTerms(user, terms)
+                .orElse(null);
+
+        boolean isAgreed = (agreement != null) && agreement.isAgreed();
+
+        return new TermsResponseDto.AgreementStatus(
+                terms.getId(),
+                terms.getTitle(),
+                terms.getVersion(),
+                terms.isRequired(),
+                isAgreed
+        );
     }
 }
