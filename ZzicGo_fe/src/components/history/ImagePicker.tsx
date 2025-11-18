@@ -17,31 +17,35 @@ export default function ImagePicker({ images, setImages }) {
   };
 
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-4 w-full">
       {images.map((file, index) => (
-        <img
-          key={index}
-          src={URL.createObjectURL(file)}
-          className="w-24 h-24 object-cover rounded"
-        />
-      ))}
-
-      {images.length < 3 && (
         <div
-          className="w-24 h-24 bg-gray-100 rounded flex items-center justify-center cursor-pointer"
-          onClick={() => fileInput.current?.click()}
+          key={index}
+          className="w-1/3 aspect-square rounded overflow-hidden"
         >
-          +
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            hidden
-            ref={fileInput}
-            onChange={handleSelect}
+          <img
+            src={URL.createObjectURL(file)}
+            className="w-full h-full object-cover"
           />
         </div>
-      )}
+      ))}
+
+    {images.length < 3 && (
+      <div
+        className="w-1/3 aspect-square bg-gray-100 rounded flex items-center justify-center cursor-pointer"
+        onClick={() => fileInput.current?.click()}
+      >
+        +
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          hidden
+          ref={fileInput}
+          onChange={handleSelect}
+        />
+      </div>
+    )}
     </div>
   );
 }

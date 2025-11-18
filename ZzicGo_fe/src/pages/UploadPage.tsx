@@ -50,7 +50,7 @@ export default function UploadPage() {
       {/* 전체 컨텐츠 */}
       <div className="flex-1 px-4">
         {/* 📸 이미지 박스 */}
-        <div className="bg-[#FFF8EB] border border-[#EDB043] rounded-2xl p-3">
+        <div className="aspect-[3.5] bg-[#FFF8EB] border border-[#EDB043] rounded-2xl p-3">
           <ImagePicker images={images} setImages={setImages} />
         </div>
 
