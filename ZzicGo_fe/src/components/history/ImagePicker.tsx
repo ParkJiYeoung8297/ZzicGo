@@ -1,6 +1,11 @@
 import { useRef } from "react";
 
-export default function ImagePicker({ images, setImages }) {
+interface ImagePickerProps {
+  images: File[];
+  setImages: React.Dispatch<React.SetStateAction<File[]>>;
+}
+
+export default function ImagePicker({ images, setImages }: ImagePickerProps) {
   const fileInput = useRef<HTMLInputElement>(null);
 
   const handleSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
