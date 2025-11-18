@@ -1,10 +1,15 @@
 import axios from "axios";
 
 export const useUploadPost = () => {
-  const upload = async (participantId: number, images, content, visibility) => {
+    const upload = async (
+    participantId: number,
+    images: File[],          // 타입 추가
+    content: string,         // 타입 추가
+    visibility: "PUBLIC" | "PRIVATE"  // 타입 추가
+  ) => {
     const formData = new FormData();
 
-    images.forEach((img) => {
+    images.forEach((img: File) => {
       formData.append("images", img);
     });
 
