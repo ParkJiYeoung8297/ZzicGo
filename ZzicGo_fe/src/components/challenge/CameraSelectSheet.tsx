@@ -9,7 +9,7 @@ interface Props {
 export default function CameraSelectSheet({ onCamera, onGallery }: Props) {
   return (
     <div>
-      <h2 className="text-xl font-bold mb-4">제품 검색하기</h2>
+      <h2 className="text-xl font-bold mb-4">사진 선택하기</h2>
 
       {/* 카메라로 촬영하기 */}
       <button

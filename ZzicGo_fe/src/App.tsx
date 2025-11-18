@@ -12,6 +12,7 @@ import LoginLayout from "./layouts/LoginLayout";
 import NotFoundPage from "./pages/common/NotFoundPage";
 import SplashPage from "./pages/common/SplashPage";
 import NewUserWelcomePage from "./pages/common/NewUserWelcomePage";
+import UploadPage from "./pages/UploadPage";
 
 import MainPage from "./pages/MainPage";
 import FindChallengesPage from "./pages/FindChallengesPage";
@@ -48,6 +49,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <MainPage /> }, 
       { path: PATH.Z1_CHALLENGES, element: < FindChallengesPage/> },
+      { path: PATH.Z1_UPLOAD, element: < UploadPage/> },
 
     ],
   },

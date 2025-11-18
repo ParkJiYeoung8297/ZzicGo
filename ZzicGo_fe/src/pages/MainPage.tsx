@@ -5,7 +5,7 @@ import { PATH } from "../constants/paths";
 import { useMyChallenges } from "../hooks/useMyChallenges";
 import GenericModal from "../components/GeneralModal";
 import ChallengeLeaveContent from "../components/challenge/ChallengeLeaveContent";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import apiClient from "../api/apiClient";
 import BottomSheetModal from "../components/GeneralBottomSheetModal";
 import CameraSelectSheet from "../components/challenge/CameraSelectSheet";
@@ -52,6 +52,20 @@ export default function MainPage() {
     }
   };
 
+    const cameraInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    navigate("/z1/upload", { state: { image: file } });
+  };
+
+  const openCamera = () => cameraInputRef.current?.click();
+  const openGallery = () => galleryInputRef.current?.click();
+
+
   return (
     <div className="min-h-screen bg-white px-5 pt-5 pb-16">
       {/* 상단 헤더 */}
@@ -79,7 +93,7 @@ export default function MainPage() {
         />
       </GenericModal>
 
-      {/* 카메라 모달창 */}
+      {/* 카메라 선택 BottomSheet */}
       <BottomSheetModal
         open={cameraSheetOpen}
         onClose={() => setCameraSheetOpen(false)}
@@ -87,14 +101,32 @@ export default function MainPage() {
         <CameraSelectSheet
           onCamera={() => {
             setCameraSheetOpen(false);
-            alert("카메라 촬영하기 실행");
+            openCamera();  // 📸 바로 실행
           }}
           onGallery={() => {
             setCameraSheetOpen(false);
-            alert("앨범에서 선택 실행");
+            openGallery(); // 🖼 바로 실행
           }}
         />
       </BottomSheetModal>
+
+      {/* 실제 input은 화면에 보이지 않음 */}
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        hidden
+        onChange={handleFileChange}
+      />
+
+      <input
+        ref={galleryInputRef}
+        type="file"
+        accept="image/*"
+        hidden
+        onChange={handleFileChange}
+      />
 
 
       {/* 로딩 */}

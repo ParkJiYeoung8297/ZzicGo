@@ -11,7 +11,8 @@ export const PATH = {
   // Root: Z1_ROOT
   Z1_ROOT: "/z1",
   Z1_MAIN: "/z1",   // index : true
-  Z1_CHALLENGES: "challenges", // Root:
+  Z1_CHALLENGES: "challenges",
+  Z1_UPLOAD: "upload",
 
   // NotFound
   NOT_FOUND: "*",
