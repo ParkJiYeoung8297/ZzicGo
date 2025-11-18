@@ -19,9 +19,36 @@ export default function RootLayout() {
       </main>
 
       {/* Footer */}
-      <footer className="p-4 text-center border-t text-gray-500 text-sm">
-        ZzicGo
+      <footer className="p-6 text-center border-t text-gray-600 text-sm flex flex-col items-center gap-3">
+
+        {/* 로고 */}
+        <div className="text-xl font-bold">ZzicGo</div>
+
+        {/* 이용약관 / 개인정보처리방침 */}
+        <div className="flex items-center gap-8 text-base">
+
+          <a
+            href="http://iodized-chartreuse-9ca.notion.site/2ae0b06a074280f48f79fe33d68040d7?pvs=74"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-black transition"
+          >
+            이용약관
+          </a>
+
+          <a
+            href="https://iodized-chartreuse-9ca.notion.site/2ae0b06a0742809a9fa9e1b1fffa7469"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-black transition"
+          >
+            개인정보처리방침
+          </a>
+
+        </div>
+
       </footer>
+
     </div>
   );
 }

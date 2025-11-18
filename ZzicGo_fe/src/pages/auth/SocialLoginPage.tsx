@@ -3,7 +3,7 @@ import { useSocialLogin } from "../../hooks/useSocialLogin";
 import SocialButton from "../../components/auth/SocialButton";
 import { SiNaver} from "react-icons/si";
 import { RiKakaoTalkFill } from "react-icons/ri";
-import { FcGoogle } from "react-icons/fc";
+// import { FcGoogle } from "react-icons/fc";
 
 
 export default function SocialLoginPage() {
@@ -37,14 +37,14 @@ export default function SocialLoginPage() {
           onClick={() => handleSocialLogin("kakao")}
         />
 
-        <SocialButton
+        {/* <SocialButton
           provider="google"
           text="Google로 시작하기"
           bgColor="bg-white hover:bg-gray-50"
           border="border border-gray-300"
           icon={<FcGoogle />}
           onClick={() => handleSocialLogin("google")}
-        />
+        /> */}
       </div>
     </div>
   );

@@ -16,9 +16,9 @@ export function useSocialLogin() {
       case "kakao":
         window.location.href = "https://kauth.kakao.com/oauth/authorize";
         break;
-      case "google":
-        window.location.href = "https://accounts.google.com/o/oauth2/v2/auth";
-        break;
+      // case "google":
+      //   window.location.href = "https://accounts.google.com/o/oauth2/v2/auth";
+      //   break;
       default:
         console.warn("Unknown provider");
     }
