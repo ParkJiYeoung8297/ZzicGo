@@ -57,9 +57,9 @@ export default function MainPage() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || !selectedChallenge) return;
 
-    navigate("/z1/upload", { state: { image: file } });
+    navigate("/z1/upload", { state: { image: file, participationId: selectedChallenge.participationId} });
   };
 
   const openCamera = () => cameraInputRef.current?.click();
@@ -154,6 +154,7 @@ export default function MainPage() {
                 className="text-2xl"
                 onClick={(e) => {
                   e.stopPropagation(); // ❗ 탈퇴 팝업 안 뜨도록 방지
+                  setSelectedChallenge(c); // challengeId도 저장
                   setCameraSheetOpen(true);
                 }}
               >

@@ -13,6 +13,7 @@ export default function UploadPage() {
   const [visibility, setVisibility] = useState<"PUBLIC" | "PRIVATE">("PUBLIC");
 
   const { upload } = useUploadPost();
+  const participationId = state?.participationId;
 
   // 🔥 SelectPhoto에서 전달된 이미지 반영
   useEffect(() => {
@@ -28,8 +29,8 @@ export default function UploadPage() {
     }
 
     try {
-      const participantId = 12; // TODO: params로 변경
-      await upload(participantId, images, content, visibility);
+      
+      await upload(participationId, images, content, visibility);
       alert("업로드 완료!");
     } catch (err) {
       console.error(err);
