@@ -78,6 +78,6 @@ jobs:
           command_timeout: 10m
           script: |
             echo "📦 Received deployment request from GitHub Actions"
-            chmod +x ~/deploy.sh
-            bash ~/deploy.sh
+            sudo chmod +x ~/deploy.sh
+            sudo bash ~/deploy.sh
 
