@@ -57,9 +57,9 @@ export default function MainPage() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || !selectedChallenge) return;
 
-    navigate("/z1/upload", { state: { image: file } });
+    navigate("/z1/upload", { state: { image: file, participationId: selectedChallenge.participationId} });
   };
 
   const openCamera = () => cameraInputRef.current?.click();
@@ -141,12 +141,12 @@ export default function MainPage() {
             <div
               key={c.participationId}
               className="bg-white rounded-xl px-4 py-3 shadow border flex items-center justify-between cursor-pointer"
-              onClick={() => handleSelectChallenge(c)}   // 🔥 챌린지 클릭 → 탈퇴 팝업
             >
               {/* 왼쪽: 하트 + 이름 */}
-              <div className="flex items-center gap-2">
-                <span className="text-2xl text-yellow-700">♡</span>
-                <span className="font-semibold text-gray-900">{c.name}</span>
+              <div className="flex items-center gap-3">
+                <span className="text-2xl text-[#834909]" onClick={() => handleSelectChallenge(c)}>♥</span>
+                <span className="font-semibold text-gray-900" 
+                onClick={() => navigate(PATH.GO_CHALLENGES_ROOM(c.challengeId), {state: { title: c.name } })}>{c.name}</span>
               </div>
 
               {/* 오른쪽 카메라 버튼 */}
@@ -154,6 +154,7 @@ export default function MainPage() {
                 className="text-2xl"
                 onClick={(e) => {
                   e.stopPropagation(); // ❗ 탈퇴 팝업 안 뜨도록 방지
+                  setSelectedChallenge(c); // challengeId도 저장
                   setCameraSheetOpen(true);
                 }}
               >
