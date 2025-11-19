@@ -14,11 +14,27 @@ spring:
       connection-timeout: 10000
       max-lifetime: 600000
 
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 25MB
+
   jpa:
     hibernate:
       ddl-auto: none # 맨 처음만 create하고, 이후는 none으로 변경
     open-in-view: false
     defer-datasource-initialization: true
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
+    region:
+      static: ap-northeast-2
+    s3:
+      bucket: zzicgo-post-images
+
 
 logging:
   file:
@@ -33,7 +49,10 @@ management:
   endpoints:
     web:
       exposure:
-        include: health
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
 
 jwt:
   secret: ${JWT_SECRET}

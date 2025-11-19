@@ -104,4 +104,36 @@ public class ChallengeService {
 
         return "챌린지 탈퇴 성공";
     }
+
+    public ChallengeResponseDto.ParticipationCheck checkParticipation(Long challengeId, Long loginUserId) {
+
+        // 🔥 챌린지 존재 여부 검증
+        boolean exists = challengeRepository.existsById(challengeId);
+        if (!exists) {
+            throw new CustomException(ChallenegeException.CHALLENGE_NOT_FOUND);
+        }
+
+        // 🔥 로그인 유저 조회
+        User user = userRepository.findById(loginUserId)
+                .orElseThrow(() -> new CustomException(UserException.NOT_EXIST_USER));
+
+        // 🔥 참여 여부 조회
+        Optional<ChallengeParticipation> participationOpt =
+                challengeParticipationRepository.findByUserAndChallenge(user, Challenge.builder().id(challengeId).build());
+
+        // 참여 기록 없음
+        if (participationOpt.isEmpty()) {
+            return new ChallengeResponseDto.ParticipationCheck(false, null);
+        }
+
+        // 참여했으나 탈퇴했는지 체크
+        ChallengeParticipation participation = participationOpt.get();
+        boolean isJoined = participation.getStatus().isJOINED();
+
+        if (isJoined) {
+            return new ChallengeResponseDto.ParticipationCheck(true, participation.getId());
+        } else {
+            return new ChallengeResponseDto.ParticipationCheck(false, null);
+        }
+    }
 }

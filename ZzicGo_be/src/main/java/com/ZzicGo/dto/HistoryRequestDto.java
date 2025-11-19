@@ -3,16 +3,18 @@ package com.ZzicGo.dto;
 import com.ZzicGo.domain.history.Visibility;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-
 
 public class HistoryRequestDto {
 
     @Getter
     @NoArgsConstructor
+    @AllArgsConstructor
     public static class CreateHistoryRequest {
         @Schema(
                 description = "업로드된 인증 사진의 S3 URL 리스트 (최대 3개)",

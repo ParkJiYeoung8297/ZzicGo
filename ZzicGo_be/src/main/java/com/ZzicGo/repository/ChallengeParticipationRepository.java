@@ -12,4 +12,5 @@ import java.util.Optional;
 public interface ChallengeParticipationRepository extends JpaRepository<ChallengeParticipation, Long> {
     Optional<ChallengeParticipation> findByUserAndChallenge(User user, Challenge challenge);
     List<ChallengeParticipation> findAllByUserAndStatus(User user, ParticipationStatus participationStatus);
+    boolean existsByChallenge_IdAndUser_Id(Long challengeId, Long userId);
 }
