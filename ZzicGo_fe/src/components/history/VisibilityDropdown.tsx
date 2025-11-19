@@ -1,5 +1,4 @@
 // src/components/history/VisibilityDropdown.tsx
-
 type Props = {
   visibility: "PUBLIC" | "PRIVATE";
   setVisibility: (v: "PUBLIC" | "PRIVATE") => void;

@@ -5,11 +5,12 @@ import apiClient from "../api/apiClient";
 
 export interface HistoryItem {
   historyId: number;
-  userId: number
+  userId: number;
   name: string;
-  profileImageUrl: string | null; // null 가능 → 기본 이미지 적용
+  profileImageUrl: string | null;
   content: string;
   images: string[];
+  createdAt: string; // ⭐ 날짜 사용
 }
 
 export const useChallengeHistory = (
@@ -43,13 +44,13 @@ export const useChallengeHistory = (
     setHasMore(data.hasMore);
   };
 
-  // 무한 스크롤
+  // 무한 스크롤 옵저버
   useEffect(() => {
     const observer = new IntersectionObserver(
       throttle((entries) => {
         if (entries[0].isIntersecting) loadMore();
       }, 300),
-      { threshold: 1.0 }
+      { threshold: 1 }
     );
 
     if (loaderRef.current) observer.observe(loaderRef.current);
@@ -57,7 +58,7 @@ export const useChallengeHistory = (
     return () => observer.disconnect();
   }, [loaderRef, visibility]);
 
-  // visibility 바뀔 때 초기화
+  // visibility 변경 시 초기화
   useEffect(() => {
     setHistories([]);
     setCursor(null);

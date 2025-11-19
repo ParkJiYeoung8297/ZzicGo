@@ -1,28 +1,31 @@
-// src/pages/challenge/ChallengeHistoryPage.tsx
+// src/pages/challenge/ChallengeHistoryRoomPage.tsx
 
 import { useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { useChallengeHistory } from "../hooks/useChallengeHistory";
 import HistoryCard from "../components/history/HistoryCard";
 import VisibilityDropdown from "../components/history/VisibilityDropdown";
+import { formatDate } from "../utils/formatDate";
 
 export default function ChallengeHistoryRoomPage() {
   const { challengeId } = useParams();
   const numericChallengeId = Number(challengeId);
 
+  const location = useLocation();
+  const { title } = location.state || { title: "" };
+
   const [visibility, setVisibility] = useState<"PUBLIC" | "PRIVATE">("PUBLIC");
 
-  const myUserId = Number(localStorage.getItem("userId")); 
+  const myUserId = Number(localStorage.getItem("userId"));
 
-  const location = useLocation();
-  const { title } = location.state || { title: "임시방" };
   const { histories, loaderRef } = useChallengeHistory(
     numericChallengeId,
     visibility
   );
 
   return (
-    <div className="bg-[#F6E5B1] min-h-screen p-4">
+    <div className="bg-[#F6E5B1] min-h-screen p-4 flex flex-col">
+      
       {/* 헤더 */}
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-lg font-bold">{title}</h1>
@@ -30,21 +33,34 @@ export default function ChallengeHistoryRoomPage() {
       </div>
 
       {/* 히스토리 리스트 */}
-      <div className="flex flex-col gap-6">
-        {histories.map(h => {
+      <div className="flex flex-col gap-4">
+        {histories.map((h, index) => {
           const isMine = h.userId === myUserId;
 
+          const currentDate = formatDate(h.createdAt);
+          const prevDate =
+            index > 0 ? formatDate(histories[index - 1].createdAt) : null;
+
+          const showDate = currentDate !== prevDate;
+
           return (
-            <div
-              key={h.historyId}
-              className={`flex ${isMine ? "justify-end" : "justify-start"}`}
-            >
-              <HistoryCard item={h} />
+            <div key={h.historyId}>
+              {/* 날짜 구분선 */}
+              {showDate && (
+                <div className="text-center text-gray-600 text-sm my-4">
+                  {currentDate}
+                </div>
+              )}
+
+              {/* 메시지 버블 */}
+              <div className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
+                <HistoryCard item={h} isMine={isMine} />
+              </div>
             </div>
           );
         })}
 
-        {/* 무한스크롤 trigger */}
+        {/* 무한 스크롤 트리거 */}
         <div ref={loaderRef} className="h-10" />
       </div>
     </div>

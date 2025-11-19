@@ -146,7 +146,7 @@ export default function MainPage() {
               <div className="flex items-center gap-3">
                 <span className="text-2xl text-[#834909]" onClick={() => handleSelectChallenge(c)}>♥</span>
                 <span className="font-semibold text-gray-900" 
-                onClick={() => navigate(PATH.Z1_CHALLENGES_ROOM, {state: { title: c.name } })}>{c.name}</span>
+                onClick={() => navigate(PATH.GO_CHALLENGES_ROOM(c.challengeId), {state: { title: c.name } })}>{c.name}</span>
               </div>
 
               {/* 오른쪽 카메라 버튼 */}
