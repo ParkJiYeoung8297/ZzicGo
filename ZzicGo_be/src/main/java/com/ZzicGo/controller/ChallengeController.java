@@ -118,25 +118,24 @@ public class ChallengeController {
     }
 
 
-
-
-    @Tag(name = "Challenges-Room", description = "챌린지 채팅방")
     @Operation(
             summary = "챌린지 채팅방 조회",
             description = "해당 챌린지의 모든 인증글을 조회합니다. 쿼리 파라미터로는 PUBLIC/PRIVATE을 지정할 수 있습니다."
     )
     @GetMapping(("/{challengeId}/histories"))
-    public CustomResponse<HistoryResponseDto.HistoryListResponse> getHistories(
+    public CustomResponse<HistoryResponseDto.CursorResponse> getHistories(
             @PathVariable Long challengeId,
             @AuthenticationPrincipal CustomUserDetails user,
-            @RequestParam(name = "visibility", defaultValue = "PUBLIC") String visibilityStr
+            @RequestParam(name = "visibility", defaultValue = "PUBLIC") String visibilityStr,
+            @RequestParam(required = false) String cursor,
+            @RequestParam(defaultValue = "10") int size
     ) {
 
         Long userId = user.getUserId();
         Visibility visibility = Visibility.valueOf(visibilityStr);
 
-        HistoryResponseDto.HistoryListResponse response =
-                historyService.getHistories(userId,challengeId, visibility);
+        HistoryResponseDto.CursorResponse response =
+                historyService.getHistories(userId,challengeId, visibility, cursor, size);
 
         return CustomResponse.ok(response);
     }

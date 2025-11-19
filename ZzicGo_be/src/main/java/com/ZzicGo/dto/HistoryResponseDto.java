@@ -33,4 +33,12 @@ public class HistoryResponseDto {
         private List<HistoryItem> histories;
     }
 
+    @Getter
+    @AllArgsConstructor
+    public static class CursorResponse {
+        private List<HistoryItem> histories;
+        private String nextCursor;
+        private boolean hasMore;
+    }
+
 }
