@@ -1,6 +1,7 @@
 package com.ZzicGo.service.auth;
 
 import com.ZzicGo.config.jwt.JwtProvider;
+import com.ZzicGo.domain.terms.TermType;
 import com.ZzicGo.domain.terms.Terms;
 import com.ZzicGo.domain.terms.TermsAgreement;
 import com.ZzicGo.domain.user.*;
@@ -24,7 +25,9 @@ import com.ZzicGo.dto.AuthResponseDto.NaverAgreementResponse.AgreementInfos;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
@@ -153,7 +156,14 @@ public class NaverAuthService {
             // e.g. "SERVICE_100"
             String[] parts = info.termCode().split("_");
 
-            String termType = parts[0];
+            String termTypeStr = parts[0];
+            TermType termTypeEnum;
+            try {
+                termTypeEnum = TermType.valueOf(termTypeStr);
+            } catch (IllegalArgumentException e) {
+                // 잘못된 termType이면 skip
+                continue;
+            }
             String versionRaw = parts.length > 1 ? parts[1] : null;
 
             // versionRaw = "100" 처럼 들어옴 → "1.0.0" 으로 변환
@@ -166,7 +176,7 @@ public class NaverAuthService {
             }
 
             // 2) terms 테이블에서 찾기
-            Terms terms = termsRepository.findByTermTypeAndVersion(termType, version)
+            Terms terms = termsRepository.findByTermTypeAndVersion(termTypeEnum, version)
                     .orElseThrow(() -> new CustomException(TermsException.TERMS_NOT_FOUND));
 
             // 3) 이미 동의한 기록이 있으면 패스
@@ -174,14 +184,23 @@ public class NaverAuthService {
             if (exists) continue;
 
             // 4) agreeDate → LocalDateTime 변환
-            LocalDateTime agreedAt = LocalDateTime.parse(info.agreeDate());
+            String agreeTime = info.agreeDate();
+
+            // 모든 공백 normalize
+            agreeTime = agreeTime.trim().replaceAll("\\s+", " ");
+
+            DateTimeFormatter formatter =
+                    DateTimeFormatter.ofPattern("hh:mm:ss.SSS a MM/dd/yyyy", Locale.ENGLISH);
+
+            LocalDateTime agreedAt = LocalDateTime.parse(agreeTime, formatter);
+//            LocalDateTime agreedAt = LocalDateTime.parse(info.agreeDate());
 
             // 5) 저장
             TermsAgreement agreement = TermsAgreement.builder()
                     .user(user)
                     .terms(terms)
                     .isAgreed(true)
-                    .agreedAt(LocalDateTime.parse(info.agreeDate())) // 네이버 동의 시각
+                    .agreedAt(agreedAt) // 네이버 동의 시각
                     .build();
 
             termsAgreementRepository.save(agreement);
