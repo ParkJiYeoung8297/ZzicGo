@@ -133,13 +133,30 @@ public class HistoryService {
         Pageable pageable = PageRequest.of(0, size);
 
         // 🔥 히스토리 조회
-        List<History> histories = historyRepository.findHistoryByCursor(
-                challengeId,
-                visibility,
-                decoded == null ? null : decoded.getCreatedAt(),
-                decoded == null ? null : decoded.getId(),
-                pageable
-        );
+        List<History> histories;
+        // ⭐ visibility = PRIVATE → 내 히스토리 전체 조회
+        if (visibility == Visibility.PRIVATE) {
+            histories = historyRepository.findMyAllHistoryByCursor(
+                    loginUserId,
+                    challengeId,
+                    decoded == null ? null : decoded.getCreatedAt(),
+                    decoded == null ? null : decoded.getId(),
+                    pageable
+            );
+        }
+        // ⭐ visibility = PUBLIC → 전체 참여자의 PUBLIC만 조회
+        else if (visibility == Visibility.PUBLIC) {
+            histories = historyRepository.findPublicHistoryByCursor(
+                    challengeId,
+                    decoded == null ? null : decoded.getCreatedAt(),
+                    decoded == null ? null : decoded.getId(),
+                    pageable
+            );
+        }
+        else {
+            throw new CustomException(HistoryException.HISTORY_INVALID_VISIBILITY);
+        }
+
         List<Long> ids = histories.stream().map(History::getId).toList();
 
         List<ImageUrl> images = ids.isEmpty()
@@ -156,12 +173,15 @@ public class HistoryService {
                 ));
 
         List<HistoryResponseDto.HistoryItem> items = histories.stream()
-                .map(h -> new HistoryResponseDto.HistoryItem(
-                        h.getId(),
-                        h.getContent(),
-                        h.getVisibility().name(),
-                        imageMap.getOrDefault(h.getId(), List.of())
-                ))
+                .map(h -> HistoryResponseDto.HistoryItem.builder()
+                        .historyId(h.getId())
+                        .userId(h.getParticipation().getUser().getId())
+                        .name(h.getParticipation().getUser().getNickname())
+                        .profileImageUrl(h.getParticipation().getUser().getProfileImageUrl())
+                        .content(h.getContent())
+                        .images(imageMap.getOrDefault(h.getId(), List.of()))
+                        .createdAt(h.getCreatedAt())
+                        .build())
                 .toList();
         // next cursor
         String nextCursor = null;
@@ -169,15 +189,9 @@ public class HistoryService {
 
         if (!histories.isEmpty()) {
             History last = histories.get(histories.size() - 1);
-
-            nextCursor = cursorEncoder.encode(
-                    last.getCreatedAt(),
-                    last.getId()
-            );
-
+            nextCursor = cursorEncoder.encode(last.getCreatedAt(), last.getId());
             hasMore = true;
         }
-
         return new HistoryResponseDto.CursorResponse(items, nextCursor, hasMore);
     }
 }

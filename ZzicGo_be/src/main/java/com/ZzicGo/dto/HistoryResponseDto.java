@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -21,9 +22,12 @@ public class HistoryResponseDto {
     @AllArgsConstructor
     public static class HistoryItem {
         private Long historyId;
+        private Long userId;
+        private String name;
+        private String profileImageUrl;
         private String content;
-        private String visibility;
         private List<String> images; // presigned URL 목록
+        private LocalDateTime createdAt;
     }
 
     @Getter
