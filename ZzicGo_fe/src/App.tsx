@@ -16,6 +16,7 @@ import UploadPage from "./pages/UploadPage";
 
 import MainPage from "./pages/MainPage";
 import FindChallengesPage from "./pages/FindChallengesPage";
+import ChallengeHistoryRoomPage from "./pages/ChallengeHistoryRoomPage";
 
 // 📄 소셜 로그인 관련 컴포넌트
 import SocialLoginPage from "./pages/auth/SocialLoginPage";
@@ -50,6 +51,7 @@ const router = createBrowserRouter([
       { index: true, element: <MainPage /> }, 
       { path: PATH.Z1_CHALLENGES, element: < FindChallengesPage/> },
       { path: PATH.Z1_UPLOAD, element: < UploadPage/> },
+      { path: PATH.Z1_CHALLENGES_ROOM, element: < ChallengeHistoryRoomPage/> },
 
     ],
   },

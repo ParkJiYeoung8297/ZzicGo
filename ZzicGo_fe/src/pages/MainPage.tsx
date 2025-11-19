@@ -141,12 +141,12 @@ export default function MainPage() {
             <div
               key={c.participationId}
               className="bg-white rounded-xl px-4 py-3 shadow border flex items-center justify-between cursor-pointer"
-              onClick={() => handleSelectChallenge(c)}   // 🔥 챌린지 클릭 → 탈퇴 팝업
             >
               {/* 왼쪽: 하트 + 이름 */}
-              <div className="flex items-center gap-2">
-                <span className="text-2xl text-yellow-700">♡</span>
-                <span className="font-semibold text-gray-900">{c.name}</span>
+              <div className="flex items-center gap-3">
+                <span className="text-2xl text-[#834909]" onClick={() => handleSelectChallenge(c)}>♥</span>
+                <span className="font-semibold text-gray-900" 
+                onClick={() => navigate(PATH.Z1_CHALLENGES_ROOM, {state: { title: c.name } })}>{c.name}</span>
               </div>
 
               {/* 오른쪽 카메라 버튼 */}

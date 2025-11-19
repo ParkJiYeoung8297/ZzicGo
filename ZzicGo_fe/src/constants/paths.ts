@@ -13,6 +13,7 @@ export const PATH = {
   Z1_MAIN: "/z1",   // index : true
   Z1_CHALLENGES: "challenges",
   Z1_UPLOAD: "upload",
+  Z1_CHALLENGES_ROOM: "challenges/history",
 
   // NotFound
   NOT_FOUND: "*",
