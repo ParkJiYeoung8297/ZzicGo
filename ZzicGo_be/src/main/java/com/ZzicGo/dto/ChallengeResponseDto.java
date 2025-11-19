@@ -22,4 +22,11 @@ public class ChallengeResponseDto {
         private Long challengeId;
         private String name;
     }
+
+    @Getter
+    @AllArgsConstructor
+    public static class ParticipationCheck{
+        private boolean participated;
+        private Long participationId;
+    }
 }

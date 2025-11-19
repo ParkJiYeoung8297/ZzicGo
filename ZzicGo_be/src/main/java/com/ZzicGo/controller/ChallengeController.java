@@ -99,6 +99,27 @@ public class ChallengeController {
         return CustomResponse.ok(msg);
     }
 
+    @Operation(
+            summary = "챌린지 참여 여부 조회",
+            description = "챌린지를 참여하고 있는지 True/False로 반환합니다."
+    )
+    @GetMapping("/{challengeId}/me")
+    public CustomResponse<ChallengeResponseDto.ParticipationCheck> checkMyParticipation(
+            @PathVariable Long challengeId,
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        Long loginUserId = user.getUserId();
+
+        ChallengeResponseDto.ParticipationCheck response =
+                challengeService.checkParticipation(challengeId, loginUserId);
+
+        return CustomResponse.ok(response);
+
+    }
+
+
+
+
     @Tag(name = "Challenges-Room", description = "챌린지 채팅방")
     @Operation(
             summary = "챌린지 채팅방 조회",
