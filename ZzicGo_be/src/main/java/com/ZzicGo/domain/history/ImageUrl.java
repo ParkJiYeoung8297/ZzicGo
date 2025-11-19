@@ -21,7 +21,7 @@ public class ImageUrl extends BaseEntity {
     @JoinColumn(name = "history_id", nullable = false)
     private History history;
 
-    @Column(name = "image_url", length = 150, nullable = false)
+    @Column(name = "image_url", length = 1000, nullable = false)
     private String imageUrl;
 
     @Column(name = "order_number")
