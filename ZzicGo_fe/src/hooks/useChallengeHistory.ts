@@ -44,12 +44,12 @@ export const useChallengeHistory = (
 
     const data = res.data.result;
 
-    setHistories((prev) => {
-      const incoming = data.histories;
+    setHistories((prev: HistoryItem[]) => {
+      const incoming: HistoryItem[] = data.histories;
 
-      const unique = incoming.filter((item) => {
-        return !prev.some((p) => p.historyId === item.historyId);
-      });
+      const unique = incoming.filter(
+        (item: HistoryItem) => !prev.some((p) => p.historyId === item.historyId)
+      );
 
       return [...prev, ...unique];
     });
