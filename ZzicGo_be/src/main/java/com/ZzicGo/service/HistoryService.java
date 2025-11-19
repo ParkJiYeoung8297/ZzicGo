@@ -82,8 +82,8 @@ public class HistoryService {
         List<String> uploadedUrls = new ArrayList<>();
 
         for (MultipartFile img : images) {
-            String url = s3Uploader.uploadFile("history", img);
-            uploadedUrls.add(url);
+            String key = s3Uploader.uploadFile("history", img);
+            uploadedUrls.add(key);
         }
 
         // 📌 History 생성

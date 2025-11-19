@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.UUID;
 
 @Component
@@ -35,7 +36,8 @@ public class S3Uploader {
                     new PutObjectRequest(bucketName, fileName, file.getInputStream(), metadata)
             );
 
-            return amazonS3.getUrl(bucketName, fileName).toString();
+            // ⭐ 여기! → key만 반환해야 함
+            return fileName;
 
         } catch (IOException e) {
             throw new RuntimeException("S3 업로드 실패", e);
@@ -43,8 +45,7 @@ public class S3Uploader {
     }
 
     public String getPresignedUrl(String key) {
-        java.util.Date expiration = new java.util.Date();
-        expiration.setTime(expiration.getTime() + 1000 * 60 * 3); // 3분 유효
+        Date expiration = new Date(System.currentTimeMillis() + 1000L * 60 * 30); // 3분 유효
 
         GeneratePresignedUrlRequest request =
                 new GeneratePresignedUrlRequest(bucketName, key)
