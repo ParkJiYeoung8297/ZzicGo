@@ -1,4 +1,5 @@
 // src/hooks/useChallengeHistory.ts
+
 import { useState, useEffect, useRef } from "react";
 import throttle from "lodash.throttle";
 import apiClient from "../api/apiClient";
@@ -10,7 +11,7 @@ export interface HistoryItem {
   profileImageUrl: string | null;
   content: string;
   images: string[];
-  createdAt: string; // ⭐ 날짜 사용
+  createdAt: string;
 }
 
 export const useChallengeHistory = (
@@ -22,9 +23,13 @@ export const useChallengeHistory = (
   const [hasMore, setHasMore] = useState(true);
 
   const loaderRef = useRef<HTMLDivElement | null>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const loadingRef = useRef(false);
 
   const loadMore = async () => {
-    if (!hasMore) return;
+    if (!hasMore || loadingRef.current) return;
+
+    loadingRef.current = true;
 
     const res = await apiClient.get(
       `/api/z1/challenges/${challengeId}/histories`,
@@ -32,38 +37,55 @@ export const useChallengeHistory = (
         params: {
           visibility,
           cursor: cursor ?? "",
-          size: 10
-        }
+          size: 10,
+        },
       }
     );
 
     const data = res.data.result;
 
-    setHistories((prev) => [...prev, ...data.histories]);
+    setHistories((prev) => {
+      const incoming = data.histories;
+
+      const unique = incoming.filter((item) => {
+        return !prev.some((p) => p.historyId === item.historyId);
+      });
+
+      return [...prev, ...unique];
+    });
+
     setCursor(data.nextCursor);
     setHasMore(data.hasMore);
+    loadingRef.current = false;
   };
 
-  // 무한 스크롤 옵저버
-  useEffect(() => {
-    const observer = new IntersectionObserver(
+  const setupObserver = () => {
+    if (!loaderRef.current) return;
+
+    observerRef.current = new IntersectionObserver(
       throttle((entries) => {
         if (entries[0].isIntersecting) loadMore();
-      }, 300),
-      { threshold: 1 }
+      }, 200),
+      { threshold: 0 }
     );
 
-    if (loaderRef.current) observer.observe(loaderRef.current);
+    observerRef.current.observe(loaderRef.current);
+  };
 
-    return () => observer.disconnect();
-  }, [loaderRef, visibility]);
-
-  // visibility 변경 시 초기화
+  // visibility 변경 시 완전 초기화
   useEffect(() => {
+    observerRef.current?.disconnect();
+
     setHistories([]);
     setCursor(null);
     setHasMore(true);
-  }, [visibility]);
+    loadingRef.current = false;
+
+    (async () => {
+      await loadMore();
+      setupObserver();
+    })();
+  }, [visibility, challengeId]);
 
   return { histories, loaderRef, hasMore };
 };

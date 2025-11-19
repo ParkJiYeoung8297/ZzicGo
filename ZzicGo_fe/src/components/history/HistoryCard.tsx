@@ -30,7 +30,7 @@ export default function HistoryCard({ item, isMine }: Props) {
         <div className="flex flex-wrap gap-2 mt-1">
           {item.images.map((url, i) => (
             <img
-              key={i}
+              key={`${item.historyId}-${i}`}
               src={url}
               className="w-[48%] rounded-lg border object-cover"
             />

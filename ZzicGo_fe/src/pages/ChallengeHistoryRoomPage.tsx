@@ -23,36 +23,39 @@ export default function ChallengeHistoryRoomPage() {
     visibility
   );
 
+  // createdAt ASC 정렬 (채팅방 스타일)
+  const sorted = [...histories].sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  );
+
   return (
     <div className="bg-[#F6E5B1] min-h-screen p-4 flex flex-col">
-      
+
       {/* 헤더 */}
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-lg font-bold">{title}</h1>
         <VisibilityDropdown visibility={visibility} setVisibility={setVisibility} />
       </div>
 
-      {/* 히스토리 리스트 */}
+      {/* 히스토리 */}
       <div className="flex flex-col gap-4">
-        {histories.map((h, index) => {
+        {sorted.map((h, index) => {
           const isMine = h.userId === myUserId;
 
           const currentDate = formatDate(h.createdAt);
           const prevDate =
-            index > 0 ? formatDate(histories[index - 1].createdAt) : null;
+            index > 0 ? formatDate(sorted[index - 1].createdAt) : null;
 
           const showDate = currentDate !== prevDate;
 
           return (
             <div key={h.historyId}>
-              {/* 날짜 구분선 */}
               {showDate && (
                 <div className="text-center text-gray-600 text-sm my-4">
                   {currentDate}
                 </div>
               )}
 
-              {/* 메시지 버블 */}
               <div className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
                 <HistoryCard item={h} isMine={isMine} />
               </div>
