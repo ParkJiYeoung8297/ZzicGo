@@ -10,9 +10,6 @@ export const useUploadPost = () => {
   ) => {
     const formData = new FormData();
 
-    // images.forEach((img: File) => {
-    //   formData.append("images", img);
-    // });
     // 🔥 이미지 압축 처리
     for (const img of images) {
       const compressed = await compressImage(img, 1080, 0.8);
@@ -23,8 +20,8 @@ export const useUploadPost = () => {
     formData.append("visibility", visibility);
 
 
-
-    const res = await apiClient.post(
+    try{
+          const res = await apiClient.post(
       `/api/z1/history/${participantId}`,
       formData,
       {
@@ -35,6 +32,10 @@ export const useUploadPost = () => {
     );
 
     return res.data;
+
+    }catch(error: any){
+      throw error;
+    }
 
   };
 

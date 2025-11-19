@@ -32,9 +32,8 @@ export default function UploadPage() {
       
       await upload(participationId, images, content, visibility);
       alert("업로드 완료!");
-    } catch (err) {
-      console.error(err);
-      alert("업로드 실패");
+    } catch (error: any) {
+      alert(error.response?.data?.message || "업로드 중 오류가 발생했습니다.");
     }
   };
 
