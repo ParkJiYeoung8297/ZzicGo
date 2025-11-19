@@ -1,10 +1,13 @@
 package com.ZzicGo.controller;
 
 import com.ZzicGo.config.jwt.CustomUserDetails;
+import com.ZzicGo.domain.history.Visibility;
 import com.ZzicGo.dto.AuthResponseDto;
 import com.ZzicGo.dto.ChallengeResponseDto;
+import com.ZzicGo.dto.HistoryResponseDto;
 import com.ZzicGo.global.CustomResponse;
 import com.ZzicGo.service.ChallengeService;
+import com.ZzicGo.service.HistoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -25,6 +28,7 @@ import java.util.List;
 public class ChallengeController {
 
     private final ChallengeService challengeService;
+    private final HistoryService historyService;
 
     @Operation(
             summary = "전체 챌린지 목록 조회",
@@ -94,6 +98,29 @@ public class ChallengeController {
         String msg = challengeService.leaveChallenge(participationId, userId);
         return CustomResponse.ok(msg);
     }
+
+    @Tag(name = "Challenges-Room", description = "챌린지 채팅방")
+    @Operation(
+            summary = "챌린지 채팅방 조회",
+            description = "해당 챌린지의 모든 인증글을 조회합니다. 쿼리 파라미터로는 PUBLIC/PRIVATE을 지정할 수 있습니다."
+    )
+    @GetMapping(("/{challengeId}/histories"))
+    public CustomResponse<HistoryResponseDto.HistoryListResponse> getHistories(
+            @PathVariable Long challengeId,
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(name = "visibility", defaultValue = "PUBLIC") String visibilityStr
+    ) {
+
+        Long userId = user.getUserId();
+        Visibility visibility = Visibility.valueOf(visibilityStr);
+
+        HistoryResponseDto.HistoryListResponse response =
+                historyService.getHistories(userId,challengeId, visibility);
+
+        return CustomResponse.ok(response);
+    }
+
+
 
 
 

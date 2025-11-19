@@ -5,11 +5,13 @@ import com.ZzicGo.domain.history.History;
 import com.ZzicGo.domain.history.ImageUrl;
 import com.ZzicGo.domain.history.Visibility;
 import com.ZzicGo.dto.HistoryRequestDto;
+import com.ZzicGo.dto.HistoryResponseDto;
 import com.ZzicGo.exception.ChallenegeException;
 import com.ZzicGo.exception.HistoryException;
 import com.ZzicGo.global.CustomException;
 import com.ZzicGo.global.s3.S3Uploader;
 import com.ZzicGo.repository.ChallengeParticipationRepository;
+import com.ZzicGo.repository.ChallengeRepository;
 import com.ZzicGo.repository.HistoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,7 @@ public class HistoryService {
     private final ChallengeParticipationRepository participationRepository;
     private final HistoryRepository historyRepository;
     private final S3Uploader s3Uploader;
+    private final ChallengeRepository challengeRepository;
 
     public Long createHistory(Long participationId, Long loginUserId, List<MultipartFile> images, String content, Visibility visibility) {
 
@@ -37,11 +40,6 @@ public class HistoryService {
         // 🔥 참여 주인인지 검증
         if (!participation.getUser().getId().equals(loginUserId)) {
             throw new CustomException(ChallenegeException.PARTICIPATION_FORBIDDEN);
-        }
-
-        // 🔥 챌린지가 활성 상태인지 검증
-        if (!participation.getChallenge().getStatus().isActive()) {
-            throw new CustomException(ChallenegeException.CHALLENGE_INACTIVE);
         }
 
         // 🔥 챌린지 참여 상태 검증 (참여 중이 아닐 시 인증 불가)
@@ -95,5 +93,45 @@ public class HistoryService {
         }
         History saved = historyRepository.save(history);
         return saved.getId();
+    }
+
+
+    @Transactional(readOnly = true)
+    public HistoryResponseDto.HistoryListResponse getHistories(Long loginUserId, Long challengeId, Visibility visibility) {
+
+        // 🔥 챌린지가 존재하는지 검증
+        boolean exists = challengeRepository.existsById(challengeId);
+        if (!exists) {
+            throw new CustomException(ChallenegeException.CHALLENGE_NOT_FOUND);
+        }
+
+        // 🔥  참여 주인인지 검증
+        boolean isMember = participationRepository.existsByChallenge_IdAndUser_Id(challengeId, loginUserId);
+        if (!isMember) {
+            throw new CustomException(ChallenegeException.PARTICIPATION_FORBIDDEN);
+        }
+
+        // TODO: 탈퇴했을 경우 검증
+
+        // 🔥 히스토리 조회
+        List<History> histories = historyRepository.findByChallengeAndVisibility(challengeId, visibility);
+
+
+        // 🔥 History → DTO 변환
+        List<HistoryResponseDto.HistoryItem> result = histories.stream()
+                .map(h -> HistoryResponseDto.HistoryItem.builder()
+                        .historyId(h.getId())
+                        .content(h.getContent())
+                        .visibility(h.getVisibility().name())
+                        .images(
+                                h.getImages().stream()
+                                        .map(img -> s3Uploader.getPresignedUrl(img.getImageUrl()))
+                                        .toList()
+                        )
+                        .build()
+                )
+                .toList();
+
+        return new HistoryResponseDto.HistoryListResponse(result);
     }
 }

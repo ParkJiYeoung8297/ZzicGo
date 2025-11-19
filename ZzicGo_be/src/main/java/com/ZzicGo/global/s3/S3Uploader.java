@@ -1,6 +1,8 @@
 package com.ZzicGo.global.s3;
 
+import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
@@ -38,5 +40,17 @@ public class S3Uploader {
         } catch (IOException e) {
             throw new RuntimeException("S3 업로드 실패", e);
         }
+    }
+
+    public String getPresignedUrl(String key) {
+        java.util.Date expiration = new java.util.Date();
+        expiration.setTime(expiration.getTime() + 1000 * 60 * 3); // 3분 유효
+
+        GeneratePresignedUrlRequest request =
+                new GeneratePresignedUrlRequest(bucketName, key)
+                        .withMethod(HttpMethod.GET)
+                        .withExpiration(expiration);
+
+        return amazonS3.generatePresignedUrl(request).toString();
     }
 }
