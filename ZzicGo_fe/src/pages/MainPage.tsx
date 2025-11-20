@@ -14,6 +14,9 @@ import { FaCheckCircle } from "react-icons/fa";
 
 export default function MainPage() {
   const navigate = useNavigate();
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const { myChallenges, loading } = useMyChallenges();
   const [cameraSheetOpen, setCameraSheetOpen] = useState(false);
   const [todayStatus, setTodayStatus] = useState<Record<number, boolean>>({});
@@ -22,10 +25,6 @@ export default function MainPage() {
 
   // 🔥 모달 상태
   const [openModal, setOpenModal] = useState(false);
-  const [successModalOpen, setSuccessModalOpen] = useState(false);
-  const [errorModalOpen, setErrorModalOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-
 
   // 🔥 선택된 챌린지 저장
   const [selectedChallenge, setSelectedChallenge] = useState<{
@@ -56,9 +55,8 @@ export default function MainPage() {
       window.location.reload(); // 또는 상태 관리 방식으로 자체 업데이트
     } catch (err: any) {
       console.error(err);
-      // alert("탈퇴 중 오류가 발생했습니다.");
+      alert("탈퇴 중 오류가 발생했습니다.");
       const msg = err.response?.data?.message || "탈퇴 중 오류가 발생했습니다.";
-
       setErrorMessage(msg);
       setErrorModalOpen(true);  // 🔥 오류 모달
     } finally {
@@ -151,6 +149,16 @@ export default function MainPage() {
           onClose={() => setOpenModal(false)}
           onConfirm={handleLeave}
         />
+      </GenericModal>
+
+      {/* 성공 모달 */}
+      <GenericModal open={successModalOpen} onClose={() => setSuccessModalOpen(false)}>
+        <div className="p-5 text-center font-semibold text-lg">탈퇴가 완료되었습니다!</div>
+      </GenericModal>
+
+      {/* 오류 모달 */}
+      <GenericModal open={errorModalOpen} onClose={() => setErrorModalOpen(false)}>
+        <div className="p-5 text-center text-red-600">{errorMessage}</div>
       </GenericModal>
 
       {/* 🔥 인증 삭제 모달 */}
