@@ -11,9 +11,10 @@ export default function HistoryCard({ item, isMine }: Props) {
 
   return (
     <div
-      className={`flex flex-col gap-2 p-3 max-w-[75%] rounded-xl ${
-        isMine ? "bg-yellow-200" : "bg-white"
-      }`}
+      className={`
+        flex flex-col gap-3 p-4 pb-5 rounded-2xl shadow-sm
+        ${isMine ? "bg-white ml-auto max-w-[70%]" : "bg-[#FEF8E7] mr-auto max-w-[80%]"}
+      `}
     >
       {/* 프로필 + 이름 */}
       <div className="flex items-center gap-2">
@@ -40,7 +41,7 @@ export default function HistoryCard({ item, isMine }: Props) {
 
       {/* 내용 */}
       {item.content && (
-        <div className="text-sm leading-snug whitespace-pre-wrap">
+        <div className="text-sm text-gray-800 leading-snug">
           {item.content}
         </div>
       )}

@@ -24,9 +24,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -194,4 +196,69 @@ public class HistoryService {
         }
         return new HistoryResponseDto.CursorResponse(items, nextCursor, hasMore);
     }
+
+
+    @Transactional
+    public void deleteHistory(Long historyId, Long loginUserId) {
+
+        // 1) 히스토리 조회
+        History history = historyRepository.findById(historyId)
+                .orElseThrow(() -> new CustomException(HistoryException.HISTORY_NOT_FOUND));
+
+        // 2) 주인 검증
+        Long ownerId = history.getParticipation().getUser().getId();
+        if (!ownerId.equals(loginUserId)) {
+            throw new CustomException(ChallenegeException.PARTICIPATION_FORBIDDEN);
+        }
+
+        // 3) 이미지 목록 조회
+        List<ImageUrl> images = imageUrlRepository.findByHistoryIds(List.of(historyId));
+
+        // 4) S3 파일 삭제
+        for (ImageUrl img : images) {
+            s3Uploader.deleteFile(img.getImageUrl());
+        }
+
+        // 5) image_url 테이블 삭제
+        imageUrlRepository.deleteAll(images);
+
+        // 6) history 삭제
+        historyRepository.delete(history);
+    }
+
+    @Transactional(readOnly = true)
+    public HistoryResponseDto.TodayHistory checkTodayHistory(Long participationId, Long loginUserId) {
+
+        // 참여 정보 찾기
+        ChallengeParticipation participation = participationRepository.findById(participationId)
+                .orElseThrow(() -> new CustomException(ChallenegeException.PARTICIPATION_NOT_FOUND));
+
+        // 권한 체크 (내가 참여자?)
+        if (!participation.getUser().getId().equals(loginUserId)) {
+            throw new CustomException(ChallenegeException.PARTICIPATION_FORBIDDEN);
+        }
+
+        // 오늘 날짜 범위
+        LocalDate today = LocalDate.now();
+        LocalDateTime start = today.atStartOfDay();
+        LocalDateTime end = today.plusDays(1).atStartOfDay();
+
+        // 오늘 기록 있는지 여부
+        Optional<History> historyOpt = historyRepository
+                .findByParticipationAndCreatedAtBetween(participation, start, end);
+
+        // 🔥 존재하면 checked=true + historyId 포함
+        return historyOpt
+                .map(history -> HistoryResponseDto.TodayHistory.builder()
+                        .checked(true)
+                        .historyId(history.getId())
+                        .build())
+                // 🔥 없으면 checked=false + null
+                .orElseGet(() -> HistoryResponseDto.TodayHistory.builder()
+                        .checked(false)
+                        .historyId(null)
+                        .build());
+    }
+
+
 }

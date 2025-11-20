@@ -6,6 +6,7 @@ import { useChallengeHistory } from "../hooks/useChallengeHistory";
 import HistoryCard from "../components/history/HistoryCard";
 import VisibilityDropdown from "../components/history/VisibilityDropdown";
 import { formatDate } from "../utils/formatDate";
+import { getMyUserId } from "../utils/auth";
 
 export default function ChallengeHistoryRoomPage() {
   const { challengeId } = useParams();
@@ -16,12 +17,13 @@ export default function ChallengeHistoryRoomPage() {
 
   const [visibility, setVisibility] = useState<"PUBLIC" | "PRIVATE">("PUBLIC");
 
-  const myUserId = Number(localStorage.getItem("userId"));
+  const myUserId = getMyUserId();
 
   const { histories, loaderRef } = useChallengeHistory(
     numericChallengeId,
     visibility
   );
+
 
   // createdAt ASC 정렬 (채팅방 스타일)
   const sorted = [...histories].sort(
@@ -40,7 +42,12 @@ export default function ChallengeHistoryRoomPage() {
       {/* 히스토리 */}
       <div className="flex flex-col gap-4">
         {sorted.map((h, index) => {
-          const isMine = h.userId === myUserId;
+          const isMine = Number(h.userId) === myUserId;
+          console.log({
+  hUserId: h.userId,
+  myUserId,
+  equal: h.userId === myUserId
+});
 
           const currentDate = formatDate(h.createdAt);
           const prevDate =

@@ -13,6 +13,8 @@ import NotFoundPage from "./pages/common/NotFoundPage";
 import SplashPage from "./pages/common/SplashPage";
 import NewUserWelcomePage from "./pages/common/NewUserWelcomePage";
 import UploadPage from "./pages/UploadPage";
+import MyPage from "./pages/mypage/MyPage";
+import EditProfilePage from "./pages/mypage/EditProfilePage";
 
 import MainPage from "./pages/MainPage";
 import FindChallengesPage from "./pages/FindChallengesPage";
@@ -52,6 +54,8 @@ const router = createBrowserRouter([
       { path: PATH.Z1_CHALLENGES, element: < FindChallengesPage/> },
       { path: PATH.Z1_UPLOAD, element: < UploadPage/> },
       { path: PATH.Z1_CHALLENGES_ROOM, element: < ChallengeHistoryRoomPage/> },
+      { path: PATH.Z1_MY_PAGE, element: < MyPage/> },
+      { path: PATH.Z1_MY_PROFILE_PAGE, element: < EditProfilePage/> },
 
     ],
   },
