@@ -1,5 +1,5 @@
 // src/pages/auth/NaverCallbackPage.tsx
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef} from "react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../../api/apiClient";
 import { PATH } from "../../constants/paths";
@@ -8,14 +8,12 @@ import Spinner from "../../components/Spinner";
 export default function NaverCallbackPage() {
   const navigate = useNavigate();
   const calledRef = useRef(false);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (calledRef.current) return;
     calledRef.current = true;
 
     const doLogin = async () => {
-      setLoading(true); // 👉 스피너 켜기
 
       try {
         const urlParams = new URLSearchParams(window.location.search);
@@ -47,7 +45,6 @@ export default function NaverCallbackPage() {
         console.error("네이버 로그인 실패:", err);
         navigate("/login");
       } finally {
-        setLoading(false); // 👉 스피너 끄기
       }
     };
 
