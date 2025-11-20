@@ -97,11 +97,19 @@ export default function MainPage() {
           const res = await apiClient.get(
             `/api/z1/history/participations/${c.participationId}/today`
           );
-          const checked = res.data.result === true;
 
-          setTodayStatus((prev) => ({
+          // 백엔드 응답:
+          // result: { checked: true/false, historyId: number|null }
+          const { checked, historyId } = res.data.result;
+
+          setTodayStatus(prev => ({
             ...prev,
             [c.participationId]: checked,
+          }));
+
+          setTodayHistoryId(prev => ({
+            ...prev,
+            [c.participationId]: historyId ?? null,
           }));
 
         } catch (err) {
@@ -112,6 +120,7 @@ export default function MainPage() {
 
     fetchStatus();
   }, [myChallenges]);
+
 
 
 
