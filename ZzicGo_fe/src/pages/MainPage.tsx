@@ -1,19 +1,22 @@
 import { IoIosNotificationsOutline } from "react-icons/io";
 import Calendar from "../components/Calendar";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, } from "react-router-dom";
 import { PATH } from "../constants/paths";
 import { useMyChallenges } from "../hooks/useMyChallenges";
 import GenericModal from "../components/GeneralModal";
 import ChallengeLeaveContent from "../components/challenge/ChallengeLeaveContent";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect} from "react";
 import apiClient from "../api/apiClient";
 import BottomSheetModal from "../components/GeneralBottomSheetModal";
 import CameraSelectSheet from "../components/challenge/CameraSelectSheet";
+import { FaCamera } from "react-icons/fa";
+import { FaCheckCircle } from "react-icons/fa";
 
 export default function MainPage() {
   const navigate = useNavigate();
   const { myChallenges, loading } = useMyChallenges();
   const [cameraSheetOpen, setCameraSheetOpen] = useState(false);
+  const [todayStatus, setTodayStatus] = useState<Record<number, boolean>>({});
 
   // 🔥 모달 상태
   const [openModal, setOpenModal] = useState(false);
@@ -72,6 +75,30 @@ export default function MainPage() {
 
   const openCamera = () => cameraInputRef.current?.click();
   const openGallery = () => galleryInputRef.current?.click();
+
+  // 오늘 인증 했는지 체크
+  useEffect(() => {
+  if (myChallenges.length === 0) return;
+
+  const fetchStatus = async () => {
+    for (const c of myChallenges) {
+      try {
+        const res = await apiClient.get(
+          `/api/z1/history/participations/${c.participationId}/today`
+        );
+
+        setTodayStatus((prev) => ({
+          ...prev,
+          [c.participationId]: res.data.result === true,
+        }));
+      } catch (err) {
+        console.error("오늘 인증 여부 불러오기 실패:", err);
+      }
+    }
+  };
+
+  fetchStatus();
+}, [myChallenges]);
 
 
   return (
@@ -167,22 +194,21 @@ export default function MainPage() {
                 <span className="font-semibold text-gray-900" >{c.name}</span>
               </div>
 
-              {/* 오른쪽 카메라 버튼 */}
-              <button
-                className="text-3xl p-2"
-                onClick={(e) => {
-                  e.stopPropagation(); // ❗ 탈퇴 팝업 안 뜨도록 방지
-                  setSelectedChallenge(c); // challengeId도 저장
-                  setCameraSheetOpen(true);
-                }}
-              >
-                <div>
-                  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#666666">
-                    <path d="M440-440ZM120-120q-33 0-56.5-23.5T40-200v-480q0-33 23.5-56.5T120-760h126l74-80h240v80H355l-73 80H120v480h640v-360h80v360q0 33-23.5 56.5T760-120H120Zm640-560v-80h-80v-80h80v-80h80v80h80v80h-80v80h-80ZM440-260q75 0 127.5-52.5T620-440q0-75-52.5-127.5T440-620q-75 0-127.5 52.5T260-440q0 75 52.5 127.5T440-260Zm0-80q-42 0-71-29t-29-71q0-42 29-71t71-29q42 0 71 29t29 71q0 42-29 71t-71 29Z"/>
-                  </svg>
-                </div>
-
-              </button>
+              {/* 오른쪽 카메라/체크 버튼 */}
+                <button
+                  className="text-3xl p-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedChallenge(c);
+                    setCameraSheetOpen(true);
+                  }}
+                >
+                  {todayStatus[c.participationId] ? (
+                    <FaCheckCircle className="text-green-500" size={28} />
+                  ) : (
+                    <FaCamera className="text-gray-500" size={28} />
+                  )}
+                </button>
             </div>
           ))}
         </div>
