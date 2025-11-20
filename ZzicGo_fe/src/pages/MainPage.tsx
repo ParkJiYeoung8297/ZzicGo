@@ -17,12 +17,15 @@ export default function MainPage() {
   const { myChallenges, loading } = useMyChallenges();
   const [cameraSheetOpen, setCameraSheetOpen] = useState(false);
   const [todayStatus, setTodayStatus] = useState<Record<number, boolean>>({});
+  const [todayHistoryId, setTodayHistoryId] = useState<Record<number, number>>({});
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   // 🔥 모달 상태
   const [openModal, setOpenModal] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [errorModalOpen, setErrorModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
 
   // 🔥 선택된 챌린지 저장
   const [selectedChallenge, setSelectedChallenge] = useState<{
@@ -73,32 +76,44 @@ export default function MainPage() {
     navigate("/z1/upload", { state: { image: file, participationId: selectedChallenge.participationId} });
   };
 
+  const [historyToDelete, setHistoryToDelete] = useState<{
+    participationId: number;
+    historyId: number;
+  } | null>(null);
+
+
+
+
   const openCamera = () => cameraInputRef.current?.click();
   const openGallery = () => galleryInputRef.current?.click();
 
-  // 오늘 인증 했는지 체크
+  // 오늘 인증 했는지 체크 + historyId 저장
   useEffect(() => {
-  if (myChallenges.length === 0) return;
+    if (myChallenges.length === 0) return;
 
-  const fetchStatus = async () => {
-    for (const c of myChallenges) {
-      try {
-        const res = await apiClient.get(
-          `/api/z1/history/participations/${c.participationId}/today`
-        );
+    const fetchStatus = async () => {
+      for (const c of myChallenges) {
+        try {
+          const res = await apiClient.get(
+            `/api/z1/history/participations/${c.participationId}/today`
+          );
+          const checked = res.data.result === true;
 
-        setTodayStatus((prev) => ({
-          ...prev,
-          [c.participationId]: res.data.result === true,
-        }));
-      } catch (err) {
-        console.error("오늘 인증 여부 불러오기 실패:", err);
+          setTodayStatus((prev) => ({
+            ...prev,
+            [c.participationId]: checked,
+          }));
+
+        } catch (err) {
+          console.error("오늘 인증 여부 불러오기 실패:", err);
+        }
       }
-    }
-  };
+    };
 
-  fetchStatus();
-}, [myChallenges]);
+    fetchStatus();
+  }, [myChallenges]);
+
+
 
 
   return (
@@ -128,6 +143,51 @@ export default function MainPage() {
           onConfirm={handleLeave}
         />
       </GenericModal>
+
+      {/* 🔥 인증 삭제 모달 */}
+      <GenericModal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
+        <div className="p-5 text-center">
+          <h2 className="text-lg font-semibold mb-3">오늘 인증을 삭제하시겠습니까?</h2>
+          <p className="text-gray-500 mb-6">삭제되면 복구할 수 없습니다.</p>
+
+          <div className="flex gap-3">
+            <button
+              className="flex-1 py-2 bg-gray-200 rounded-xl text-gray-700"
+              onClick={() => setDeleteModalOpen(false)}
+            >
+              취소
+            </button>
+
+            <button
+              className="flex-1 py-2 bg-red-500 rounded-xl text-white"
+              onClick={async () => {
+                if (!historyToDelete) return;
+
+                try {
+                  await apiClient.delete(`/api/z1/history/${historyToDelete.historyId}`);
+
+                  // UI 업데이트
+                  setTodayStatus(prev => ({
+                    ...prev,
+                    [historyToDelete.participationId]: false,
+                  }));
+
+                  setDeleteModalOpen(false);
+                  setHistoryToDelete(null);
+
+                } catch (err) {
+                  console.error("삭제 실패:", err);
+                  alert("삭제 중 오류가 발생했습니다.");
+                }
+              }}
+            >
+              삭제하기
+            </button>
+          </div>
+        </div>
+      </GenericModal>
+
+
 
       {/* 카메라 선택 BottomSheet */}
       <BottomSheetModal
@@ -194,21 +254,33 @@ export default function MainPage() {
                 <span className="font-semibold text-gray-900" >{c.name}</span>
               </div>
 
-              {/* 오른쪽 카메라/체크 버튼 */}
-                <button
-                  className="text-3xl p-2"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedChallenge(c);
-                    setCameraSheetOpen(true);
-                  }}
-                >
-                  {todayStatus[c.participationId] ? (
-                    <FaCheckCircle className="text-green-500" size={28} />
-                  ) : (
-                    <FaCamera className="text-gray-500" size={28} />
-                  )}
-                </button>
+            {/* 오른쪽 카메라/체크 버튼 */}
+            <button
+              className="text-3xl p-2"
+              onClick={(e) => {
+                e.stopPropagation();
+
+                if (todayStatus[c.participationId]) {
+                  // 오늘 인증한 상태 → 삭제 모달 열기
+                  setHistoryToDelete({
+                    participationId: c.participationId,
+                    historyId: todayHistoryId[c.participationId],
+                  });
+                  setDeleteModalOpen(true);
+                } else {
+                  // 오늘 인증 안한 상태 → 카메라 BottomSheet 열기
+                  setSelectedChallenge(c);
+                  setCameraSheetOpen(true);
+                }
+              }}
+            >
+              {todayStatus[c.participationId] ? (
+                <FaCheckCircle className="text-green-500" size={28} />
+              ) : (
+                <FaCamera className="text-gray-500" size={28} />
+              )}
+            </button>
+
             </div>
           ))}
         </div>
