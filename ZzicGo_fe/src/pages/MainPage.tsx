@@ -17,6 +17,9 @@ export default function MainPage() {
 
   // 🔥 모달 상태
   const [openModal, setOpenModal] = useState(false);
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   // 🔥 선택된 챌린지 저장
   const [selectedChallenge, setSelectedChallenge] = useState<{
@@ -42,11 +45,16 @@ export default function MainPage() {
         `/api/z1/challenges/participations/${selectedChallenge.participationId}/me`
       );
 
-      alert("챌린지에서 탈퇴했습니다.");
+      // alert("챌린지에서 탈퇴했습니다.");
+      setSuccessModalOpen(true);
       window.location.reload(); // 또는 상태 관리 방식으로 자체 업데이트
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("탈퇴 중 오류가 발생했습니다.");
+      // alert("탈퇴 중 오류가 발생했습니다.");
+      const msg = err.response?.data?.message || "탈퇴 중 오류가 발생했습니다.";
+
+      setErrorMessage(msg);
+      setErrorModalOpen(true);  // 🔥 오류 모달
     } finally {
       setOpenModal(false);
     }
