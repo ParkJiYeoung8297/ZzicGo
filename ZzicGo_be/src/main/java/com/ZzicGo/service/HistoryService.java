@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -223,5 +224,29 @@ public class HistoryService {
         // 6) history 삭제
         historyRepository.delete(history);
     }
+
+    @Transactional(readOnly = true)
+    public boolean checkTodayHistory(Long participationId, Long loginUserId) {
+
+        // 참여 정보 찾기
+        ChallengeParticipation participation = participationRepository.findById(participationId)
+                .orElseThrow(() -> new CustomException(ChallenegeException.PARTICIPATION_NOT_FOUND));
+
+        // 권한 체크 (내가 참여자?)
+        if (!participation.getUser().getId().equals(loginUserId)) {
+            throw new CustomException(ChallenegeException.PARTICIPATION_FORBIDDEN);
+        }
+
+        // 오늘 날짜 범위
+        LocalDate today = LocalDate.now();
+        LocalDateTime start = today.atStartOfDay();
+        LocalDateTime end = today.plusDays(1).atStartOfDay();
+
+        // 오늘 기록 있는지 여부
+        return historyRepository.existsByParticipationAndCreatedAtBetween(
+                participation, start, end
+        );
+    }
+
 
 }

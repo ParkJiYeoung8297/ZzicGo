@@ -37,7 +37,7 @@ public class HistoryController {
     private final S3Uploader s3Uploader;
     
     @Operation(
-            summary = "인증 기록 업로드 API By 박지영",
+            summary = "인증 기록 업로드 API",
             description = "인증 기록을 DB에 저장합니다. (하루 인증 게시글 1개, 게시글 내에 사진 최대 3개)"
     )
     @ApiResponses({
@@ -76,7 +76,7 @@ public class HistoryController {
     }
 
     @Operation(summary = "인증 기록 삭제 API", description = "나의 인증 기록을 삭제합니다.")
-    @DeleteMapping("/histories/{historyId}")
+    @DeleteMapping("/{historyId}")
     public CustomResponse<String> deleteHistory(
             @AuthenticationPrincipal CustomUserDetails user,
             @PathVariable Long historyId
@@ -84,6 +84,17 @@ public class HistoryController {
         historyService.deleteHistory(historyId, user.getUserId());
         return CustomResponse.ok("히스토리 삭제 완료");
     }
+
+    @Operation(summary = "오늘 인증 여부 확인", description = "오늘 이 챌린지에서 인증한 기록이 있는지 확인합니다.")
+    @GetMapping("/participations/{participationId}/today")
+    public CustomResponse<Boolean> checkToday(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable Long participationId
+    ) {
+        boolean result = historyService.checkTodayHistory(participationId, user.getUserId());
+        return CustomResponse.ok(result);
+    }
+
 
 }
 
