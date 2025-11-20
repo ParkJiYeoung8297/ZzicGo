@@ -45,4 +45,12 @@ public class HistoryResponseDto {
         private boolean hasMore;
     }
 
+    @Getter
+    @AllArgsConstructor
+    @Builder
+    public static class TodayHistory {
+        private final boolean checked;
+        private final Long historyId;
+    }
+
 }

@@ -28,6 +28,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -226,7 +227,7 @@ public class HistoryService {
     }
 
     @Transactional(readOnly = true)
-    public boolean checkTodayHistory(Long participationId, Long loginUserId) {
+    public HistoryResponseDto.TodayHistory checkTodayHistory(Long participationId, Long loginUserId) {
 
         // 참여 정보 찾기
         ChallengeParticipation participation = participationRepository.findById(participationId)
@@ -243,9 +244,20 @@ public class HistoryService {
         LocalDateTime end = today.plusDays(1).atStartOfDay();
 
         // 오늘 기록 있는지 여부
-        return historyRepository.existsByParticipationAndCreatedAtBetween(
-                participation, start, end
-        );
+        Optional<History> historyOpt = historyRepository
+                .findByParticipationAndCreatedAtBetween(participation, start, end);
+
+        // 🔥 존재하면 checked=true + historyId 포함
+        return historyOpt
+                .map(history -> HistoryResponseDto.TodayHistory.builder()
+                        .checked(true)
+                        .historyId(history.getId())
+                        .build())
+                // 🔥 없으면 checked=false + null
+                .orElseGet(() -> HistoryResponseDto.TodayHistory.builder()
+                        .checked(false)
+                        .historyId(null)
+                        .build());
     }
 
 

@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface HistoryRepository extends JpaRepository<History,Long> {
     boolean existsByParticipationAndCreatedAtBetween(ChallengeParticipation participation, LocalDateTime createdAtAfter, LocalDateTime createdAtBefore);
@@ -53,4 +54,7 @@ public interface HistoryRepository extends JpaRepository<History,Long> {
             @Param("cursorId") Long cursorId,
             Pageable pageable
     );
+
+    Optional<History> findByParticipationAndCreatedAtBetween(ChallengeParticipation participation, LocalDateTime createdAtAfter, LocalDateTime createdAtBefore);
+
 }

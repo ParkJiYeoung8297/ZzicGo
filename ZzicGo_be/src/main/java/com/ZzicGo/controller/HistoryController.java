@@ -87,12 +87,12 @@ public class HistoryController {
 
     @Operation(summary = "오늘 인증 여부 확인", description = "오늘 이 챌린지에서 인증한 기록이 있는지 확인합니다.")
     @GetMapping("/participations/{participationId}/today")
-    public CustomResponse<Boolean> checkToday(
+    public CustomResponse<HistoryResponseDto.TodayHistory> checkToday(
             @AuthenticationPrincipal CustomUserDetails user,
             @PathVariable Long participationId
     ) {
-        boolean result = historyService.checkTodayHistory(participationId, user.getUserId());
-        return CustomResponse.ok(result);
+        HistoryResponseDto.TodayHistory response  = historyService.checkTodayHistory(participationId, user.getUserId());
+        return CustomResponse.ok(response);
     }
 
 
