@@ -74,5 +74,16 @@ public class HistoryController {
                 )
         );
     }
+
+    @Operation(summary = "인증 기록 삭제 API", description = "나의 인증 기록을 삭제합니다.")
+    @DeleteMapping("/histories/{historyId}")
+    public CustomResponse<String> deleteHistory(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable Long historyId
+    ) {
+        historyService.deleteHistory(historyId, user.getUserId());
+        return CustomResponse.ok("히스토리 삭제 완료");
+    }
+
 }
 

@@ -194,4 +194,34 @@ public class HistoryService {
         }
         return new HistoryResponseDto.CursorResponse(items, nextCursor, hasMore);
     }
+
+
+    @Transactional
+    public void deleteHistory(Long historyId, Long loginUserId) {
+
+        // 1) 히스토리 조회
+        History history = historyRepository.findById(historyId)
+                .orElseThrow(() -> new CustomException(HistoryException.HISTORY_NOT_FOUND));
+
+        // 2) 주인 검증
+        Long ownerId = history.getParticipation().getUser().getId();
+        if (!ownerId.equals(loginUserId)) {
+            throw new CustomException(ChallenegeException.PARTICIPATION_FORBIDDEN);
+        }
+
+        // 3) 이미지 목록 조회
+        List<ImageUrl> images = imageUrlRepository.findByHistoryIds(List.of(historyId));
+
+        // 4) S3 파일 삭제
+        for (ImageUrl img : images) {
+            s3Uploader.deleteFile(img.getImageUrl());
+        }
+
+        // 5) image_url 테이블 삭제
+        imageUrlRepository.deleteAll(images);
+
+        // 6) history 삭제
+        historyRepository.delete(history);
+    }
+
 }
