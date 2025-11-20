@@ -74,7 +74,8 @@ export default function MainPage() {
         <img
           src="profile_cheetah.png"
           alt="profile"
-          className="w-10 h-10 rounded-full border border-gray-200"
+          className="w-11 h-11 rounded-full border border-gray-200 cursor-pointer"
+          onClick={ () => navigate(PATH.Z1_MY_PAGE) }
         />
       </header>
 
@@ -141,17 +142,26 @@ export default function MainPage() {
             <div
               key={c.participationId}
               className="bg-white rounded-xl px-4 py-3 shadow border flex items-center justify-between cursor-pointer"
+                onClick={() =>
+                  navigate(PATH.GO_CHALLENGES_ROOM(c.challengeId), {state: { title: c.name },})}
             >
               {/* 왼쪽: 하트 + 이름 */}
               <div className="flex items-center gap-3">
-                <span className="text-2xl text-[#834909]" onClick={() => handleSelectChallenge(c)}>♥</span>
-                <span className="font-semibold text-gray-900" 
-                onClick={() => navigate(PATH.GO_CHALLENGES_ROOM(c.challengeId), {state: { title: c.name } })}>{c.name}</span>
+                <span
+                  className="text-3xl text-[#834909]"
+                  onClick={(e) => {
+                    e.stopPropagation();   // 🔥 카드 클릭 이벤트 방지
+                    handleSelectChallenge(c); 
+                  }}
+                >
+                  ♥
+                </span>
+                <span className="font-semibold text-gray-900" >{c.name}</span>
               </div>
 
               {/* 오른쪽 카메라 버튼 */}
               <button
-                className="text-2xl"
+                className="text-3xl p-2"
                 onClick={(e) => {
                   e.stopPropagation(); // ❗ 탈퇴 팝업 안 뜨도록 방지
                   setSelectedChallenge(c); // challengeId도 저장

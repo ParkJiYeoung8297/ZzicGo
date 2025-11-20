@@ -4,6 +4,7 @@ import ImagePicker from "../components/history/ImagePicker";
 import { useUploadPost } from "../hooks/useUploadPost";
 import { IoChevronBack } from "react-icons/io5";
 import { PATH } from "../constants/paths";
+import Spinner from "../components/Spinner";
 
 export default function UploadPage() {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ export default function UploadPage() {
 
   const { upload } = useUploadPost();
   const participationId = state?.participationId;
+  const [loading, setLoading] = useState(false);
 
   // 🔥 SelectPhoto에서 전달된 이미지 반영
   useEffect(() => {
@@ -28,12 +30,17 @@ export default function UploadPage() {
       return;
     }
 
+     setLoading(true);
+
     try {
       
       await upload(participationId, images, content, visibility);
-      alert("업로드 완료!");
+      // alert("업로드 완료!");
+      navigate(PATH.Z1_MAIN);
     } catch (error: any) {
       alert(error.response?.data?.message || "업로드 중 오류가 발생했습니다.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -41,6 +48,7 @@ export default function UploadPage() {
     <div className="min-h-screen bg-[#FAFAFA] flex flex-col">
       {/* 🔙 상단 헤더 */}
       <div className="flex items-center gap-2 px-4 py-3">
+        {loading && <Spinner />}
         <button onClick={() => navigate(PATH.Z1_MAIN)}>
           <IoChevronBack className="text-2xl text-gray-800" />
         </button>
