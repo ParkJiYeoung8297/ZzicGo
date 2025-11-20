@@ -1,22 +1,31 @@
 import { IoIosNotificationsOutline } from "react-icons/io";
 import Calendar from "../components/Calendar";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, } from "react-router-dom";
 import { PATH } from "../constants/paths";
 import { useMyChallenges } from "../hooks/useMyChallenges";
 import GenericModal from "../components/GeneralModal";
 import ChallengeLeaveContent from "../components/challenge/ChallengeLeaveContent";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect} from "react";
 import apiClient from "../api/apiClient";
 import BottomSheetModal from "../components/GeneralBottomSheetModal";
 import CameraSelectSheet from "../components/challenge/CameraSelectSheet";
+import { FaCamera } from "react-icons/fa";
+import { FaCheckCircle } from "react-icons/fa";
 
 export default function MainPage() {
   const navigate = useNavigate();
   const { myChallenges, loading } = useMyChallenges();
   const [cameraSheetOpen, setCameraSheetOpen] = useState(false);
+  const [todayStatus, setTodayStatus] = useState<Record<number, boolean>>({});
+  const [todayHistoryId, setTodayHistoryId] = useState<Record<number, number>>({});
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   // 🔥 모달 상태
   const [openModal, setOpenModal] = useState(false);
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
 
   // 🔥 선택된 챌린지 저장
   const [selectedChallenge, setSelectedChallenge] = useState<{
@@ -42,11 +51,16 @@ export default function MainPage() {
         `/api/z1/challenges/participations/${selectedChallenge.participationId}/me`
       );
 
-      alert("챌린지에서 탈퇴했습니다.");
+      // alert("챌린지에서 탈퇴했습니다.");
+      setSuccessModalOpen(true);
       window.location.reload(); // 또는 상태 관리 방식으로 자체 업데이트
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("탈퇴 중 오류가 발생했습니다.");
+      // alert("탈퇴 중 오류가 발생했습니다.");
+      const msg = err.response?.data?.message || "탈퇴 중 오류가 발생했습니다.";
+
+      setErrorMessage(msg);
+      setErrorModalOpen(true);  // 🔥 오류 모달
     } finally {
       setOpenModal(false);
     }
@@ -62,8 +76,53 @@ export default function MainPage() {
     navigate("/z1/upload", { state: { image: file, participationId: selectedChallenge.participationId} });
   };
 
+  const [historyToDelete, setHistoryToDelete] = useState<{
+    participationId: number;
+    historyId: number;
+  } | null>(null);
+
+
+
+
   const openCamera = () => cameraInputRef.current?.click();
   const openGallery = () => galleryInputRef.current?.click();
+
+  // 오늘 인증 했는지 체크 + historyId 저장
+  useEffect(() => {
+    if (myChallenges.length === 0) return;
+
+    const fetchStatus = async () => {
+      for (const c of myChallenges) {
+        try {
+          const res = await apiClient.get(
+            `/api/z1/history/participations/${c.participationId}/today`
+          );
+
+          // 백엔드 응답:
+          // result: { checked: true/false, historyId: number|null }
+          const { checked, historyId } = res.data.result;
+
+          setTodayStatus(prev => ({
+            ...prev,
+            [c.participationId]: checked,
+          }));
+
+          setTodayHistoryId(prev => ({
+            ...prev,
+            [c.participationId]: historyId ?? null,
+          }));
+
+        } catch (err) {
+          console.error("오늘 인증 여부 불러오기 실패:", err);
+        }
+      }
+    };
+
+    fetchStatus();
+  }, [myChallenges]);
+
+
+
 
 
   return (
@@ -93,6 +152,51 @@ export default function MainPage() {
           onConfirm={handleLeave}
         />
       </GenericModal>
+
+      {/* 🔥 인증 삭제 모달 */}
+      <GenericModal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
+        <div className="p-5 text-center">
+          <h2 className="text-lg font-semibold mb-3">오늘 인증을 삭제하시겠습니까?</h2>
+          <p className="text-gray-500 mb-6">삭제되면 복구할 수 없습니다.</p>
+
+          <div className="flex gap-3">
+            <button
+              className="flex-1 py-2 bg-gray-200 rounded-xl text-gray-700"
+              onClick={() => setDeleteModalOpen(false)}
+            >
+              취소
+            </button>
+
+            <button
+              className="flex-1 py-2 bg-red-500 rounded-xl text-white"
+              onClick={async () => {
+                if (!historyToDelete) return;
+
+                try {
+                  await apiClient.delete(`/api/z1/history/${historyToDelete.historyId}`);
+
+                  // UI 업데이트
+                  setTodayStatus(prev => ({
+                    ...prev,
+                    [historyToDelete.participationId]: false,
+                  }));
+
+                  setDeleteModalOpen(false);
+                  setHistoryToDelete(null);
+
+                } catch (err) {
+                  console.error("삭제 실패:", err);
+                  alert("삭제 중 오류가 발생했습니다.");
+                }
+              }}
+            >
+              삭제하기
+            </button>
+          </div>
+        </div>
+      </GenericModal>
+
+
 
       {/* 카메라 선택 BottomSheet */}
       <BottomSheetModal
@@ -159,22 +263,33 @@ export default function MainPage() {
                 <span className="font-semibold text-gray-900" >{c.name}</span>
               </div>
 
-              {/* 오른쪽 카메라 버튼 */}
-              <button
-                className="text-3xl p-2"
-                onClick={(e) => {
-                  e.stopPropagation(); // ❗ 탈퇴 팝업 안 뜨도록 방지
-                  setSelectedChallenge(c); // challengeId도 저장
-                  setCameraSheetOpen(true);
-                }}
-              >
-                <div>
-                  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#666666">
-                    <path d="M440-440ZM120-120q-33 0-56.5-23.5T40-200v-480q0-33 23.5-56.5T120-760h126l74-80h240v80H355l-73 80H120v480h640v-360h80v360q0 33-23.5 56.5T760-120H120Zm640-560v-80h-80v-80h80v-80h80v80h80v80h-80v80h-80ZM440-260q75 0 127.5-52.5T620-440q0-75-52.5-127.5T440-620q-75 0-127.5 52.5T260-440q0 75 52.5 127.5T440-260Zm0-80q-42 0-71-29t-29-71q0-42 29-71t71-29q42 0 71 29t29 71q0 42-29 71t-71 29Z"/>
-                  </svg>
-                </div>
+            {/* 오른쪽 카메라/체크 버튼 */}
+            <button
+              className="text-3xl p-2"
+              onClick={(e) => {
+                e.stopPropagation();
 
-              </button>
+                if (todayStatus[c.participationId]) {
+                  // 오늘 인증한 상태 → 삭제 모달 열기
+                  setHistoryToDelete({
+                    participationId: c.participationId,
+                    historyId: todayHistoryId[c.participationId],
+                  });
+                  setDeleteModalOpen(true);
+                } else {
+                  // 오늘 인증 안한 상태 → 카메라 BottomSheet 열기
+                  setSelectedChallenge(c);
+                  setCameraSheetOpen(true);
+                }
+              }}
+            >
+              {todayStatus[c.participationId] ? (
+                <FaCheckCircle className="text-green-500" size={28} />
+              ) : (
+                <FaCamera className="text-gray-500" size={28} />
+              )}
+            </button>
+
             </div>
           ))}
         </div>
