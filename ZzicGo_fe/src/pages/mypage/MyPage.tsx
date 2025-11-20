@@ -52,7 +52,7 @@ export default function MyPage() {
       </div>
 
       {/* 🔥 3. 연타/총 활동일 박스 */}
-      <div className="px-5 mt-4">
+      {/* <div className="px-5 mt-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-white p-5 rounded-2xl shadow text-center">
             <div className="text-sm text-gray-600">연타</div>
@@ -63,12 +63,45 @@ export default function MyPage() {
             <div className="text-xl font-bold">{user.totalDays}일</div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* 🔥 4. 히트맵 */}
-      <div className="px-5">
+      {/* <div className="px-5">
         <ActivityHeatmap />
+      </div> */}
+
+      {/* 🔥 3+4. 연타/활동일 + 히트맵 전체 묶음 */}
+      <div className="relative px-5 mt-4">
+
+        {/* 실제 UI (연타/총 활동일 + 히트맵) */}
+        <div className="opacity-40 pointer-events-none">
+          
+          {/* 연타/총 활동일 */}
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="bg-white p-5 rounded-2xl shadow text-center">
+              <div className="text-sm text-gray-600">연타</div>
+              <div className="text-xl font-bold">{user.streak}일 🔥</div>
+            </div>
+
+            <div className="bg-white p-5 rounded-2xl shadow text-center">
+              <div className="text-sm text-gray-600">총 활동일</div>
+              <div className="text-xl font-bold">{user.totalDays}일</div>
+            </div>
+          </div>
+
+          {/* 히트맵 */}
+          <ActivityHeatmap />
+        </div>
+
+      {/* 🔒 준비중 오버레이 */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="bg-gray-300 text-gray-700 px-4 py-2 rounded-full shadow font-medium 
+                        -translate-y-14">
+          ⏳ 준비중인 기능입니다
+        </div>
       </div>
+      </div>
+
 
       {/* 🔥 5. 설정 */}
       <div className="bg-white mt-6 rounded-xl shadow px-4 py-2">

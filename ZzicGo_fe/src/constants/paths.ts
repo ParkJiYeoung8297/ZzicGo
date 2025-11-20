@@ -20,7 +20,7 @@ export const PATH = {
   GO_CHALLENGES_ROOM: (id: number) => `challenge/${id}/history`,
 
   Z1_MY_PAGE: "mypage",
-  Z1_MY_PROFILE_PAGE: "profile",
+  Z1_MY_PROFILE_PAGE: "/z1/myprofile",
 
   // NotFound
   NOT_FOUND: "*",
