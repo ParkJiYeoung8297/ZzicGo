@@ -2,6 +2,7 @@ package com.ZzicGo.domain.user;
 
 import com.ZzicGo.domain.common.BaseEntity;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -56,5 +57,12 @@ public class User extends BaseEntity {
         this.lastLoginAt = LocalDateTime.now();
     }
 
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void updateGender(Gender gender) {
+        this.gender = gender;
+    }
 }
 

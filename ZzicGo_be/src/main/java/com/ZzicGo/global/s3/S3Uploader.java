@@ -54,4 +54,8 @@ public class S3Uploader {
 
         return amazonS3.generatePresignedUrl(request).toString();
     }
+
+    public void deleteFile(String key) {
+        amazonS3.deleteObject(bucketName, key);
+    }
 }
