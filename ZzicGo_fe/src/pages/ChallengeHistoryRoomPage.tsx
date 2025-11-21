@@ -33,6 +33,11 @@ export default function ChallengeHistoryRoomPage() {
   const handleScroll = () => {
     const el = scrollRef.current;
     if (!el) return;
+    // console.log("🌀 scrollTop:", el.scrollTop);
+    // console.log("🌀 scrollHeight:", el.scrollHeight);
+    // console.log("🌀 clientHeight:", el.clientHeight);
+    // console.log("🌀 hasNextPage:", hasNextPage);
+    // console.log("🌀 isFetchingNextPage:", isFetchingNextPage);
 
     if (el.scrollTop <= 40 && hasNextPage && !isFetchingNextPage) {
       const oldHeight = el.scrollHeight;
