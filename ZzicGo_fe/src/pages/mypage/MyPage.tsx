@@ -38,19 +38,25 @@ export default function MyPage() {
           <div className="bg-white p-6 rounded-3xl shadow-md">
             <div className="flex items-center justify-between">
 
-              <div className="flex items-center gap-4">
-                {/* 🔥 프로필 이미지 적용 */}
-                {/* <UserAvatar size={85} imageUrl={user.profileImageUrl} /> */}
-                <UserAvatar size={110} />
-                <div className="text-xl font-semibold">{user.nickname}</div>
-              </div>
+            <div className="flex items-center gap-4">
+              {/* 프로필 이미지 */}
+              <UserAvatar size={100} />
 
-              <button
-                className="bg-[#F7C954] text-gray-800 px-4 py-2 rounded-full text-sm shadow-sm"
-                onClick={() => navigate(PATH.Z1_MY_PROFILE_PAGE)}
-              >
-                내 정보 수정 →
-              </button>
+              {/* 오른쪽 영역 → 세로 배치 */}
+              <div className="flex flex-col">
+                <div className="text-xl font-semibold break-words">
+                  {user.nickname}
+                </div>
+
+                <button
+                  className="bg-[#F7C954] text-gray-800 px-4 py-2 rounded-full text-sm shadow-sm mt-2 w-fit"
+                  onClick={() => navigate(PATH.Z1_MY_PROFILE_PAGE)}
+                >
+                  내 정보 수정 →
+                </button>
+              </div>
+            </div>
+
 
             </div>
           </div>

@@ -1,5 +1,5 @@
 export default function UserAvatar({
-  size = 100,
+  size = 90,
   imageUrl,
 }: {
   size?: number;
