@@ -1,6 +1,8 @@
 import { Outlet } from "react-router-dom";
+import { usePageTracking } from "../hooks/usePageTracking";
 
 export default function RootLayout() {
+  usePageTracking(); 
 
   return (
     <div className="min-h-screen flex flex-col">
