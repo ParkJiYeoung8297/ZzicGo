@@ -25,6 +25,20 @@ import ChallengeHistoryRoomPage from "./pages/ChallengeHistoryRoomPage";
 import SocialLoginPage from "./pages/auth/SocialLoginPage";
 import NaverCallbackPage from "./pages/auth/NaverCallbackPage";
 
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+
+export function usePageTracking() {
+  const location = useLocation();
+
+  useEffect(() => {
+    window.gtag('config', 'G-SQ8B5QNVHV', {
+      page_path: location.pathname + location.search,
+    });
+  }, [location]);
+}
+
+
 const queryClient = new QueryClient();
 const router = createBrowserRouter([
 
@@ -67,6 +81,7 @@ const router = createBrowserRouter([
 
 
 export default function App() {
+  usePageTracking();
   return <>
   <QueryClientProvider client={queryClient}>
     <RouterProvider router={router} />
