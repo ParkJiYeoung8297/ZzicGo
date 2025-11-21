@@ -27,6 +27,7 @@ public class HistoryResponseDto {
         private String profileImageUrl;
         private String content;
         private List<String> images; // presigned URL 목록
+        private String visibility;
         private LocalDateTime createdAt;
     }
 

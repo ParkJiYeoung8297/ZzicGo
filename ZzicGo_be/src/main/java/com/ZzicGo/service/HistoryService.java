@@ -182,6 +182,7 @@ public class HistoryService {
                         .profileImageUrl(h.getParticipation().getUser().getProfileImageUrl())
                         .content(h.getContent())
                         .images(imageMap.getOrDefault(h.getId(), List.of()))
+                        .visibility(h.getVisibility().toString())
                         .createdAt(h.getCreatedAt())
                         .build())
                 .toList();
