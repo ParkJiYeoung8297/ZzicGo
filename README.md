@@ -2,10 +2,12 @@
 “찍고 가자!” — 오늘 하루의 인증 한 컷.
 
 오늘 하루의 ⭐️갓생 인증⭐️하는 서비스입니다.
+아래의 기능 설명을 참고해서 방명록에 인증글을 남겨 보세요! 
 
-<img src="https://velog.velcdn.com/images/wldud8297/post/45ddaa16-6029-4a1a-9659-90e379bdabee/image.png" width="60%"/>
-
-
+<p align="left">
+  <img src="https://velog.velcdn.com/images/wldud8297/post/45ddaa16-6029-4a1a-9659-90e379bdabee/image.png" width="400" />
+  <img src="https://github.com/user-attachments/assets/1cc1b635-6f86-4421-aea4-49ee0dfeec4a" width="350" />
+</p>
 
 ## 주제 선정:
 저는 친구들과 하루 1시간 공부 인증글을 올리는 스터디를 2023년 부터 해왔습니다.
@@ -59,6 +61,7 @@
 <img src="https://velog.velcdn.com/images/wldud8297/post/375a508b-bbb4-4c9f-8b3f-07612ba2719b/image.png" >
 
 
+
 ### 4. 마이페이지
 
 메인 화면에서 프로필을 누르면 나의 정보 조회 및 수정을 할 수 있습니다.  
@@ -68,3 +71,6 @@
 
 <img src="https://velog.velcdn.com/images/wldud8297/post/837e9d53-ff4c-48e8-a938-ee4534674a00/image.png">
 
+
+
+-------
