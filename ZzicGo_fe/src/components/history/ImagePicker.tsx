@@ -1,0 +1,56 @@
+import { useRef } from "react";
+
+interface ImagePickerProps {
+  images: File[];
+  setImages: React.Dispatch<React.SetStateAction<File[]>>;
+}
+
+export default function ImagePicker({ images, setImages }: ImagePickerProps) {
+  const fileInput = useRef<HTMLInputElement>(null);
+
+  const handleSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    if (images.length + files.length > 3) {
+      alert("최대 3장까지 업로드할 수 있습니다.");
+      return;
+    }
+
+    const newImages = [...images, ...Array.from(files)];
+    setImages(newImages);
+  };
+
+  return (
+    <div className="flex gap-4 w-full">
+      {images.map((file, index) => (
+        <div
+          key={index}
+          className="w-1/3 aspect-square rounded overflow-hidden"
+        >
+          <img
+            src={URL.createObjectURL(file)}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      ))}
+
+    {images.length < 3 && (
+      <div
+        className="w-1/3 aspect-square bg-gray-100 rounded flex items-center justify-center cursor-pointer"
+        onClick={() => fileInput.current?.click()}
+      >
+        +
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          hidden
+          ref={fileInput}
+          onChange={handleSelect}
+        />
+      </div>
+    )}
+    </div>
+  );
+}
