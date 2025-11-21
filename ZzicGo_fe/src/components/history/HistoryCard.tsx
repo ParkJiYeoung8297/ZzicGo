@@ -1,13 +1,15 @@
 // src/components/history/HistoryCard.tsx
 import { useState } from "react";
-import type { HistoryItem } from "../../hooks/useChallengeHistory";
+import type { HistoryItem } from "../../api/chat";
 
 type Props = {
   item: HistoryItem;
   isMine: boolean;
+  visibility: "PUBLIC" | "PRIVATE";
 };
 
-export default function HistoryCard({ item, isMine }: Props) {
+export default function HistoryCard({ item, isMine, visibility }: Props) {
+  const isPrivateMine = isMine && visibility === "PRIVATE";
   const profileImage = item.profileImageUrl || "/profile_cheetah.png";
 
   // 🔥 클릭한 원본 이미지 보기 위한 상태
@@ -15,6 +17,7 @@ export default function HistoryCard({ item, isMine }: Props) {
 
   return (
     <>
+
     <div
       className={`
         flex flex-col gap-3 p-4 rounded-2xl shadow-sm
@@ -22,10 +25,17 @@ export default function HistoryCard({ item, isMine }: Props) {
           ? "bg-white ml-auto" 
           : "bg-[#FEF8E7] mr-auto"
         }
+        ${isPrivateMine ? " bg-[#FFF4E6]" : ""}
         max-w-[80%] sm:max-w-[70%] md:max-w-[60%] lg:max-w-[50%] xl:max-w-[40%]
       `}
-
+        
     >
+            {/* 🔒 내 비공개 기록 표시 */}
+        {isPrivateMine && (
+          <div className="flex items-center gap-1 bg-[#F2F2F2] text-gray-600 text-xs px-2 py-1 rounded-full w-fit">
+            🔒 비공개
+          </div>
+        )}
 
       {/* 프로필 + 이름 */}
       <div className="flex items-center gap-2">
@@ -43,10 +53,12 @@ export default function HistoryCard({ item, isMine }: Props) {
 
           {/* (1) 이미지 1장 */}
           {item.images.length === 1 && (
+            
             <div
               className="w-full max-w-[280px] h-[280px] rounded-xl overflow-hidden cursor-pointer"
               onClick={() => setOpenImage(item.images[0])}
             >
+              
               <img
                 src={item.images[0]}
                 className="w-full h-full object-cover"
@@ -82,6 +94,12 @@ export default function HistoryCard({ item, isMine }: Props) {
           {item.content}
         </div>
       )}
+      <div className="text-[10px] text-gray-400 mt-1 text-right">
+        {new Date(item.createdAt).toLocaleTimeString("ko-KR", {
+          hour: "2-digit",
+          minute: "2-digit",
+        })}
+      </div>
     </div>
 
 

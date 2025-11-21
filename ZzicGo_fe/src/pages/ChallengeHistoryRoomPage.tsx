@@ -1,8 +1,6 @@
-// src/pages/challenge/ChallengeHistoryRoomPage.tsx
-
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useLocation } from "react-router-dom";
-import { useChallengeHistory } from "../hooks/useChallengeHistory";
+import { useChallengeHistoryInfinite } from "../hooks/useChallengeHistoryInfinite";
 import HistoryCard from "../components/history/HistoryCard";
 import VisibilityDropdown from "../components/history/VisibilityDropdown";
 import { formatDate } from "../utils/formatDate";
@@ -19,39 +17,114 @@ export default function ChallengeHistoryRoomPage() {
 
   const myUserId = getMyUserId();
 
-  const { histories, loaderRef } = useChallengeHistory(
-    numericChallengeId,
-    visibility
-  );
+  const {
+    data,
+    fetchNextPage,
+    isFetchingNextPage,
+    hasNextPage,
+  } = useChallengeHistoryInfinite(numericChallengeId, visibility);
 
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const isFirstRender = useRef(true);
 
-  // createdAt ASC 정렬 (채팅방 스타일)
-  const sorted = [...histories].sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-  );
+  /** ==============================
+   *  🔥 무한 스크롤: 위로 스크롤 시 이전 페이지 로드
+   * ============================== */
+  const handleScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    // console.log("🌀 scrollTop:", el.scrollTop);
+    // console.log("🌀 scrollHeight:", el.scrollHeight);
+    // console.log("🌀 clientHeight:", el.clientHeight);
+    // console.log("🌀 hasNextPage:", hasNextPage);
+    // console.log("🌀 isFetchingNextPage:", isFetchingNextPage);
+
+    if (el.scrollTop <= 40 && hasNextPage && !isFetchingNextPage) {
+      const oldHeight = el.scrollHeight;
+      console.log("🚀 fetchNextPage 실행됨!");
+
+      fetchNextPage().then(() => {
+        requestAnimationFrame(() => {
+          const newHeight = el.scrollHeight;
+          el.scrollTop = newHeight - oldHeight;
+        });
+      });
+    }
+  };
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    el.addEventListener("scroll", handleScroll);
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, [hasNextPage, isFetchingNextPage]);
+
+  /** ==============================
+   * 🔥 최초 렌더에서 최신 메시지를 맨 아래로 스크롤
+   * ============================== */
+  const scrollToBottom = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
+  };
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    // 첫 렌더 때만 실행
+    if (isFirstRender.current) {
+      requestAnimationFrame(() => {
+        scrollToBottom();
+
+        // 이미지/텍스트 로딩 높이 변화를 고려해 한 번 더
+        setTimeout(() => {
+          scrollToBottom();
+          isFirstRender.current = false;
+        }, 50);
+      });
+    }
+  }, [data]);
+
+  /** ==============================
+   * 🔥 페이지 데이터 평탄화 (ASC → 페이지역순 → flat)
+   * ============================== */
+
+  const pagesASC =
+    data?.pages.map((page) =>
+      [...page.histories].sort(
+        (a, b) =>
+          new Date(a.createdAt).getTime() -
+          new Date(b.createdAt).getTime()
+      )
+    ) ?? [];
+
+  const histories = [...pagesASC].reverse().flat();
 
   return (
-    <div className="bg-[#F6E5B1] min-h-screen p-4 flex flex-col">
-
-      {/* 헤더 */}
-      <div className="flex justify-between items-center mb-4">
+    <div className="bg-[#F6E5B1] h-screen flex flex-col">
+      {/* Header */}
+      <div className="p-4 flex justify-between items-center">
         <h1 className="text-lg font-bold">{title}</h1>
-        <VisibilityDropdown visibility={visibility} setVisibility={setVisibility} />
+
+        <VisibilityDropdown
+          visibility={visibility}
+          setVisibility={setVisibility}
+        />
       </div>
 
-      {/* 히스토리 */}
-      <div className="flex flex-col gap-4">
-        {sorted.map((h, index) => {
+      {/* Scrollable content */}
+      <div
+        ref={scrollRef}
+        className="flex-1 overflow-y-auto flex flex-col gap-4 px-4 pb-4"
+      >
+        {histories.map((h, index) => {
           const isMine = Number(h.userId) === myUserId;
-          console.log({
-  hUserId: h.userId,
-  myUserId,
-  equal: h.userId === myUserId
-});
 
           const currentDate = formatDate(h.createdAt);
           const prevDate =
-            index > 0 ? formatDate(sorted[index - 1].createdAt) : null;
+            index > 0 ? formatDate(histories[index - 1].createdAt) : null;
 
           const showDate = currentDate !== prevDate;
 
@@ -64,14 +137,16 @@ export default function ChallengeHistoryRoomPage() {
               )}
 
               <div className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
-                <HistoryCard item={h} isMine={isMine} />
+                <HistoryCard item={h} isMine={isMine} visibility={h.visibility} />
               </div>
             </div>
           );
         })}
 
-        {/* 무한 스크롤 트리거 */}
-        <div ref={loaderRef} className="h-10" />
+        {/* 로딩 표시 */}
+        {isFetchingNextPage && (
+          <div className="text-center text-gray-500">불러오는 중...</div>
+        )}
       </div>
     </div>
   );

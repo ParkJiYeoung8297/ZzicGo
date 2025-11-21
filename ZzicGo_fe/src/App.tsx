@@ -1,5 +1,6 @@
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import InstallPromptBanner from "./components/InstallPromptBanner";
 
 // 경로 상수화
@@ -24,7 +25,7 @@ import ChallengeHistoryRoomPage from "./pages/ChallengeHistoryRoomPage";
 import SocialLoginPage from "./pages/auth/SocialLoginPage";
 import NaverCallbackPage from "./pages/auth/NaverCallbackPage";
 
-
+const queryClient = new QueryClient();
 const router = createBrowserRouter([
 
   // ✅ 1️⃣ Splash — 첫 진입
@@ -64,10 +65,14 @@ const router = createBrowserRouter([
   { path: "*", element: <NotFoundPage /> },
 ]);
 
+
 export default function App() {
   return <>
+  <QueryClientProvider client={queryClient}>
     <RouterProvider router={router} />
     <InstallPromptBanner /> {/* ✅ 앱 전체에서 배너 감시 */}
+  </QueryClientProvider>
+
   
   </>
   

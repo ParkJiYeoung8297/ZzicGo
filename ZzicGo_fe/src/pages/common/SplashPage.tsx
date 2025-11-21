@@ -11,7 +11,7 @@ export default function SplashPage() {
 
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-white overflow-hidden ">
+    <div className="fixed inset-0 flex items-center justify-center bg-white dark:bg-white overflow-hidden ">
        <div className="w-[70vw] h-[70vh] flex items-center justify-center">
         <video
           src="/splash.mp4"
