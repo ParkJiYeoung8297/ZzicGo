@@ -7,6 +7,7 @@ import apiClient from "../api/apiClient";
 import GenericModal from "../components/GeneralModal";
 import ChallengeJoinContent from "../components/challenge/ChallengeJoinContent";
 import { useNavigate } from "react-router-dom";
+import { PATH } from "../constants/paths";
 
 
 
@@ -44,7 +45,8 @@ export default function FindChallengesPage() {
 
     try {
       await apiClient.post(`/api/z1/challenges/${selectedChallenge.id}/me`);
-      alert("참여가 완료되었습니다!");
+      // alert("참여가 완료되었습니다!");
+      navigate(PATH.Z1_MAIN);
       setOpenModal(false);
     } catch (err: any) {{
       console.error(err);
