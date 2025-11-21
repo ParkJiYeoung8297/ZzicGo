@@ -70,20 +70,34 @@ export default function FindChallengesPage() {
             />
         </GenericModal>
 
-        <FilterBar />
+        {/* 필터 + 검색창 전체 래핑 */}
+<div className="relative pt-5 bg-white pb-4 shadow-sm">
 
-        {/* 검색창 */}
-        <div className="mt-4">
-          <div className="bg-white rounded-full border px-4 py-2 flex items-center">
-            <input
-              type="text"
-              placeholder="검색"
-              className="flex-1 outline-none"
-            />
-            <AiOutlineSearch size={22} />
-          </div>
-        </div>
-      </div>
+  {/* 🔒 준비중 오버레이 */}
+  <div className="absolute inset-0 bg-[#E5E5E5]/70 flex items-center justify-center z-20">
+    <div className="bg-gray-300 text-gray-700 px-4 py-2 rounded-full shadow">
+      ⏳ 준비중인 기능입니다
+    </div>
+  </div>
+
+  <FilterBar />
+
+  {/* 검색창 */}
+  <div className="mt-4">
+    <div className="bg-white rounded-full border px-4 py-2 flex items-center">
+      <input
+        type="text"
+        placeholder="검색"
+        className="flex-1 outline-none"
+      />
+      <AiOutlineSearch size={22} />
+    </div>
+  </div>
+
+</div>
+</div>
+
+
 
       {/* 목록 */}
       <div className="px-4 mt-4">
