@@ -30,7 +30,7 @@ export async function fetchChatMessages({
   roomId,
   cursor,
   visibility,
-  size = 10,
+  size = 25,
 }: {
   roomId: number;
   cursor: string | null;
@@ -38,6 +38,7 @@ export async function fetchChatMessages({
   size?: number;
 }): Promise<HistoryResponse> {
   const res = await apiClient.get<ApiResponse<HistoryResponse>>(
+    
     `/api/z1/challenges/${roomId}/histories`,
     {
       params: {

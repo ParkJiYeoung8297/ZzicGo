@@ -1,6 +1,6 @@
 // src/components/history/HistoryCard.tsx
 import { useState } from "react";
-import type { HistoryItem } from "../../hooks/useChallengeHistory";
+import type { HistoryItem } from "../../api/chat";
 
 type Props = {
   item: HistoryItem;

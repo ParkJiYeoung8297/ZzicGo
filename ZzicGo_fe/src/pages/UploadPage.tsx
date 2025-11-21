@@ -66,7 +66,7 @@ export default function UploadPage() {
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="메시지를 입력하세요"
+          placeholder="메시지를 입력하세요(선택)"
           className="w-full mt-4 border border-[#EDB043] rounded-xl p-4 text-gray-800 placeholder:text-gray-400 focus:outline-none"
           rows={3}
         />
