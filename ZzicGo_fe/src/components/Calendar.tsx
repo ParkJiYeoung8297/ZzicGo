@@ -58,7 +58,7 @@ export default function Calendar() {
   };
 
   return (
-    <div className="bg-white shadow-md rounded-2xl p-4 w-80 mx-auto">
+    <div className="bg-white shadow-md rounded-2xl p-4 w-80 max-w-full mx-auto">
       
       {/* 헤더: 이전/다음 버튼 */}
       <div className="flex justify-between items-center mb-3">
