@@ -14,16 +14,13 @@
 
 **1) 웹 서비스 :** <a href="https://zzicgo.com/" target="_blank" rel="noopener noreferrer">https://zzicgo.com/</a>  
 **2) 데모 영상 :** <a href="https://www.youtube.com/shorts/6_Nr9Ve37s8" target="_blank" rel="noopener noreferrer">https://www.youtube.com/shorts/6_Nr9Ve37s8</a>   
+(자세한 기능은 데모 영상을 참고해주세요!)  
+
 > ❗️ 유의 사항
 > - 모바일을 생각하고 만든 것이라 되도록 모바일로 사용해주세요
 > - 카카오톡 로그인이 아직 불가능합니다 🥲 네이버 로그인을 이용해주세요!
 
-
-**핵심 기능 : 챌린지 하루 인증 **   
-(자세한 기능은 전체 데모 영상을 참고해주세요!)   
-
-<img src="https://velog.velcdn.com/images/wldud8297/post/8a4b6b86-27f6-4cc9-bd62-7cc6093fa842/image.gif" width="50%"/>
-
+ 
 
 
 ## 주제 선정:
@@ -40,7 +37,7 @@
 [[ZzicGo] 프로젝트 설계 및 문서화 (기능 명세서, 화면 설계서, API명세서, ERD 등)](https://velog.io/@wldud8297/ZzicGo-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EC%84%A4%EA%B3%84-%EB%B0%8F-%EB%AC%B8%EC%84%9C%ED%99%94-%EA%B8%B0%EB%8A%A5-%EB%AA%85%EC%84%B8%EC%84%9C-%ED%99%94%EB%A9%B4-%EC%84%A4%EA%B3%84%EC%84%9C-API%EB%AA%85%EC%84%B8%EC%84%9C-ERD-%EB%93%B1)   
 [[ZzicGo] 서버 구축 도전 - Spring & React 배포](https://velog.io/@wldud8297/ZzicGo-%EC%84%9C%EB%B2%84-%EA%B5%AC%EC%B6%95-%EB%8F%84%EC%A0%84)   
 [[ZzicGo] 서버 구축 도전 - 도메인 구매 + Https 설정 추가](https://velog.io/@wldud8297/ZzicGo-%EC%84%9C%EB%B2%84-%EA%B5%AC%EC%B6%95-%EB%8F%84%EC%A0%84-%EB%8F%84%EB%A9%94%EC%9D%B8-%EA%B5%AC%EB%A7%A4-Https-%EC%84%A4%EC%A0%95-%EC%B6%94%EA%B0%80)   
-[[ZzicGo] 소셜 로그인 도전 - 네이버 로그인](https://velog.io/@wldud8297/ZzicGo-%EC%86%8C%EC%85%9C-%EB%A1%9C%EA%B7%B8%EC%9D%B8-%EB%8F%84%EC%A0%84-%EB%84%A4%EC%9D%B4%EB%B2%84-%EB%A1%9C%EA%B7%B8%EC%9D%B8)
+[[ZzicGo] 소셜 로그인 도전 - 네이버 로그인](https://velog.io/@wldud8297/ZzicGo-%EC%86%8C%EC%85%9C-%EB%A1%9C%EA%B7%B8%EC%9D%B8-%EB%8F%84%EC%A0%84-%EB%84%A4%EC%9D%B4%EB%B2%84-%EB%A1%9C%EA%B7%B8%EC%9D%B8)     
 [[ZzicGo] 리액트(프론트) 프로젝트 도전하기](https://velog.io/@wldud8297/ZzicGo-%EB%A6%AC%EC%95%A1%ED%8A%B8%ED%94%84%EB%A1%A0%ED%8A%B8-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EB%8F%84%EC%A0%84%ED%95%98%EA%B8%B0)   
 [[ZzicGo] AWS S3 사용하여 사진 업로드 기능 구현 (Spring)](https://velog.io/@wldud8297/ZzicGo%EC%82%AC%EC%A7%84-%EC%97%85%EB%A1%9C%EB%93%9C-%ED%99%94%EB%A9%B4-S3-%EC%97%B0%EB%8F%99)   
 [[ZzicGo] 실사용자 배포 및 피드백 수집 (+ 구글 애널리틱스 도입)](https://velog.io/@wldud8297/ZzicGo-%EC%8B%A4%EC%82%AC%EC%9A%A9%EC%9E%90%EC%97%90%EA%B2%8C-%EB%B0%B0%ED%8F%AC%ED%95%98%EA%B3%A0-%ED%94%BC%EB%93%9C%EB%B0%B1-%EB%B0%9B%EA%B8%B0)
