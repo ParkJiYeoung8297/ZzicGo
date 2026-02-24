@@ -25,6 +25,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none # 맨 처음만 create하고, 이후는 none으로 변경
+    show-sql: false
     open-in-view: false
     defer-datasource-initialization: true
 
@@ -42,10 +43,18 @@ cloud:
 logging:
   file:
     name: app.log
+  logback:
+    rollingpolicy:
+      max-history: 7
+      max-file-size: 50MB
+      total-size-cap: 300MB
   level:
     root: INFO
     org.springframework.web: INFO
     org.springframework.security: INFO
+    org.hibernate.SQL: OFF
+    org.hibernate.type.descriptor.sql: OFF
+    org.hibernate.orm.jdbc.bind: OFF
     com.ZzicGo: DEBUG
 
 management:
