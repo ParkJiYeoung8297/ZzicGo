@@ -23,7 +23,7 @@ import ChallengeHistoryRoomPage from "./pages/ChallengeHistoryRoomPage";
 
 // 📄 소셜 로그인 관련 컴포넌트
 import SocialLoginPage from "./pages/auth/SocialLoginPage";
-import NaverCallbackPage from "./pages/auth/NaverCallbackPage";
+import OAuthCallbackPage from "./pages/auth/OAuthCallbackPage";
 
 
 const queryClient = new QueryClient();
@@ -41,7 +41,8 @@ const router = createBrowserRouter([
     element: <LoginLayout />,
     children: [
       { index: true, element: <SocialLoginPage /> }, 
-      { path: PATH.NAVER_CALLBACK, element: <NaverCallbackPage /> },
+      { path: PATH.OAUTH_CALLBACK, element: <OAuthCallbackPage /> },
+      
     ],
   },
 

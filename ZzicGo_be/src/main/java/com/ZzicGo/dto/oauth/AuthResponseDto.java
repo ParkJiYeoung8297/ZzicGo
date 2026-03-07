@@ -1,15 +1,27 @@
-package com.ZzicGo.dto;
+package com.ZzicGo.dto.oauth;
 
 import java.util.List;
 
 public class AuthResponseDto {
+
+    public record LoginResponse(
+            String accessToken,
+            String refreshToken,
+            boolean isNewUser
+    ) {
+    }
+
+    /**
+     * 네이버 로그인
+     **/
 
     public record NaverTokenResponse(
             String access_token,
             String refresh_token,
             String token_type,
             Integer expires_in
-    ) {}
+    ) {
+    }
 
     public record NaverProfileResponse(
             String resultcode,
@@ -22,7 +34,8 @@ public class AuthResponseDto {
                 String gender,
                 String birthday,
                 String birthyear
-        ) {}
+        ) {
+        }
     }
 
     public record NaverAgreementResponse(
@@ -34,12 +47,29 @@ public class AuthResponseDto {
                 String termCode,
                 String clientId,
                 String agreeDate
-        ) {}
+        ) {
+        }
     }
 
-    public record LoginResponse(
-            String accessToken,
-            String refreshToken,
-            boolean isNewUser
-    ) {}
+    /**
+     * 카카오 로그인
+     **/
+    public record KakaoTokenResponse(
+            String access_token,
+            String token_type,
+            String refresh_token,
+            Integer expires_in
+    ) {
+    }
+
+    public record KakaoProfileResponse(
+            Long id,
+            KakaoAccount kakao_account
+    ) {
+        public record KakaoAccount(
+                String email
+        ) {
+        }
+    }
+
 }
