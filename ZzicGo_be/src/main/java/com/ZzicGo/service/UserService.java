@@ -8,7 +8,9 @@ import com.ZzicGo.exception.UserException;
 import com.ZzicGo.global.CustomException;
 import com.ZzicGo.global.s3.S3Uploader;
 import com.ZzicGo.repository.UserRepository;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,12 +32,13 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(UserException.NOT_EXIST_USER));
 
+        String gender = user.getGender() != null ? user.getGender().name() : null;
         return new UserResponseDto.Profile(
                 user.getId(),
                 user.getNickname(),
                 user.getEmail(),
                 user.getBirth(),
-                user.getGender().name(),
+                gender,
                 user.getProfileImageUrl()
         );
     }
@@ -65,7 +68,9 @@ public class UserService {
         user.updateGender(gender);
     }
 
-    /** 🔹 프로필 이미지 변경 */
+    /**
+     * 🔹 프로필 이미지 변경
+     */
     @Transactional
     public UserResponseDto.Profile updateProfileImage(Long userId, MultipartFile newImage) {
 
