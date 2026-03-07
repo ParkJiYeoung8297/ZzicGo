@@ -13,15 +13,9 @@ export function useSocialLogin() {
 
       }
 
-      case "kakao":{
-        const clientId = import.meta.env.VITE_KAKAO_CLIENT_ID;
-        const clientSecret = import.meta.env.VITE_KAKAO_CLIENT_SECRET;
-        const redirectUri = import.meta.env.VITE_KAKAO_REDIRECT_URI;
-        const kakaoUrl = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${clientId}&client_secret=${clientSecret}&redirect_uri=${encodeURIComponent(redirectUri)}`;
-        window.location.href = kakaoUrl;
+      case "kakao":
+        window.location.href = "https://kauth.kakao.com/oauth/authorize";
         break;
-      }
-
       // case "google":
       //   window.location.href = "https://accounts.google.com/o/oauth2/v2/auth";
       //   break;

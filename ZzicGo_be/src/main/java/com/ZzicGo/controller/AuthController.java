@@ -1,13 +1,15 @@
 package com.ZzicGo.controller;
 
-import com.ZzicGo.domain.user.Provider;
-import com.ZzicGo.dto.oauth.AuthResponseDto;
+import com.ZzicGo.dto.AuthResponseDto;
 import com.ZzicGo.global.CustomResponse;
-import com.ZzicGo.service.auth.OAuthService;
-
+import com.ZzicGo.service.auth.NaverAuthService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,25 +20,28 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api/z1/auth")
 public class AuthController {
-    private final OAuthService oAuthService;
 
+    private final NaverAuthService naverAuthService;
+
+    @Operation(summary = "네이버 로그인 API",
+            description =
+                    """
+                    JWT 토큰과 신규회원인지 값을 반환합니다.
+                    - 네이버 로그인 연동 URL api에서 받은 code와 status 값을 파라미터로 넣어주세요.
+                    - 신규 회원이라면, 회원가입 절차를 포함합니다.
+                    """)
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "소셜 회원가입 및 로그인 성공",
+                    content = @Content(schema = @Schema(implementation = AuthResponseDto.LoginResponse.class))),
+            @ApiResponse(responseCode = "401", description = "인증 실패", content = @Content),
+            @ApiResponse(responseCode = "403", description = "권한 없음", content = @Content),
+    })
     @GetMapping("/naver")
     public CustomResponse<AuthResponseDto.LoginResponse> login(
             @RequestParam String code,
             @RequestParam String state
     ) {
-
-        AuthResponseDto.LoginResponse response = oAuthService.login(Provider.NAVER, code, state);
-        return CustomResponse.ok(response);
-    }
-
-    @GetMapping("/kakao")
-    public CustomResponse<AuthResponseDto.LoginResponse> login(
-            @RequestParam String code
-    ) {
-        AuthResponseDto.LoginResponse response = oAuthService.login(Provider.KAKAO, code, null);
+        AuthResponseDto.LoginResponse response = naverAuthService.login(code, state);
         return CustomResponse.ok(response);
     }
 }
-
-

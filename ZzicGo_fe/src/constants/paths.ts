@@ -4,7 +4,7 @@ export const PATH = {
 
   // Root:LOGIN
   LOGIN: "/login",
-  OAUTH_CALLBACK: ":provider/callback",
+  NAVER_CALLBACK: "naver/callback", 
 
   WELCOME: "/welcome",
 

@@ -3,14 +3,6 @@ cors:
 
 server:
   timezone: Asia/Seoul
-  tomcat:
-    accesslog:
-      basedir: /home/ubuntu/backend/app   # ⭐ 중요
-      enabled: true
-      directory: logs
-      pattern: "%h %l %u %t \"%r\" %s %b %D"
-      prefix: access
-      suffix: .log
 
 spring:
   datasource:
@@ -33,7 +25,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none # 맨 처음만 create하고, 이후는 none으로 변경
-    show-sql: false
     open-in-view: false
     defer-datasource-initialization: true
 
@@ -51,18 +42,10 @@ cloud:
 logging:
   file:
     name: app.log
-  logback:
-    rollingpolicy:
-      max-history: 7
-      max-file-size: 50MB
-      total-size-cap: 300MB
   level:
     root: INFO
     org.springframework.web: INFO
     org.springframework.security: INFO
-    org.hibernate.SQL: OFF
-    org.hibernate.type.descriptor.sql: OFF
-    org.hibernate.orm.jdbc.bind: OFF
     com.ZzicGo: DEBUG
 
 management:
@@ -79,17 +62,15 @@ jwt:
   access-expire-ms: 3600000        # 1시간
   refresh-expire-ms: 1209600000    # 14일
 
-oauth:
-  naver:
-    client-id: ${NAVER_CLIENT_ID}
-    client-secret: ${NAVER_CLIENT_SECRET}
-    redirect-uri: ${NAVER_REDIRECT_URI}
-    token-uri: https://nid.naver.com/oauth2.0/token
-    profile-uri: https://openapi.naver.com/v1/nid/me
 
-  kakao:
-    client-id: ${KAKAO_CLIENT_ID}
-    client-secret: ${KAKAO_CLIENT_SECRET}
-    redirect-uri: ${KAKAO_REDIRECT_URI}
-    token-uri: https://kauth.kakao.com/oauth/token
-    profile-uri: https://kapi.kakao.com/v2/user/me
+naver:
+  client-id: ${NAVER_CLIENT_ID}
+  client-secret: ${NAVER_CLIENT_SECRET}
+  redirect-uri: https://zzicgo.com/login/naver/callback
+  authorization-grant-type: authorization_code
+  scope:
+    - name
+    - email
+    - gender
+    - birthday
+  client-name: Naver

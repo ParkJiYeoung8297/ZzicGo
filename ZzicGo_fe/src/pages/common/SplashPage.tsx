@@ -1,20 +1,11 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAccessToken } from "../../utils/authStorage";
-import { PATH } from "../../constants/paths";
 
 export default function SplashPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = getAccessToken();
-    const timer = setTimeout(() => {
-      if (token) {
-        navigate(PATH.Z1_ROOT); // 자동 로그인
-      } else {
-        navigate(PATH.LOGIN); // 로그인 페이지
-      }
-    }, 4000); // 스플래시 영상 길이
+    const timer = setTimeout(() => navigate("/login"), 4000);
     return () => clearTimeout(timer);
   }, [navigate]);
 

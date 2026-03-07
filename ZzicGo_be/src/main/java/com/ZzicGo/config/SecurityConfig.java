@@ -25,7 +25,6 @@ public class SecurityConfig {
 //            "/api/z1/**",  // 이건 api 개발 이후에 구체적인 api 주소로 변경하기
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**", "/swagger-ui.html",
             "/actuator/health", "/actuator/info",
-            "/api/z1/test",
             "/api/z1/auth/**", "/error","/api/z1/challenges/"
     };
 
