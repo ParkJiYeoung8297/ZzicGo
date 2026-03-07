@@ -58,12 +58,12 @@ logging:
       total-size-cap: 300MB
   level:
     root: INFO
-    org.springframework.web: INFO
-    org.springframework.security: INFO
+    com.ZzicGo: DEBUG
     org.hibernate.SQL: OFF
     org.hibernate.type.descriptor.sql: OFF
     org.hibernate.orm.jdbc.bind: OFF
-    com.ZzicGo: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
 
 management:
   endpoints:
