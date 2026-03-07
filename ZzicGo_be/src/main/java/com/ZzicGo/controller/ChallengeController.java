@@ -2,7 +2,7 @@ package com.ZzicGo.controller;
 
 import com.ZzicGo.config.jwt.CustomUserDetails;
 import com.ZzicGo.domain.history.Visibility;
-import com.ZzicGo.dto.AuthResponseDto;
+import com.ZzicGo.dto.oauth.AuthResponseDto;
 import com.ZzicGo.dto.ChallengeResponseDto;
 import com.ZzicGo.dto.HistoryResponseDto;
 import com.ZzicGo.global.CustomResponse;
