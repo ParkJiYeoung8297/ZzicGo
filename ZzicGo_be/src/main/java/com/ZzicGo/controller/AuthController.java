@@ -1,14 +1,17 @@
 package com.ZzicGo.controller;
 
 import com.ZzicGo.domain.user.Provider;
+import com.ZzicGo.dto.oauth.RefreshRequest;
 import com.ZzicGo.dto.oauth.AuthResponseDto;
 import com.ZzicGo.global.CustomResponse;
 import com.ZzicGo.service.auth.OAuthService;
 
+import org.springframework.web.bind.annotation.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,6 +40,16 @@ public class AuthController {
         AuthResponseDto.LoginResponse response = oAuthService.login(Provider.KAKAO, code, null);
         return CustomResponse.ok(response);
     }
+
+    @PostMapping("/refresh")
+    public CustomResponse<AuthResponseDto.LoginResponse> refresh(
+            @RequestBody RefreshRequest request
+    ) {
+        AuthResponseDto.LoginResponse response = oAuthService.refresh(request.getRefreshToken());
+        return CustomResponse.ok(response);
+    }
+
+
 }
 
 

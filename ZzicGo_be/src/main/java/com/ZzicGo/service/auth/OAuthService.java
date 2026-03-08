@@ -1,13 +1,19 @@
 package com.ZzicGo.service.auth;
 
+import com.ZzicGo.config.jwt.CustomUserDetails;
 import com.ZzicGo.config.jwt.JwtProvider;
 import com.ZzicGo.config.oauth.OAuthProperties;
 import com.ZzicGo.domain.user.*;
 import com.ZzicGo.dto.oauth.AuthResponseDto;
 import com.ZzicGo.dto.oauth.OAuthProfile;
+import com.ZzicGo.exception.AuthException;
+import com.ZzicGo.global.CustomException;
 import com.ZzicGo.repository.UserRepository;
 import com.ZzicGo.util.RandomNicknameGenerator;
+
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -19,6 +25,7 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class OAuthService {
+    private static final long ONE_DAY = 24 * 60 * 60 * 1000L;
 
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
@@ -203,4 +210,42 @@ public class OAuthService {
 
         return userRepository.save(newUser);
     }
+
+    public AuthResponseDto.LoginResponse refresh(String refreshToken) {
+
+        if (refreshToken == null || refreshToken.isBlank()) {
+            throw new CustomException(AuthException.NO_REFRESH_TOKEN);
+        }
+
+        if (!jwtProvider.validateToken(refreshToken)) {
+            throw new CustomException(AuthException.INVALID_REFRESH_TOKEN);
+        }
+
+        Claims claims = jwtProvider.getClaims(refreshToken);
+        String type = claims.get("type", String.class);
+        if (!"refresh".equals(type)) {
+            throw new CustomException(AuthException.INVALID_REFRESH_TOKEN);
+        }
+
+        Long userId = jwtProvider.getUserId(refreshToken);
+        String providerId = jwtProvider.getProviderId(refreshToken);
+        String role = jwtProvider.getRole(refreshToken);
+
+        String newAccessToken = jwtProvider.createAccessToken(userId, providerId, role);
+        String newRefreshToken = createNewRefreshTokenBeforeExpiredOneDay(refreshToken, claims, userId, providerId, role);
+
+        return new AuthResponseDto.LoginResponse(newAccessToken, newRefreshToken, false);
+    }
+
+    private String createNewRefreshTokenBeforeExpiredOneDay(String refreshToken, Claims claims, Long userId, String providerId, String role) {
+        long remaining = claims.getExpiration().getTime() - System.currentTimeMillis();
+
+        if (remaining < ONE_DAY) {
+            return jwtProvider.createRefreshToken(userId, providerId, role);
+        }
+
+        return refreshToken;
+    }
+
+
 }

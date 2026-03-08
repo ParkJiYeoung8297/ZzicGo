@@ -2,12 +2,15 @@ package com.ZzicGo.config.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
 
+@Slf4j
 @Component
 public class JwtProvider {
 
@@ -29,20 +32,21 @@ public class JwtProvider {
     //   토큰 생성
     // =========================
     public String createAccessToken(Long userId, String providerId, String role) {
-        return createToken(userId, providerId, role, accessTokenExpireMillis);
+        return createToken(userId, providerId, role, accessTokenExpireMillis, "access");
     }
 
     public String createRefreshToken(Long userId, String providerId, String role) {
-        return createToken(userId, providerId, role, refreshTokenExpireMillis);
+        return createToken(userId, providerId, role, refreshTokenExpireMillis, "refresh");
     }
 
-    private String createToken(Long userId, String providerId, String role, long expireMillis) {
+    private String createToken(Long userId, String providerId, String role, long expireMillis, String type) {
         long now = System.currentTimeMillis();
 
         return Jwts.builder()
                 .setSubject(String.valueOf(userId))
                 .claim("providerId", providerId)
                 .claim("role", role)
+                .claim("type", type)
                 .setIssuedAt(new Date(now))
                 .setExpiration(new Date(now + expireMillis))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
@@ -57,9 +61,17 @@ public class JwtProvider {
             parseClaims(token);
             return true;
         } catch (ExpiredJwtException e) {
-            return false;  // 만료
+            log.warn("JWT expired");
+            return false;
+        } catch (SignatureException e) {
+            log.error("JWT signature invalid");
+            return false;
+        } catch (MalformedJwtException e) {
+            log.error("JWT malformed");
+            return false;
         } catch (JwtException | IllegalArgumentException e) {
-            return false;  // 변조, 손상 등
+            log.error("JWT error: {}", e.getMessage());
+            return false;
         }
     }
 
