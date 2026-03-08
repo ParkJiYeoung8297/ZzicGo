@@ -1,7 +1,10 @@
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import InstallPromptBanner from "./components/InstallPromptBanner";
+import { useEffect, useState } from "react";
+
+import InstallPromptBanner from "./components/InstallPromptBanner"
+import AuthExpiredModal from "./components/auth/AuthExpiredModal";
 
 // 경로 상수화
 import { PATH } from "./constants/paths";
@@ -68,14 +71,32 @@ const router = createBrowserRouter([
 ]);
 
 
-export default function App() {
-  return <>
-  <QueryClientProvider client={queryClient}>
-    <RouterProvider router={router} />
-    <InstallPromptBanner /> {/* ✅ 앱 전체에서 배너 감시 */}
-  </QueryClientProvider>
 
-  
-  </>
-  
+export default function App() {
+
+  const [authExpired, setAuthExpired] = useState(false);
+
+  useEffect(() => {
+    const handler = () => setAuthExpired(true);
+
+    window.addEventListener("auth-expired", handler);
+
+    return () => {
+      window.removeEventListener("auth-expired", handler);
+    };
+  }, []);
+
+  return (
+    <>
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+        <InstallPromptBanner /> {/* ✅ 앱 전체에서 배너 감시 */}
+      </QueryClientProvider>
+
+      <AuthExpiredModal
+        open={authExpired}
+        onClose={() => setAuthExpired(false)}
+      />
+    </>
+  );
 }
