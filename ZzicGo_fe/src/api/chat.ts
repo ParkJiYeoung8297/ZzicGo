@@ -24,6 +24,13 @@ export interface HistoryResponse {
   hasMore: boolean;
 }
 
+export interface GetHistoryResponse {
+  historyId: number;
+  content: string | null;
+  images: HistoryImage[];
+  visibility: "PUBLIC" | "PRIVATE";
+}
+
 export interface ApiResponse<T> {
   isSuccess: boolean;
   code: string;
