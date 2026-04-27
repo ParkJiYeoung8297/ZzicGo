@@ -132,7 +132,7 @@ public class HistoryService {
         List<HistoryResponseDto.HistoryImageDetail> imageDetails = historyImages.stream()
                 .map(image -> HistoryResponseDto.HistoryImageDetail.builder()
                         .imageId(image.getId())
-                        .imageUrl(image.getImageUrl())
+                        .imageUrl(s3Uploader.getPresignedUrl(image.getImageUrl()))
                         .build())
                 .toList();
 
