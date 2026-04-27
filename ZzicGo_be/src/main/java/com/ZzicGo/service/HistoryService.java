@@ -107,6 +107,38 @@ public class HistoryService {
         return saved.getId();
     }
 
+    @Transactional(readOnly = true)
+    public HistoryResponseDto.GetHistoryResponse getHistory(Long loginUserId, Long historyId) {
+
+        // 🔥 유저 조회
+        User user = userRepository.findById(loginUserId)
+                .orElseThrow(() -> new CustomException(UserException.NOT_EXIST_USER));
+
+        // 🔥 히스토리 조회
+        History history = historyRepository.findById(historyId)
+                .orElseThrow(() -> new CustomException(HistoryException.HISTORY_NOT_FOUND));
+
+        // (선택) 권한 체크
+        if (!history.getParticipation().getUser().getId().equals(user.getId())) {
+            throw new CustomException(HistoryException.HISTORY_FORBIDDEN);
+        }
+
+
+        List<String> imageUrls = imageUrlRepository.findByHistoryId(history.getId())
+                .stream()
+                .map(ImageUrl::getImageUrl)
+                .toList();
+
+
+
+        return HistoryResponseDto.GetHistoryResponse.builder()
+                .historyId(history.getId())
+                .content(history.getContent())
+                .images(imageUrls)
+                .visibility(history.getVisibility().toString())
+                .build();
+    }
+
 
     @Transactional(readOnly = true)
     public HistoryResponseDto.CursorResponse getHistories(Long loginUserId, Long challengeId, Visibility visibility, String cursor, int size) {
@@ -259,6 +291,77 @@ public class HistoryService {
                         .checked(false)
                         .historyId(null)
                         .build());
+    }
+
+    @Transactional
+    public void updateHistory(Long loginUserId, Long historyId, List<MultipartFile> newImages, List<Long> deleteImageIds,
+            String content, Visibility visibility
+    ) {
+
+        // 1️⃣ 히스토리 조회
+        History history = historyRepository.findById(historyId)
+                .orElseThrow(() -> new CustomException(HistoryException.HISTORY_NOT_FOUND));
+
+        // 2️⃣ 작성자 검증
+        Long ownerId = history.getParticipation().getUser().getId();
+        if (!ownerId.equals(loginUserId)) {
+            throw new CustomException(ChallenegeException.PARTICIPATION_FORBIDDEN);
+        }
+
+        // 3️⃣ 기존 이미지 조회
+        List<ImageUrl> existingImages =
+                imageUrlRepository.findByHistoryIds(List.of(historyId));
+
+        // 4️⃣ 이미지 삭제 처리
+        if (deleteImageIds != null && !deleteImageIds.isEmpty()) {
+
+            List<ImageUrl> toDelete = existingImages.stream()
+                    .filter(img -> deleteImageIds.contains(img.getId()))
+                    .toList();
+
+            for (ImageUrl img : toDelete) {
+                // S3 삭제
+                s3Uploader.deleteFile(img.getImageUrl());
+            }
+
+            imageUrlRepository.deleteAll(toDelete);
+
+            existingImages = existingImages.stream()
+                    .filter(img -> !deleteImageIds.contains(img.getId()))
+                    .collect(Collectors.toList());
+        }
+
+        // 5️⃣ 새 이미지 추가 처리
+        if (newImages != null && !newImages.isEmpty()) {
+
+            if (newImages.size() + existingImages.size() > 3) {
+                throw new CustomException(HistoryException.HISTORY_IMAGE_LIMIT);
+            }
+
+            int startOrder = existingImages.size();
+
+            for (int i = 0; i < newImages.size(); i++) {
+                String key = s3Uploader.uploadFile("history", newImages.get(i));
+
+                ImageUrl image = ImageUrl.builder()
+                        .imageUrl(key)
+                        .orderNumber(startOrder + i)
+                        .history(history)
+                        .build();
+
+                imageUrlRepository.save(image);
+            }
+        }
+
+        // 6️⃣ 내용 수정
+        if (content != null) {
+            history.updateContent(content);  // 🔥 아래에서 설명
+        }
+
+        // 7️⃣ 공개범위 수정
+        if (visibility != null) {
+            history.updateVisibility(visibility); // 🔥 아래에서 설명
+        }
     }
 
 

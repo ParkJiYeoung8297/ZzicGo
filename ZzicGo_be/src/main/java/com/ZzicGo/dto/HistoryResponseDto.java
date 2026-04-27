@@ -54,4 +54,22 @@ public class HistoryResponseDto {
         private final Long historyId;
     }
 
+    @Getter
+    @AllArgsConstructor
+    @Builder
+    public static class UpdateHistoryResponse {
+        private Long historyId;
+        private String message;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    @Builder
+    public static class GetHistoryResponse {
+        private Long historyId;
+        private String content;
+        private List<String> images; // presigned URL 목록
+        private String visibility;
+    }
+
 }

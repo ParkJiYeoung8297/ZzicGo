@@ -56,5 +56,6 @@ public interface HistoryRepository extends JpaRepository<History,Long> {
     );
 
     Optional<History> findByParticipationAndCreatedAtBetween(ChallengeParticipation participation, LocalDateTime createdAtAfter, LocalDateTime createdAtBefore);
+    Optional<History> findById(Long id);
 
 }
