@@ -123,10 +123,17 @@ public class HistoryService {
             throw new CustomException(HistoryException.HISTORY_FORBIDDEN);
         }
 
+        List<ImageUrl> historyImages = imageUrlRepository.findByHistoryId(history.getId());
 
-        List<String> imageUrls = imageUrlRepository.findByHistoryId(history.getId())
-                .stream()
+        List<String> imageUrls = historyImages.stream()
                 .map(ImageUrl::getImageUrl)
+                .toList();
+
+        List<HistoryResponseDto.HistoryImageDetail> imageDetails = historyImages.stream()
+                .map(image -> HistoryResponseDto.HistoryImageDetail.builder()
+                        .imageId(image.getId())
+                        .imageUrl(s3Uploader.getPresignedUrl(image.getImageUrl()))
+                        .build())
                 .toList();
 
 
@@ -134,7 +141,7 @@ public class HistoryService {
         return HistoryResponseDto.GetHistoryResponse.builder()
                 .historyId(history.getId())
                 .content(history.getContent())
-                .images(imageUrls)
+                .images(imageDetails)
                 .visibility(history.getVisibility().toString())
                 .build();
     }
