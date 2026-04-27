@@ -125,14 +125,10 @@ public class HistoryService {
 
         List<ImageUrl> historyImages = imageUrlRepository.findByHistoryId(history.getId());
 
-        List<String> imageUrls = historyImages.stream()
-                .map(ImageUrl::getImageUrl)
-                .toList();
-
         List<HistoryResponseDto.HistoryImageDetail> imageDetails = historyImages.stream()
                 .map(image -> HistoryResponseDto.HistoryImageDetail.builder()
                         .imageId(image.getId())
-                        .imageUrl(image.getImageUrl())
+                        .imageUrl(s3Uploader.getPresignedUrl(image.getImageUrl()))
                         .build())
                 .toList();
 

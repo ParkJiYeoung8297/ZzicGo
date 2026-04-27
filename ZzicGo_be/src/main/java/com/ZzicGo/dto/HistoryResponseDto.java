@@ -68,7 +68,7 @@ public class HistoryResponseDto {
     public static class GetHistoryResponse {
         private Long historyId;
         private String content;
-        private List<HistoryImageDetail> images; // image Id
+        private List<HistoryImageDetail> images;
         private String visibility;
     }
 
@@ -77,7 +77,7 @@ public class HistoryResponseDto {
     @Builder
     public static class HistoryImageDetail {
         private Long imageId;   // image Id
-        private String imageUrl; // presigned URL 목록
+        private String imageUrl; // presigned URL
     }
 
 }
