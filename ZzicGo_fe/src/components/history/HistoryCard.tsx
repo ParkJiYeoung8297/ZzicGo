@@ -6,9 +6,10 @@ type Props = {
   item: HistoryItem;
   isMine: boolean;
   visibility: "PUBLIC" | "PRIVATE";
+  onEdit?: (item: HistoryItem) => void;
 };
 
-export default function HistoryCard({ item, isMine, visibility }: Props) {
+export default function HistoryCard({ item, isMine, visibility, onEdit }: Props) {
   const isPrivateMine = isMine && visibility === "PRIVATE";
   const profileImage = item.profileImageUrl || "/profile_cheetah.png";
 
@@ -94,6 +95,17 @@ export default function HistoryCard({ item, isMine, visibility }: Props) {
           {item.content}
         </div>
       )}
+
+      {isMine && onEdit && (
+        <button
+          type="button"
+          className="self-end text-xs text-gray-500 underline"
+          onClick={() => onEdit(item)}
+        >
+          수정
+        </button>
+      )}
+
       <div className="text-[10px] text-gray-400 mt-1 text-right">
         {new Date(item.createdAt).toLocaleTimeString("ko-KR", {
           hour: "2-digit",

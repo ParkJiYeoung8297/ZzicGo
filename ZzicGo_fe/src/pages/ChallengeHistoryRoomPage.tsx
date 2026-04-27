@@ -1,14 +1,17 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { useChallengeHistoryInfinite } from "../hooks/useChallengeHistoryInfinite";
 import HistoryCard from "../components/history/HistoryCard";
 import VisibilityDropdown from "../components/history/VisibilityDropdown";
 import { formatDate } from "../utils/formatDate";
 import { getMyUserId } from "../utils/auth";
+import { PATH } from "../constants/paths";
+import type { HistoryItem } from "../api/chat";
 
 export default function ChallengeHistoryRoomPage() {
   const { challengeId } = useParams();
   const numericChallengeId = Number(challengeId);
+  const navigate = useNavigate();
 
   const location = useLocation();
   const { title } = location.state || { title: "" };
@@ -102,6 +105,16 @@ export default function ChallengeHistoryRoomPage() {
 
   const histories = [...pagesASC].reverse().flat();
 
+  const handleEdit = (item: HistoryItem) => {
+    navigate(PATH.GO_HISTORY_EDIT(item.historyId), {
+      state: {
+        history: item,
+        challengeId: numericChallengeId,
+        title,
+      },
+    });
+  };
+
   return (
     <div className="bg-[#F6E5B1] h-screen flex flex-col">
       {/* Header */}
@@ -137,7 +150,12 @@ export default function ChallengeHistoryRoomPage() {
               )}
 
               <div className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
-                <HistoryCard item={h} isMine={isMine} visibility={h.visibility} />
+                <HistoryCard
+                  item={h}
+                  isMine={isMine}
+                  visibility={h.visibility}
+                  onEdit={isMine ? handleEdit : undefined}
+                />
               </div>
             </div>
           );

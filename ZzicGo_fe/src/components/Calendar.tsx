@@ -1,25 +1,39 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-export default function Calendar() {
+interface CalendarProps {
+  onSelectDate?: (date: Date) => void;
+  highlightedDates?: string[];
+}
+
+function toDateKey(date: Date) {
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, "0");
+  const day = `${date.getDate()}`.padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+export default function Calendar({
+  onSelectDate,
+  highlightedDates = [],
+}: CalendarProps) {
   const today = new Date();
 
   const [year, setYear] = useState(today.getFullYear());
-  const [month, setMonth] = useState(today.getMonth()); // 0 = 1월, 11 = 12월
+  const [month, setMonth] = useState(today.getMonth());
+  const [selectedDate, setSelectedDate] = useState<Date | null>(today);
 
-  // 현재 달의 첫 날
+  const highlightedDateSet = useMemo(
+    () => new Set(highlightedDates),
+    [highlightedDates]
+  );
+
   const firstDay = new Date(year, month, 1);
-  // 현재 달이 총 며칠인지
   const lastDate = new Date(year, month + 1, 0).getDate();
-  // 이전 달 마지막 날짜 (빈칸 채우기용)
   const prevLastDate = new Date(year, month, 0).getDate();
-
-  // 첫 주의 요일 (0=일)
   const startDay = firstDay.getDay();
 
-  // 달력 데이터 배열 생성
   const calendarDays: { day: number; type: "prev" | "current" | "next" }[] = [];
 
-  // 1️⃣ 이전 달 날짜 (앞 빈칸)
   for (let i = startDay; i > 0; i--) {
     calendarDays.push({
       day: prevLastDate - i + 1,
@@ -27,55 +41,102 @@ export default function Calendar() {
     });
   }
 
-  // 2️⃣ 현재 달 날짜
   for (let i = 1; i <= lastDate; i++) {
     calendarDays.push({ day: i, type: "current" });
   }
 
-  // 3️⃣ 다음 달 날짜 (뒤 빈칸)
-  const nextDays = 42 - calendarDays.length; // 6줄 × 7칸 = 42칸 기준
+  const nextDays = 42 - calendarDays.length;
   for (let i = 1; i <= nextDays; i++) {
     calendarDays.push({ day: i, type: "next" });
   }
 
-  // 월 이동 함수
   const prevMonth = () => {
+    const nextDate =
+      month === 0
+        ? new Date(year - 1, 11, 1)
+        : new Date(year, month - 1, 1);
+
     if (month === 0) {
       setYear(year - 1);
       setMonth(11);
     } else {
       setMonth(month - 1);
     }
+
+    setSelectedDate(nextDate);
+    onSelectDate?.(nextDate);
   };
 
   const nextMonth = () => {
+    const nextDate =
+      month === 11
+        ? new Date(year + 1, 0, 1)
+        : new Date(year, month + 1, 1);
+
     if (month === 11) {
       setYear(year + 1);
       setMonth(0);
     } else {
       setMonth(month + 1);
     }
+
+    setSelectedDate(nextDate);
+    onSelectDate?.(nextDate);
+  };
+
+  const handleSelectDay = (item: { day: number; type: "prev" | "current" | "next" }) => {
+    let selected;
+
+    if (item.type === "prev") {
+      selected = new Date(year, month - 1, item.day);
+    } else if (item.type === "next") {
+      selected = new Date(year, month + 1, item.day);
+    } else {
+      selected = new Date(year, month, item.day);
+    }
+
+    setSelectedDate(selected);
+    onSelectDate?.(selected);
+  };
+
+  useEffect(() => {
+    if (!selectedDate) return;
+    onSelectDate?.(selectedDate);
+  }, []);
+
+  const isSameDate = (d1: Date | null, d2: Date) => {
+    if (!d1) return false;
+    return (
+      d1.getFullYear() === d2.getFullYear() &&
+      d1.getMonth() === d2.getMonth() &&
+      d1.getDate() === d2.getDate()
+    );
   };
 
   return (
-    <div className="bg-white shadow-md rounded-2xl p-4 w-80 max-w-full mx-auto">
-      
-      {/* 헤더: 이전/다음 버튼 */}
-      <div className="flex justify-between items-center mb-3">
-        <button onClick={prevMonth} className="text-lg">&lt;</button>
+    <div className="mx-auto w-80 max-w-full rounded-2xl bg-white p-4 shadow-md">
+      <div className="mb-3 flex items-center justify-between">
+        <button onClick={prevMonth} className="text-lg">
+          &lt;
+        </button>
         <span className="text-lg font-semibold">
           {year}년 {month + 1}월
         </span>
-        <button onClick={nextMonth} className="text-lg">&gt;</button>
+        <button onClick={nextMonth} className="text-lg">
+          &gt;
+        </button>
       </div>
 
-      {/* 요일 */}
-      <div className="grid grid-cols-7 text-center text-gray-500 text-sm mb-2">
-        <div>일</div><div>월</div><div>화</div><div>수</div>
-        <div>목</div><div>금</div><div>토</div>
+      <div className="mb-2 grid grid-cols-7 text-center text-sm text-gray-500">
+        <div>일</div>
+        <div>월</div>
+        <div>화</div>
+        <div>수</div>
+        <div>목</div>
+        <div>금</div>
+        <div>토</div>
       </div>
 
-      {/* 날짜 */}
       <div className="grid grid-cols-7 gap-2 text-center">
         {calendarDays.map((item, i) => {
           const isToday =
@@ -84,17 +145,27 @@ export default function Calendar() {
             month === today.getMonth() &&
             year === today.getFullYear();
 
+          const currentDate =
+            item.type === "current"
+              ? new Date(year, month, item.day)
+              : item.type === "prev"
+                ? new Date(year, month - 1, item.day)
+                : new Date(year, month + 1, item.day);
+
+          const isSelected = isSameDate(selectedDate, currentDate);
+          const isHighlighted = highlightedDateSet.has(toDateKey(currentDate));
+
           return (
             <div
               key={i}
+              onClick={() => handleSelectDay(item)}
               className={`
-                w-8 h-8 flex items-center justify-center mx-auto rounded-full
-                ${
-                  item.type === "prev" || item.type === "next"
-                    ? "text-gray-300"
-                    : "text-gray-900"
-                }
-                ${isToday ? "bg-yellow-400 text-white font-semibold" : ""}
+                mx-auto flex h-8 w-8 cursor-pointer items-center justify-center rounded-full
+                ${item.type !== "current" ? "text-gray-300" : "text-gray-900"}
+                ${isHighlighted ? "bg-yellow-300 font-bold text-[#6B440B]" : ""}
+                ${isSelected ? "ring-2 ring-[#D98B00]" : ""}
+                ${!selectedDate && isToday ? "bg-yellow-300 text-black font-bold" : ""}
+                ${selectedDate && isToday && !isSelected && !isHighlighted ? "bg-gray-200 text-black font-bold" : ""}
               `}
             >
               {item.day}

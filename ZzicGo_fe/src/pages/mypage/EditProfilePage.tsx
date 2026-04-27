@@ -2,12 +2,43 @@ import { useNavigate } from "react-router-dom";
 import { useUserInfo } from "../../hooks/useUserInfo";
 import UserAvatar from "../../components/mypage/UserAvatar";
 import apiClient from "../../api/apiClient";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { FaPen } from "react-icons/fa";
 
 export default function EditProfilePage() {
   const navigate = useNavigate();
   const { user, updateUser } = useUserInfo();
   const [loading, setLoading] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+
+  const handleProfileImageChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("profileImage", file);
+
+    try {
+      setImageUploading(true);
+
+      const res = await apiClient.patch("/api/z1/users/me/profile-image", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      updateUser(res.data?.result ?? res.data);
+    } catch (err) {
+      console.error("프로필 이미지 수정 오류:", err);
+      alert("프로필 이미지 수정 중 오류가 발생했습니다.");
+    } finally {
+      setImageUploading(false);
+      e.target.value = "";
+    }
+  };
 
   const handleSave = async () => {
     try {
@@ -44,8 +75,31 @@ export default function EditProfilePage() {
 
       {/* 아바타 */}
       <div className="mt-4 flex justify-center">
-        {/* <UserAvatar size={110} imageUrl={user.profileImageUrl ?? null} /> */}
-        <UserAvatar size={110} />
+        <div className="flex flex-col items-center gap-3">
+          <button
+            type="button"
+            className="relative rounded-full"
+            onClick={() => imageInputRef.current?.click()}
+            disabled={imageUploading}
+          >
+            <UserAvatar size={110} imageUrl={user.profileImageUrl} />
+            <span className="absolute bottom-1 right-1 flex h-8 w-8 items-center justify-center rounded-full bg-[#F7C954] text-white shadow">
+              <FaPen size={12} />
+            </span>
+          </button>
+
+          {imageUploading && (
+            <p className="text-sm text-gray-500">업로드 중...</p>
+          )}
+
+          <input
+            ref={imageInputRef}
+            type="file"
+            accept="image/*"
+            hidden
+            onChange={handleProfileImageChange}
+          />
+        </div>
       </div>
 
       {/* 입력 영역 */}

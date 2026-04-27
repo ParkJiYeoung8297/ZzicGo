@@ -1,19 +1,25 @@
 import FilterBar from "../components/challenge/FilterBar";
 import ChallengeCard from "../components/challenge/ChallengeCard";
 import { useChallenges } from "../hooks/useChallenges";
+import { useMyChallenges } from "../hooks/useMyChallenges";
 import { AiOutlineSearch } from "react-icons/ai";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import apiClient from "../api/apiClient";
 import GenericModal from "../components/GeneralModal";
 import ChallengeJoinContent from "../components/challenge/ChallengeJoinContent";
 import { useNavigate } from "react-router-dom";
 import { PATH } from "../constants/paths";
 
+type ParticipationCheck = {
+  participated: boolean;
+  participationId: number | null;
+};
 
 
 export default function FindChallengesPage() {
   const navigate = useNavigate();
   const { challenges, loading } = useChallenges();
+  const { myChallenges } = useMyChallenges();
 
   const [openModal, setOpenModal] = useState(false);
   const [selectedChallenge, setSelectedChallenge] = useState<{
@@ -21,10 +27,28 @@ export default function FindChallengesPage() {
     name: string;
   } | null>(null);
 
+  const participationMap = useMemo<Record<number, ParticipationCheck>>(
+    () =>
+      Object.fromEntries(
+        myChallenges.map((challenge) => [
+          challenge.challengeId,
+          {
+            participated: true,
+            participationId: challenge.participationId,
+          },
+        ])
+      ),
+    [myChallenges]
+  );
 
 
   //👇 Challenge 선택 시 팝업 열기
   const handleSelectChallenge = (id: number, name: string) => {
+    if (participationMap[id]?.participated) {
+      alert("이미 참여 중인 챌린지입니다.");
+      return;
+    }
+
     setSelectedChallenge({ id, name });
     setOpenModal(true);
   };
@@ -111,6 +135,7 @@ export default function FindChallengesPage() {
             challengeId={item.challengeId}
             name={item.name}
             description={item.description}
+            participated={participationMap[item.challengeId]?.participated}
             onClick={() => handleSelectChallenge(item.challengeId, item.name)}
           />
         ))}

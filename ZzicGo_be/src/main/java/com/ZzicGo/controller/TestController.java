@@ -27,7 +27,7 @@ public class TestController {
 //    @GetMapping("/test")
 //    public CustomResponse<String> test() {
 //        String response = "Hello from Spring Boot 👋";
-////        throw new CustomException(GeneralErrorCode.INTERNAL_SERVER_ERROR_500);
+    ////        throw new CustomException(GeneralErrorCode.INTERNAL_SERVER_ERROR_500);
 //        return CustomResponse.ok(response);
 //    }
 

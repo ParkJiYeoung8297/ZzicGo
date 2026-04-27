@@ -14,4 +14,5 @@ public interface ImageUrlRepository extends JpaRepository<ImageUrl, Long> {
         WHERE i.history.id IN :historyIds
     """)
     List<ImageUrl> findByHistoryIds(@Param("historyIds") List<Long> historyIds);
+    List<ImageUrl> findByHistoryId(Long historyId);
 }

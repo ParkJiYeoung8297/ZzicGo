@@ -40,7 +40,7 @@ export default function MyPage() {
 
             <div className="flex items-center gap-4">
               {/* 프로필 이미지 */}
-              <UserAvatar size={100} />
+              <UserAvatar size={100} imageUrl={user.profileImageUrl} />
 
               {/* 오른쪽 영역 → 세로 배치 */}
               <div className="flex flex-col">

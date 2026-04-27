@@ -23,5 +23,5 @@ export function useMyChallenges() {
       .finally(() => setLoading(false));
   }, []);
 
-  return { myChallenges, loading };
+  return { myChallenges, setMyChallenges, loading };
 }
