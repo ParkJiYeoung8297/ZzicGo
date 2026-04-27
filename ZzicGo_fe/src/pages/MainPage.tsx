@@ -11,7 +11,7 @@ import ChallengeLeaveContent from "../components/challenge/ChallengeLeaveContent
 import apiClient from "../api/apiClient";
 import type { HistoryItem } from "../api/chat";
 import { PATH } from "../constants/paths";
-import { useMyChallenges } from "../hooks/useMyChallenges";
+import { useMyChallenges, type MyChallenge } from "../hooks/useMyChallenges";
 import { registerFcmTokenAfterLogin } from "../libs/fcm";
 
 type DailyHistoryItem = HistoryItem & {
@@ -33,7 +33,7 @@ function isTodayDate(date: Date) {
 
 export default function MainPage() {
   const navigate = useNavigate();
-  const { myChallenges, loading } = useMyChallenges();
+  const { myChallenges, setMyChallenges, loading } = useMyChallenges();
 
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [errorModalOpen, setErrorModalOpen] = useState(false);
@@ -47,6 +47,7 @@ export default function MainPage() {
   const [selectedHistoryImage, setSelectedHistoryImage] = useState<string | null>(null);
 
   const [myHistoryMap, setMyHistoryMap] = useState<Record<number, DailyHistoryItem[]>>({});
+  const [visibleChallenges, setVisibleChallenges] = useState<MyChallenge[]>([]);
 
   const [selectedChallenge, setSelectedChallenge] = useState<{
     participationId: number;
@@ -64,6 +65,10 @@ export default function MainPage() {
 
   const openCamera = () => cameraInputRef.current?.click();
   const openGallery = () => galleryInputRef.current?.click();
+
+  useEffect(() => {
+    setVisibleChallenges(myChallenges);
+  }, [myChallenges]);
 
   const handleSelectChallenge = (challenge: {
     participationId: number;
@@ -86,8 +91,24 @@ export default function MainPage() {
         `/api/z1/challenges/participations/${selectedChallenge.participationId}/me`
       );
 
+      setVisibleChallenges((prev) =>
+        prev.filter(
+          (challenge) =>
+            challenge.participationId !== selectedChallenge.participationId
+        )
+      );
+      setMyChallenges((prev) =>
+        prev.filter(
+          (challenge) =>
+            challenge.participationId !== selectedChallenge.participationId
+        )
+      );
+      setMyHistoryMap((prev) => {
+        const next = { ...prev };
+        delete next[selectedChallenge.participationId];
+        return next;
+      });
       setSuccessModalOpen(true);
-      window.location.reload();
     } catch (err: any) {
       console.error(err);
       const msg = err.response?.data?.message || "탈퇴 중 오류가 발생했습니다.";
@@ -115,17 +136,28 @@ export default function MainPage() {
   }, []);
 
   useEffect(() => {
-    if (myChallenges.length === 0) {
+    if (visibleChallenges.length === 0) {
       setMyHistoryMap({});
       return;
     }
 
     const fetchMyHistories = async () => {
       setHistoryLoading(true);
+      const monthStart = new Date(
+        selectedDate.getFullYear(),
+        selectedDate.getMonth(),
+        1
+      );
+      const nextMonthStart = new Date(
+        selectedDate.getFullYear(),
+        selectedDate.getMonth() + 1,
+        1
+      );
+      const monthKey = `${selectedDate.getFullYear()}-${selectedDate.getMonth() + 1}`;
 
       try {
         const historyEntries = await Promise.all(
-          myChallenges.map(async (challenge) => {
+          visibleChallenges.map(async (challenge) => {
             let cursor: string | null = null;
             let hasMore = true;
             const histories: DailyHistoryItem[] = [];
@@ -156,24 +188,50 @@ export default function MainPage() {
                 hasMore: boolean;
               } = res.data.result;
 
-              histories.push(
-                ...(result.histories as HistoryItem[]).map((history) => ({
+              const fetchedHistories = (result.histories as HistoryItem[]).map(
+                (history) => ({
                   ...history,
                   challengeId: challenge.challengeId,
                   participationId: challenge.participationId,
                   challengeName: challenge.name,
-                }))
+                })
               );
+
+              histories.push(
+                ...fetchedHistories.filter((history) => {
+                  const createdAt = new Date(history.createdAt);
+                  return createdAt >= monthStart && createdAt < nextMonthStart;
+                })
+              );
+
+              const oldestHistory = fetchedHistories[fetchedHistories.length - 1];
+              if (!oldestHistory) {
+                break;
+              }
+
+              if (new Date(oldestHistory.createdAt) < monthStart) {
+                break;
+              }
 
               cursor = result.nextCursor;
               hasMore = result.hasMore;
             }
 
-            return [challenge.participationId, histories] as const;
+            return [`${challenge.participationId}-${monthKey}`, histories] as const;
           })
         );
 
-        setMyHistoryMap(Object.fromEntries(historyEntries));
+        setMyHistoryMap((prev) => {
+          const next = { ...prev };
+          visibleChallenges.forEach((challenge) => {
+            next[challenge.participationId] = [];
+          });
+          historyEntries.forEach(([key, histories]) => {
+            const participationId = Number(key.split("-")[0]);
+            next[participationId] = histories;
+          });
+          return next;
+        });
       } catch (err) {
         console.error("내 인증 기록 불러오기 실패:", err);
       } finally {
@@ -182,7 +240,7 @@ export default function MainPage() {
     };
 
     fetchMyHistories();
-  }, [myChallenges]);
+  }, [selectedDate, visibleChallenges]);
 
   const highlightedDates = Array.from(
     new Set(
@@ -507,9 +565,9 @@ export default function MainPage() {
         <div className="mt-10 text-center text-gray-400">불러오는 중...</div>
       )}
 
-      {!loading && myChallenges.length > 0 && (
+      {!loading && visibleChallenges.length > 0 && (
         <div className="mt-6 space-y-3">
-          {myChallenges.map((challenge) => (
+          {visibleChallenges.map((challenge) => (
             <div
               key={challenge.participationId}
               className="flex cursor-pointer items-center justify-between rounded-xl border bg-white px-4 py-3 shadow"
@@ -561,7 +619,7 @@ export default function MainPage() {
         </div>
       )}
 
-      {!loading && myChallenges.length === 0 && (
+      {!loading && visibleChallenges.length === 0 && (
         <div className="mt-10 text-center text-gray-500">
           아직 참여 중인 챌린지가 없어요
         </div>

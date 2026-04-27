@@ -1,8 +1,9 @@
 import FilterBar from "../components/challenge/FilterBar";
 import ChallengeCard from "../components/challenge/ChallengeCard";
 import { useChallenges } from "../hooks/useChallenges";
+import { useMyChallenges } from "../hooks/useMyChallenges";
 import { AiOutlineSearch } from "react-icons/ai";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import apiClient from "../api/apiClient";
 import GenericModal from "../components/GeneralModal";
 import ChallengeJoinContent from "../components/challenge/ChallengeJoinContent";
@@ -18,35 +19,27 @@ type ParticipationCheck = {
 export default function FindChallengesPage() {
   const navigate = useNavigate();
   const { challenges, loading } = useChallenges();
+  const { myChallenges } = useMyChallenges();
 
   const [openModal, setOpenModal] = useState(false);
   const [selectedChallenge, setSelectedChallenge] = useState<{
     id: number;
     name: string;
   } | null>(null);
-  const [participationMap, setParticipationMap] = useState<Record<number, ParticipationCheck>>({});
 
-  useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    if (!token || challenges.length === 0) return;
-
-    const fetchParticipation = async () => {
-      try {
-        const results = await Promise.all(
-          challenges.map(async (challenge) => {
-            const res = await apiClient.get(`/api/z1/challenges/${challenge.challengeId}/me`);
-            return [challenge.challengeId, res.data.result] as const;
-          })
-        );
-
-        setParticipationMap(Object.fromEntries(results));
-      } catch (err) {
-        console.error("챌린지 참여 여부 불러오기 실패:", err);
-      }
-    };
-
-    fetchParticipation();
-  }, [challenges]);
+  const participationMap = useMemo<Record<number, ParticipationCheck>>(
+    () =>
+      Object.fromEntries(
+        myChallenges.map((challenge) => [
+          challenge.challengeId,
+          {
+            participated: true,
+            participationId: challenge.participationId,
+          },
+        ])
+      ),
+    [myChallenges]
+  );
 
 
   //👇 Challenge 선택 시 팝업 열기

@@ -51,21 +51,37 @@ export default function Calendar({
   }
 
   const prevMonth = () => {
+    const nextDate =
+      month === 0
+        ? new Date(year - 1, 11, 1)
+        : new Date(year, month - 1, 1);
+
     if (month === 0) {
       setYear(year - 1);
       setMonth(11);
     } else {
       setMonth(month - 1);
     }
+
+    setSelectedDate(nextDate);
+    onSelectDate?.(nextDate);
   };
 
   const nextMonth = () => {
+    const nextDate =
+      month === 11
+        ? new Date(year + 1, 0, 1)
+        : new Date(year, month + 1, 1);
+
     if (month === 11) {
       setYear(year + 1);
       setMonth(0);
     } else {
       setMonth(month + 1);
     }
+
+    setSelectedDate(nextDate);
+    onSelectDate?.(nextDate);
   };
 
   const handleSelectDay = (item: { day: number; type: "prev" | "current" | "next" }) => {

@@ -4,12 +4,18 @@ import { useQueryClient } from "@tanstack/react-query";
 import { IoChevronBack } from "react-icons/io5";
 import apiClient from "../api/apiClient";
 import Spinner from "../components/Spinner";
-import type { HistoryImage, HistoryItem } from "../api/chat";
+import type { HistoryItem } from "../api/chat";
 
 type LocationState = {
   history?: HistoryItem;
   challengeId?: number;
   title?: string;
+};
+
+type EditableExistingImage = {
+  key: string;
+  imageId?: number;
+  imageUrl: string;
 };
 
 export default function EditHistoryPage() {
@@ -25,10 +31,14 @@ export default function EditHistoryPage() {
   const [visibility, setVisibility] = useState<"PUBLIC" | "PRIVATE">(
     history?.visibility ?? "PUBLIC"
   );
-  const [existingImages, setExistingImages] = useState<HistoryImage[]>(
-    history?.imageDetails ??
+  const [existingImages, setExistingImages] = useState<EditableExistingImage[]>(
+    history?.imageDetails?.map((image, index) => ({
+      key: `image-${image.imageId ?? index}`,
+      imageId: image.imageId,
+      imageUrl: image.imageUrl,
+    })) ??
       history?.images?.map((imageUrl, index) => ({
-        imageId: -(index + 1),
+        key: `existing-${index}`,
         imageUrl,
       })) ??
       []
@@ -42,6 +52,10 @@ export default function EditHistoryPage() {
     () => newImages.map((file) => URL.createObjectURL(file)),
     [newImages]
   );
+
+  const appendTextPart = (formData: FormData, key: string, value: string) => {
+    formData.append(key, new Blob([value], { type: "text/plain;charset=UTF-8" }));
+  };
 
   const handleNewImages = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -68,7 +82,11 @@ export default function EditHistoryPage() {
       const originalImageIds = new Set(
         history?.imageDetails?.map((image) => image.imageId) ?? []
       );
-      const remainingImageIds = new Set(existingImages.map((image) => image.imageId));
+      const remainingImageIds = new Set(
+        existingImages
+          .map((image) => image.imageId)
+          .filter((imageId): imageId is number => typeof imageId === "number")
+      );
       const deleteImageIds = Array.from(originalImageIds).filter(
         (imageId) => !remainingImageIds.has(imageId)
       );
@@ -76,16 +94,12 @@ export default function EditHistoryPage() {
       const formData = new FormData();
       newImages.forEach((image) => formData.append("images", image));
       deleteImageIds.forEach((imageId) =>
-        formData.append("deleteImageIds", String(imageId))
+        appendTextPart(formData, "deleteImageIds", String(imageId))
       );
-      formData.append("content", content);
-      formData.append("visibility", visibility);
+      appendTextPart(formData, "content", content);
+      appendTextPart(formData, "visibility", visibility);
 
-      await apiClient.patch(`/api/z1/history/${historyId}`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      await apiClient.patch(`/api/z1/history/${historyId}`, formData);
 
       if (challengeId) {
         await queryClient.invalidateQueries({
@@ -128,7 +142,7 @@ export default function EditHistoryPage() {
           <div className="grid grid-cols-3 gap-3">
             {existingImages.map((image) => (
               <div
-                key={image.imageId}
+                key={image.key}
                 className="relative aspect-square overflow-hidden rounded-xl"
               >
                 <img
@@ -141,7 +155,7 @@ export default function EditHistoryPage() {
                     className="absolute right-2 top-2 rounded-full bg-black/60 px-2 py-1 text-xs text-white"
                     onClick={() =>
                       setExistingImages((prev) =>
-                        prev.filter((item) => item.imageId !== image.imageId)
+                        prev.filter((item) => item.key !== image.key)
                       )
                     }
                   >
