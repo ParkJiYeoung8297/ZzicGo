@@ -1,10 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { IoChevronBack } from "react-icons/io5";
 import apiClient from "../api/apiClient";
 import Spinner from "../components/Spinner";
-import type { HistoryItem } from "../api/chat";
+import type { ApiResponse, GetHistoryResponse, HistoryItem } from "../api/chat";
 
 type LocationState = {
   history?: HistoryItem;
@@ -18,6 +18,10 @@ type EditableExistingImage = {
   imageUrl: string;
 };
 
+function isRenderableImageUrl(value: string) {
+  return /^(https?:\/\/|blob:|data:|\/)/.test(value);
+}
+
 export default function EditHistoryPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -25,11 +29,16 @@ export default function EditHistoryPage() {
   const { state } = useLocation() as { state: LocationState | null };
   const history = state?.history;
   const challengeId = state?.challengeId;
-  const canDeleteExistingImages = Boolean(history?.imageDetails?.length);
+  const [detailLoading, setDetailLoading] = useState(false);
 
   const [content, setContent] = useState(history?.content ?? "");
   const [visibility, setVisibility] = useState<"PUBLIC" | "PRIVATE">(
     history?.visibility ?? "PUBLIC"
+  );
+  const [originalImageIds, setOriginalImageIds] = useState<number[]>(
+    history?.imageDetails
+      ?.map((image) => image.imageId)
+      .filter((imageId): imageId is number => typeof imageId === "number") ?? []
   );
   const [existingImages, setExistingImages] = useState<EditableExistingImage[]>(
     history?.imageDetails?.map((image, index) => ({
@@ -45,6 +54,9 @@ export default function EditHistoryPage() {
   );
   const [newImages, setNewImages] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
+  const canDeleteExistingImages = existingImages.some(
+    (image) => typeof image.imageId === "number"
+  );
 
   const totalImageCount = existingImages.length + newImages.length;
 
@@ -52,6 +64,49 @@ export default function EditHistoryPage() {
     () => newImages.map((file) => URL.createObjectURL(file)),
     [newImages]
   );
+
+  useEffect(() => {
+    if (!historyId) return;
+
+    const fetchHistoryDetail = async () => {
+      setDetailLoading(true);
+
+      try {
+        const res = await apiClient.get<ApiResponse<GetHistoryResponse>>(
+          `/api/z1/history/${historyId}`
+        );
+        const detail = res.data.result;
+
+        setContent(detail.content ?? history?.content ?? "");
+        setVisibility(
+          detail.visibility === "PRIVATE" ? "PRIVATE" : "PUBLIC"
+        );
+        setOriginalImageIds(
+          detail.images
+            ?.map((image) => image.imageId)
+            .filter((imageId): imageId is number => typeof imageId === "number") ??
+            []
+        );
+        setExistingImages(
+          detail.images?.map((image, index) => ({
+            key: `image-${image.imageId ?? index}`,
+            imageId: image.imageId,
+            imageUrl:
+              isRenderableImageUrl(image.imageUrl)
+                ? image.imageUrl
+                : history?.images?.[index] ?? image.imageUrl,
+          })) ??
+            []
+        );
+      } catch (err) {
+        console.error("인증글 상세 조회 실패:", err);
+      } finally {
+        setDetailLoading(false);
+      }
+    };
+
+    fetchHistoryDetail();
+  }, [history?.content, history?.visibility, historyId]);
 
   const handleNewImages = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -75,25 +130,34 @@ export default function EditHistoryPage() {
     setLoading(true);
 
     try {
-      const originalImageIds = new Set(
-        history?.imageDetails?.map((image) => image.imageId) ?? []
-      );
+      const originalImageIdSet = new Set(originalImageIds);
       const remainingImageIds = new Set(
         existingImages
           .map((image) => image.imageId)
           .filter((imageId): imageId is number => typeof imageId === "number")
       );
-      const deleteImageIds = Array.from(originalImageIds).filter(
+      const deleteImageIds = Array.from(originalImageIdSet).filter(
         (imageId) => !remainingImageIds.has(imageId)
       );
 
       const formData = new FormData();
       newImages.forEach((image) => formData.append("images", image));
-      deleteImageIds.forEach((imageId) =>
-        formData.append("deleteImageIds", String(imageId))
+      if (deleteImageIds.length > 0) {
+        formData.append(
+          "deleteImageIds",
+          new Blob([JSON.stringify(deleteImageIds)], {
+            type: "application/json",
+          })
+        );
+      }
+      formData.append(
+        "content",
+        new Blob([content], { type: "application/json" })
       );
-      formData.append("content", content);
-      formData.append("visibility", visibility);
+      formData.append(
+        "visibility",
+        new Blob([visibility], { type: "application/json" })
+      );
 
       await apiClient.patch(`/api/z1/history/${historyId}`, formData, {
         headers: {
@@ -116,7 +180,7 @@ export default function EditHistoryPage() {
     }
   };
 
-  if (!history) {
+  if (!history && !detailLoading && existingImages.length === 0 && !historyId) {
     return (
       <div className="min-h-screen bg-[#FAFAFA] px-4 py-8">
         <button onClick={() => navigate(-1)} className="mb-4 text-2xl text-gray-800">
@@ -130,7 +194,7 @@ export default function EditHistoryPage() {
   return (
     <div className="min-h-screen bg-[#FAFAFA] flex flex-col">
       <div className="flex items-center gap-2 px-4 py-3">
-        {loading && <Spinner />}
+        {(loading || detailLoading) && <Spinner />}
         <button onClick={() => navigate(-1)}>
           <IoChevronBack className="text-2xl text-gray-800" />
         </button>
@@ -147,6 +211,7 @@ export default function EditHistoryPage() {
               >
                 <img
                   src={image.imageUrl}
+                  alt=""
                   className="h-full w-full object-cover"
                 />
                 {canDeleteExistingImages && (
@@ -172,6 +237,7 @@ export default function EditHistoryPage() {
               >
                 <img
                   src={previewUrl}
+                  alt=""
                   className="h-full w-full object-cover"
                 />
                 <button
@@ -203,7 +269,7 @@ export default function EditHistoryPage() {
 
         {!canDeleteExistingImages && existingImages.length > 0 && (
           <p className="mt-2 text-sm text-gray-500">
-            기존 이미지 삭제는 이미지 식별자 응답이 연결되면 사용할 수 있습니다.
+            기존 이미지 정보를 불러오는 중이거나 응답 형식이 맞지 않아 일부 사진 수정이 제한될 수 있습니다.
           </p>
         )}
 
