@@ -1,6 +1,11 @@
 // src/api/chat.ts
 import apiClient from "./apiClient";
 
+export interface HistoryImage {
+  imageId: number;
+  imageUrl: string;
+}
+
 export interface HistoryItem {
   historyId: number;
   userId: number;
@@ -8,6 +13,7 @@ export interface HistoryItem {
   profileImageUrl: string | null;
   content: string | null;
   images: string[];
+  imageDetails?: HistoryImage[];
   visibility: "PUBLIC" | "PRIVATE";
   createdAt: string;
 }

@@ -14,10 +14,12 @@ export const PATH = {
   Z1_CHALLENGES: "challenges",
 
   Z1_UPLOAD: "upload",
+  Z1_HISTORY_EDIT: "history/:historyId/edit",
     // ⭐ 동적 파라미터 정의
   Z1_CHALLENGES_ROOM: "challenge/:challengeId/history",
   // ⭐ navigate 시 실제 값 넣어주는 함수 버전
   GO_CHALLENGES_ROOM: (id: number) => `challenge/${id}/history`,
+  GO_HISTORY_EDIT: (historyId: number) => `/z1/history/${historyId}/edit`,
 
   Z1_MY_PAGE: "mypage",
   Z1_MY_PROFILE_PAGE: "/z1/myprofile",

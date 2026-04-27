@@ -17,6 +17,7 @@ import NotFoundPage from "./pages/common/NotFoundPage";
 import SplashPage from "./pages/common/SplashPage";
 import NewUserWelcomePage from "./pages/common/NewUserWelcomePage";
 import UploadPage from "./pages/UploadPage";
+import EditHistoryPage from "./pages/EditHistoryPage";
 import MyPage from "./pages/mypage/MyPage";
 import EditProfilePage from "./pages/mypage/EditProfilePage";
 
@@ -59,6 +60,7 @@ const router = createBrowserRouter([
       { index: true, element: <MainPage /> }, 
       { path: PATH.Z1_CHALLENGES, element: < FindChallengesPage/> },
       { path: PATH.Z1_UPLOAD, element: < UploadPage/> },
+      { path: PATH.Z1_HISTORY_EDIT, element: < EditHistoryPage/> },
       { path: PATH.Z1_CHALLENGES_ROOM, element: < ChallengeHistoryRoomPage/> },
       { path: PATH.Z1_MY_PAGE, element: < MyPage/> },
       { path: PATH.Z1_MY_PROFILE_PAGE, element: < EditProfilePage/> },
