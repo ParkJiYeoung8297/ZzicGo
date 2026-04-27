@@ -12,7 +12,6 @@ import apiClient from "../api/apiClient";
 import type { HistoryItem } from "../api/chat";
 import { PATH } from "../constants/paths";
 import { useMyChallenges, type MyChallenge } from "../hooks/useMyChallenges";
-import { registerFcmTokenAfterLogin } from "../libs/fcm";
 
 type DailyHistoryItem = HistoryItem & {
   challengeId: number;
@@ -130,10 +129,6 @@ export default function MainPage() {
       },
     });
   };
-
-  useEffect(() => {
-    registerFcmTokenAfterLogin();
-  }, []);
 
   useEffect(() => {
     if (visibleChallenges.length === 0) {
