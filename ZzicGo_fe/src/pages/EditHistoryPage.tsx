@@ -53,10 +53,6 @@ export default function EditHistoryPage() {
     [newImages]
   );
 
-  const appendTextPart = (formData: FormData, key: string, value: string) => {
-    formData.append(key, new Blob([value], { type: "text/plain;charset=UTF-8" }));
-  };
-
   const handleNewImages = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
@@ -94,12 +90,16 @@ export default function EditHistoryPage() {
       const formData = new FormData();
       newImages.forEach((image) => formData.append("images", image));
       deleteImageIds.forEach((imageId) =>
-        appendTextPart(formData, "deleteImageIds", String(imageId))
+        formData.append("deleteImageIds", String(imageId))
       );
-      appendTextPart(formData, "content", content);
-      appendTextPart(formData, "visibility", visibility);
+      formData.append("content", content);
+      formData.append("visibility", visibility);
 
-      await apiClient.patch(`/api/z1/history/${historyId}`, formData);
+      await apiClient.patch(`/api/z1/history/${historyId}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       if (challengeId) {
         await queryClient.invalidateQueries({
