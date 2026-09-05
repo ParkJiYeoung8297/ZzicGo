@@ -17,7 +17,7 @@ bootJar {
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
+		languageVersion = JavaLanguageVersion.of(21)
 	}
 }
 
@@ -55,6 +55,9 @@ dependencies {
 
 	// AWS S3
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+	// Firebase
+	implementation 'com.google.firebase:firebase-admin:9.2.0'
 
 
 	runtimeOnly 'com.mysql:mysql-connector-j'
