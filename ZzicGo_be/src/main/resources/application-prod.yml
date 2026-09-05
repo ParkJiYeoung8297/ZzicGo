@@ -1,5 +1,5 @@
 cors:
-  allowed-origin: http://${PROD_SERVER_IP}
+  allowed-origin: ${PROD_API_URL}
 
 server:
   timezone: Asia/Seoul
