@@ -3,6 +3,7 @@ cors:
 
 server:
   timezone: Asia/Seoul
+  forward-headers-strategy: framework
   tomcat:
     accesslog:
       basedir: /home/ubuntu/backend/app   # ⭐ 중요
