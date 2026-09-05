@@ -43,9 +43,9 @@ cloud:
       access-key: ${AWS_ACCESS_KEY}
       secret-key: ${AWS_SECRET_KEY}
     region:
-      static: ap-northeast-2
+      static: ${AWS_S3_REGION}
     s3:
-      bucket: zzicgo-post-images
+      bucket: ${AWS_S3_BUCKET_NAME}
 
 
 logging:
