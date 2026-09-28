@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
-    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+    <conversionRule conversionWord="coloredMessage"
+                    converterClass="com.ZzicGo.monitoring.HttpStatusColorConverter"/>
 
     <!-- Logging initializes before the full Spring context, so read process
          environment variables directly and keep bootstrap-safe defaults. -->
@@ -11,6 +12,16 @@
     <property name="maxHistory" value="${LOG_MAX_HISTORY:-7}"/>
     <property name="maxFileSize" value="${LOG_MAX_FILE_SIZE:-50MB}"/>
     <property name="totalSizeCap" value="${LOG_TOTAL_SIZE_CAP:-300MB}"/>
+    <property name="consolePattern"
+              value="%clr(%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX}){faint} %clr([%level]) %clr([%thread]){magenta} %clr(%logger{40}){cyan} - %coloredMessage%n%ex"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${consolePattern}</pattern>
+            <charset>${CONSOLE_LOG_CHARSET}</charset>
+        </encoder>
+    </appender>
+
     <appender name="JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${logFile}</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">

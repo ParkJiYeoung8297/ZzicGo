@@ -151,6 +151,84 @@ frontend telemetry API log ───┘
 
 로그 부재만으로 서비스 Down을 판단하지 않는다. 트래픽이 없는 정상 상태와 구분할 수 없기 때문이다. 서비스 가용성은 외부 Synthetic Health Check로 판정한다.
 
+## 로그 생성, 출력 및 저장 구조
+
+백엔드는 로그의 목적에 따라 애플리케이션 로그와 Tomcat 접근 로그를 분리한다.
+
+| 로그 종류 | 생성 주체 | 터미널 | 저장 위치 |
+|---|---|---:|---|
+| Spring Boot, HikariCP 등 프레임워크 로그 | 각 라이브러리 logger | 출력 | `app.log` |
+| 비즈니스 이벤트와 예외 | 서비스, `GlobalExceptionHandler` 등 | 출력 | `app.log` |
+| API 요청 요약 | `RequestIdFilter` | 출력 | `app.log` |
+| API 원본 접근 로그 | Tomcat AccessLogValve | 미출력 | `logs/access.YYYY-MM-DD.log` |
+| Hibernate SQL과 bind parameter | Hibernate | 미출력 | 미수집 |
+
+Spring, 애플리케이션 코드와 `RequestIdFilter`는 SLF4J를 통해 로그 이벤트를 생성한다. Logback은 같은 이벤트를 콘솔과 JSON 파일 appender로 전달한다.
+
+```text
+Spring / HikariCP / Service / RequestIdFilter
+                      │
+                      ▼
+                 SLF4J + Logback
+                  ┌───┴────┐
+                  ▼        ▼
+              CONSOLE   JSON_FILE
+              터미널      app.log
+```
+
+터미널과 `app.log`는 같은 로그 이벤트를 받지만 표현 형식은 다르다.
+
+- 터미널은 사람이 읽기 쉬운 ANSI 색상 텍스트를 사용한다.
+- API 상태 코드는 2xx 초록, 3xx 청록, 4xx 노랑, 5xx 빨강으로 표시한다.
+- `app.log`는 Alloy와 Loki가 파싱하기 쉬운 JSON을 사용한다.
+- 터미널은 API 요청의 method, path, status와 duration만 보여준다.
+- `requestId`, `event`, `application`, `environment`는 터미널에서 생략하고 JSON 필드로 보존한다.
+- 예외 stack trace는 양쪽에 기록되지만 표현 형식이 다르다.
+
+터미널의 API 요청 요약 예시는 다음과 같다.
+
+```text
+2026-09-29T00:31:29.473+09:00 [INFO] RequestIdFilter - GET /actuator/health → 200 (57ms)
+```
+
+동일 이벤트의 `app.log` 표현은 다음과 같다.
+
+```json
+{
+  "timestamp": "2026-09-29T00:31:29.473+09:00",
+  "level": "INFO",
+  "application": "zzicgo-backend",
+  "environment": "local",
+  "event": "http_request",
+  "requestId": "27a2d319-d143-4677-a8c8-d0ea07df67af",
+  "method": "GET",
+  "path": "/actuator/health",
+  "status": 200,
+  "durationMs": 57,
+  "message": "GET /actuator/health → 200 (57ms)"
+}
+```
+
+Tomcat AccessLogValve는 Logback과 별개로 모든 요청의 원본 접근 로그를 기록한다.
+
+```text
+requestId=27a2d319-d143-4677-a8c8-d0ea07df67af method=GET path=/actuator/health status=200 durationMs=63 remoteIp=127.0.0.1 userAgent="curl/8.7.1"
+```
+
+`RequestIdFilter`와 Tomcat은 측정 범위가 달라 `durationMs`가 조금 다를 수 있다. API 요청이 `app.log`와 Tomcat 접근 로그 양쪽에 존재하므로 Grafana 전송 단계에서는 중복 수집 범위를 결정한다. 초기 권장안은 다음과 같다.
+
+- Grafana의 API 집계와 검색은 `app.log`의 `event=http_request`를 기준으로 한다.
+- Tomcat 접근 로그는 원본 요청 분석을 위한 짧은 보관 파일로 유지한다.
+- Grafana Cloud 사용량을 줄여야 하면 Tomcat 접근 로그는 Alloy 수집 대상에서 제외한다.
+
+출력 형식의 설정 위치는 다음과 같다.
+
+- 콘솔 텍스트와 `app.log` JSON: `ZzicGo_be/src/main/resources/logback-spring.xml`
+- Tomcat 접근 로그 필드와 경로: `ZzicGo_be/src/main/resources/application.yml`
+- API 요청 요약 필드: `ZzicGo_be/src/main/java/com/ZzicGo/monitoring/RequestIdFilter.java`
+
+운영 서버에서 콘솔 출력은 외부 사용자에게 공개되는 터미널이 아니라 systemd journal로 전달된다. 파일 로그가 자동으로 더 안전한 것은 아니므로 콘솔과 파일 모두 JWT, Cookie, OAuth code, 요청 body, query string과 개인정보를 기록하지 않는다.
+
 ## 메트릭 확장 흐름
 
 로그 기반 모니터링이 안정화되면 다음 구조를 추가한다.
@@ -181,4 +259,3 @@ Actuator management server는 `127.0.0.1`의 별도 port에 bind하고 `health`�
 - JWT, OAuth code/secret, AWS credential과 개인정보를 로그에 기록하지 않는다.
 - public health endpoint는 `UP/DOWN`만 제공한다.
 - telemetry endpoint에는 payload 제한, allowlist 검증과 rate limit을 적용한다.
-
