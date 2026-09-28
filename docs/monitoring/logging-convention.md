@@ -43,6 +43,8 @@
 
 - `unhandled_exception`
 - `auth_login_failed`
+- `request_rejected`
+- `token_validation_failed`
 - `token_refresh_failed`
 - `history_upload_failed`
 - `s3_upload_failed`
@@ -237,4 +239,3 @@ quantile_over_time(
   | unwrap value [1h]
 )
 ```
-

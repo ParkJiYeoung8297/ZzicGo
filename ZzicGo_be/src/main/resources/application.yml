@@ -31,16 +31,16 @@ server:
   timezone: ${SERVER_TIMEZONE}
   forward-headers-strategy: ${SERVER_FORWARD_HEADERS_STRATEGY}
   tomcat:
+    basedir: ${TOMCAT_ACCESSLOG_BASEDIR:.}
     accesslog:
-      basedir: ${TOMCAT_ACCESSLOG_BASEDIR}
-      enabled: ${TOMCAT_ACCESSLOG_ENABLED}
-      directory: ${TOMCAT_ACCESSLOG_DIRECTORY}
-      pattern: ${TOMCAT_ACCESSLOG_PATTERN}
-      prefix: ${TOMCAT_ACCESSLOG_PREFIX}
-      suffix: ${TOMCAT_ACCESSLOG_SUFFIX}
+      enabled: ${TOMCAT_ACCESSLOG_ENABLED:true}
+      directory: ${TOMCAT_ACCESSLOG_DIRECTORY:logs}
+      pattern: ${TOMCAT_ACCESSLOG_PATTERN:${monitoring.access-log-pattern}}
+      prefix: ${TOMCAT_ACCESSLOG_PREFIX:access}
+      suffix: ${TOMCAT_ACCESSLOG_SUFFIX:.log}
 
 cors:
-  allowed-origin: ${CORS_ALLOWED_ORIGIN}
+  allowed-origins: ${CORS_ALLOWED_ORIGINS}
 
 cloud:
   aws:
@@ -68,6 +68,10 @@ logging:
     org.hibernate.orm.jdbc.bind: ${LOG_LEVEL_HIBERNATE_BIND}
     org.springframework.web: ${LOG_LEVEL_SPRING_WEB}
     org.springframework.security: ${LOG_LEVEL_SPRING_SECURITY}
+
+monitoring:
+  environment: ${APP_ENVIRONMENT:local}
+  access-log-pattern: '%t requestId=%{X-Request-ID}o method=%m path=%U status=%s durationMs=%{ms}T remoteIp=%a userAgent="%{User-Agent}i"'
 
 management:
   endpoints:

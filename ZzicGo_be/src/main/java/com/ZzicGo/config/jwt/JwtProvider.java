@@ -4,6 +4,7 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -61,17 +62,23 @@ public class JwtProvider {
             parseClaims(token);
             return true;
         } catch (ExpiredJwtException e) {
-            log.warn("JWT expired");
+            logTokenValidationFailure("expired");
             return false;
         } catch (SignatureException e) {
-            log.error("JWT signature invalid");
+            logTokenValidationFailure("invalid_signature");
             return false;
         } catch (MalformedJwtException e) {
-            log.error("JWT malformed");
+            logTokenValidationFailure("malformed");
             return false;
         } catch (JwtException | IllegalArgumentException e) {
-            log.error("JWT error: {}", e.getMessage());
+            logTokenValidationFailure("invalid");
             return false;
+        }
+    }
+
+    private void logTokenValidationFailure(String reason) {
+        try (MDC.MDCCloseable ignored = MDC.putCloseable("event", "token_validation_failed")) {
+            log.warn("Token validation failed: reason={}", reason);
         }
     }
 
