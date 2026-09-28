@@ -1,6 +1,7 @@
 package com.ZzicGo.global;
 
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -14,8 +15,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<CustomResponse<Void>> handleCustomException(
             CustomException ex
     ) {
-        //예외가 발생하면 로그 기록
-        log.warn("[ CustomException ]: {}", ex.getCode().getMessage());
+        try (MDC.MDCCloseable ignored = MDC.putCloseable("event", "request_rejected")) {
+            log.warn("Request rejected: code={}, message={}",
+                    ex.getCode().getCode(), ex.getCode().getMessage());
+        }
         //커스텀 예외에 정의된 에러 코드와 메시지를 포함한 응답 제공
         return ResponseEntity.status(ex.getCode().getHttpStatus())
                 .body(CustomResponse.onFailure(
@@ -31,7 +34,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<CustomResponse<String>> handleAllException(
             Exception ex
     ) {
-        log.error("[WARNING] Internal Server Error : {} ", ex.getMessage());
+        try (MDC.MDCCloseable ignored = MDC.putCloseable("event", "unhandled_exception")) {
+            log.error("Unhandled exception", ex);
+        }
         BaseCode errorCode = GeneralErrorCode.INTERNAL_SERVER_ERROR_500;
         CustomResponse<String> errorResponse = CustomResponse.onFailure(
                 errorCode,

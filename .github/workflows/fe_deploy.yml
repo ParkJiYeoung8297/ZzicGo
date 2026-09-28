@@ -24,7 +24,7 @@ jobs:
         with:
           node-version: 20.19.0   # Node 버전도 Fix
 
-      # 3. 🔥 GitHub Secrets로 .env 생성
+      # 3. GitHub Secrets로 공개 가능한 프론트엔드 설정 생성
       - name: Create .env
         run: |
           cd ZzicGo_fe
@@ -37,11 +37,7 @@ jobs:
           echo "VITE_NAVER_CLIENT_ID=${{ secrets.VITE_NAVER_CLIENT_ID }}" >> .env
           echo "VITE_NAVER_REDIRECT_URI=${{ secrets.VITE_NAVER_REDIRECT_URI }}" >> .env
           echo "VITE_KAKAO_CLIENT_ID=${{ secrets.VITE_KAKAO_CLIENT_ID }}" >> .env
-          echo "VITE_KAKAO_CLIENT_SECRET=${{ secrets.VITE_KAKAO_CLIENT_SECRET }}" >> .env
           echo "VITE_KAKAO_REDIRECT_URI=${{ secrets.VITE_KAKAO_REDIRECT_URI }}" >> .env
-
-          echo "✅ .env created:"
-          cat .env
 
       # 4. 의존성 설치 + 빌드
       - name: Install dependencies & Build
