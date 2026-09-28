@@ -1,35 +1,38 @@
 spring:
+  application:
+    name: ${APPLICATION_NAME:zzicgo-backend}
+
   datasource:
-    driver-class-name: ${DB_DRIVER_CLASS_NAME}
-    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?${DB_URL_OPTIONS}
+    driver-class-name: ${DB_DRIVER_CLASS_NAME:com.mysql.cj.jdbc.Driver}
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT:3306}/${DB_NAME}?${DB_URL_OPTIONS:serverTimezone=Asia/Seoul&characterEncoding=UTF-8}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     hikari:
-      maximum-pool-size: ${DB_HIKARI_MAXIMUM_POOL_SIZE}
-      minimum-idle: ${DB_HIKARI_MINIMUM_IDLE}
-      idle-timeout: ${DB_HIKARI_IDLE_TIMEOUT_MS}
-      connection-timeout: ${DB_HIKARI_CONNECTION_TIMEOUT_MS}
-      max-lifetime: ${DB_HIKARI_MAX_LIFETIME_MS}
+      maximum-pool-size: ${DB_HIKARI_MAXIMUM_POOL_SIZE:10}
+      minimum-idle: ${DB_HIKARI_MINIMUM_IDLE:5}
+      idle-timeout: ${DB_HIKARI_IDLE_TIMEOUT_MS:30000}
+      connection-timeout: ${DB_HIKARI_CONNECTION_TIMEOUT_MS:10000}
+      max-lifetime: ${DB_HIKARI_MAX_LIFETIME_MS:600000}
 
   servlet:
     multipart:
-      max-file-size: ${MULTIPART_MAX_FILE_SIZE}
-      max-request-size: ${MULTIPART_MAX_REQUEST_SIZE}
+      max-file-size: ${MULTIPART_MAX_FILE_SIZE:20MB}
+      max-request-size: ${MULTIPART_MAX_REQUEST_SIZE:25MB}
 
   jpa:
     hibernate:
-      ddl-auto: ${JPA_DDL_AUTO}
+      ddl-auto: ${JPA_DDL_AUTO:none}
     properties:
       hibernate:
-        format_sql: ${JPA_FORMAT_SQL}
-    show-sql: ${JPA_SHOW_SQL}
-    open-in-view: ${JPA_OPEN_IN_VIEW}
-    defer-datasource-initialization: ${JPA_DEFER_DATASOURCE_INITIALIZATION}
+        format_sql: ${JPA_FORMAT_SQL:false}
+    show-sql: ${JPA_SHOW_SQL:false}
+    open-in-view: ${JPA_OPEN_IN_VIEW:true}
+    defer-datasource-initialization: ${JPA_DEFER_DATASOURCE_INITIALIZATION:false}
 
 server:
-  port: ${SERVER_PORT}
-  timezone: ${SERVER_TIMEZONE}
-  forward-headers-strategy: ${SERVER_FORWARD_HEADERS_STRATEGY}
+  port: ${SERVER_PORT:8080}
+  timezone: ${SERVER_TIMEZONE:Asia/Seoul}
+  forward-headers-strategy: ${SERVER_FORWARD_HEADERS_STRATEGY:native}
   tomcat:
     basedir: ${TOMCAT_ACCESSLOG_BASEDIR:.}
     accesslog:
@@ -48,26 +51,26 @@ cloud:
       access-key: ${AWS_ACCESS_KEY}
       secret-key: ${AWS_SECRET_KEY}
     region:
-      static: ${AWS_S3_REGION}
+      static: ${AWS_S3_REGION:ap-northeast-2}
     s3:
       bucket: ${AWS_S3_BUCKET_NAME}
 
 logging:
   file:
-    name: ${LOG_FILE_NAME}
+    name: ${LOG_FILE_NAME:app.log}
   logback:
     rollingpolicy:
-      max-history: ${LOG_MAX_HISTORY}
-      max-file-size: ${LOG_MAX_FILE_SIZE}
-      total-size-cap: ${LOG_TOTAL_SIZE_CAP}
+      max-history: ${LOG_MAX_HISTORY:7}
+      max-file-size: ${LOG_MAX_FILE_SIZE:50MB}
+      total-size-cap: ${LOG_TOTAL_SIZE_CAP:300MB}
   level:
-    root: ${LOG_LEVEL_ROOT}
-    com.ZzicGo: ${LOG_LEVEL_ZZICGO}
-    org.hibernate.SQL: ${LOG_LEVEL_HIBERNATE_SQL}
-    org.hibernate.type.descriptor.sql: ${LOG_LEVEL_HIBERNATE_SQL_TYPE}
-    org.hibernate.orm.jdbc.bind: ${LOG_LEVEL_HIBERNATE_BIND}
-    org.springframework.web: ${LOG_LEVEL_SPRING_WEB}
-    org.springframework.security: ${LOG_LEVEL_SPRING_SECURITY}
+    root: ${LOG_LEVEL_ROOT:INFO}
+    com.ZzicGo: ${LOG_LEVEL_ZZICGO:INFO}
+    org.hibernate.SQL: ${LOG_LEVEL_HIBERNATE_SQL:OFF}
+    org.hibernate.type.descriptor.sql: ${LOG_LEVEL_HIBERNATE_SQL_TYPE:OFF}
+    org.hibernate.orm.jdbc.bind: ${LOG_LEVEL_HIBERNATE_BIND:OFF}
+    org.springframework.web: ${LOG_LEVEL_SPRING_WEB:INFO}
+    org.springframework.security: ${LOG_LEVEL_SPRING_SECURITY:WARN}
 
 monitoring:
   environment: ${APP_ENVIRONMENT:local}
@@ -77,27 +80,27 @@ management:
   endpoints:
     web:
       exposure:
-        include: ${MANAGEMENT_EXPOSED_ENDPOINTS}
+        include: ${MANAGEMENT_EXPOSED_ENDPOINTS:health}
   endpoint:
     health:
-      show-details: ${MANAGEMENT_HEALTH_SHOW_DETAILS}
+      show-details: ${MANAGEMENT_HEALTH_SHOW_DETAILS:never}
 
 jwt:
   secret: ${JWT_SECRET}
-  access-expire-ms: ${JWT_ACCESS_EXPIRE_MS}
-  refresh-expire-ms: ${JWT_REFRESH_EXPIRE_MS}
+  access-expire-ms: ${JWT_ACCESS_EXPIRE_MS:3600000}
+  refresh-expire-ms: ${JWT_REFRESH_EXPIRE_MS:1209600000}
 
 oauth:
   naver:
     client-id: ${NAVER_CLIENT_ID}
     client-secret: ${NAVER_CLIENT_SECRET}
     redirect-uri: ${NAVER_REDIRECT_URI}
-    token-uri: ${NAVER_TOKEN_URI}
-    profile-uri: ${NAVER_PROFILE_URI}
+    token-uri: ${NAVER_TOKEN_URI:https://nid.naver.com/oauth2.0/token}
+    profile-uri: ${NAVER_PROFILE_URI:https://openapi.naver.com/v1/nid/me}
 
   kakao:
     client-id: ${KAKAO_CLIENT_ID}
     client-secret: ${KAKAO_CLIENT_SECRET}
     redirect-uri: ${KAKAO_REDIRECT_URI}
-    token-uri: ${KAKAO_TOKEN_URI}
-    profile-uri: ${KAKAO_PROFILE_URI}
+    token-uri: ${KAKAO_TOKEN_URI:https://kauth.kakao.com/oauth/token}
+    profile-uri: ${KAKAO_PROFILE_URI:https://kapi.kakao.com/v2/user/me}

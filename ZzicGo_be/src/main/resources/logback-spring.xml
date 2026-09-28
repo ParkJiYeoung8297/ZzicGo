@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+    <!-- Logging initializes before the full Spring context, so read process
+         environment variables directly and keep bootstrap-safe defaults. -->
+    <property name="applicationName" value="${APPLICATION_NAME:-zzicgo-backend}"/>
+    <property name="environment" value="${APP_ENVIRONMENT:-local}"/>
+    <property name="logFile" value="${LOG_FILE_NAME:-app.log}"/>
+    <property name="maxHistory" value="${LOG_MAX_HISTORY:-7}"/>
+    <property name="maxFileSize" value="${LOG_MAX_FILE_SIZE:-50MB}"/>
+    <property name="totalSizeCap" value="${LOG_TOTAL_SIZE_CAP:-300MB}"/>
+    <appender name="JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${logFile}</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${logFile}.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+            <maxHistory>${maxHistory}</maxHistory>
+            <maxFileSize>${maxFileSize}</maxFileSize>
+            <totalSizeCap>${totalSizeCap}</totalSizeCap>
+        </rollingPolicy>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <timestampPattern>yyyy-MM-dd'T'HH:mm:ss.SSSXXX</timestampPattern>
+            <fieldNames>
+                <timestamp>timestamp</timestamp>
+                <logger>logger</logger>
+            </fieldNames>
+            <customFields>{"application":"${applicationName}","environment":"${environment}"}</customFields>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="JSON_FILE"/>
+    </root>
+</configuration>

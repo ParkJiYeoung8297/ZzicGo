@@ -3,21 +3,25 @@
 ## Configuration
 
 The backend uses a single `src/main/resources/application.yml` for every
-environment. Environment-specific values are supplied as process environment
-variables. The `.env` filename is a project convention; Spring Boot does not
-load the file automatically.
+environment. Public settings have safe defaults and can still be overridden by
+environment variables. Secrets have no defaults. The `.env` filename is a
+project convention; Spring Boot does not load the file automatically.
 
 ```text
 ZzicGo_be/
 ├─ .env                 # ignored; real local values
-├─ .env.example         # tracked; variable names and safe examples
 └─ src/main/resources/application.yml
 ```
 
-Create local configuration from the example and fill in the missing values:
+The local `.env` only needs the following secret or deployment-specific keys:
 
-```bash
-cp .env.example .env
+```text
+DB_HOST, DB_NAME, DB_USERNAME, DB_PASSWORD
+AWS_ACCESS_KEY, AWS_SECRET_KEY, AWS_S3_BUCKET_NAME
+JWT_SECRET
+NAVER_CLIENT_ID, NAVER_CLIENT_SECRET, NAVER_REDIRECT_URI
+KAKAO_CLIENT_ID, KAKAO_CLIENT_SECRET, KAKAO_REDIRECT_URI
+FIREBASE_SERVICE_ACCOUNT
 ```
 
 Production uses the same variable names, but its `.env` values must be managed
@@ -34,5 +38,7 @@ For production, configure the backend systemd unit to load the file explicitly:
 EnvironmentFile=/home/ubuntu/backend/app/.env
 ```
 
-The production file must use the same variable names as `.env.example`. After
-changing it, reload systemd and restart the backend service.
+Production may additionally override the values that intentionally differ from
+local development, such as `APP_ENVIRONMENT`, `DB_URL_OPTIONS`, JPA options and
+the Tomcat access-log base directory. After changing the production `.env`,
+reload systemd and restart the backend service.
