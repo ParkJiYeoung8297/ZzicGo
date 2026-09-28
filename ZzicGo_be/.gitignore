@@ -4,6 +4,9 @@
 firebase-service-account.json
 example-application.txt
 application-example.txt
+*.log
+*.log.*.gz
+logs/
 
 HELP.md
 .gradle

@@ -30,6 +30,14 @@ server:
   port: ${SERVER_PORT}
   timezone: ${SERVER_TIMEZONE}
   forward-headers-strategy: ${SERVER_FORWARD_HEADERS_STRATEGY}
+  tomcat:
+    accesslog:
+      basedir: ${TOMCAT_ACCESSLOG_BASEDIR}
+      enabled: ${TOMCAT_ACCESSLOG_ENABLED}
+      directory: ${TOMCAT_ACCESSLOG_DIRECTORY}
+      pattern: ${TOMCAT_ACCESSLOG_PATTERN}
+      prefix: ${TOMCAT_ACCESSLOG_PREFIX}
+      suffix: ${TOMCAT_ACCESSLOG_SUFFIX}
 
 cors:
   allowed-origin: ${CORS_ALLOWED_ORIGIN}
@@ -43,6 +51,32 @@ cloud:
       static: ${AWS_S3_REGION}
     s3:
       bucket: ${AWS_S3_BUCKET_NAME}
+
+logging:
+  file:
+    name: ${LOG_FILE_NAME}
+  logback:
+    rollingpolicy:
+      max-history: ${LOG_MAX_HISTORY}
+      max-file-size: ${LOG_MAX_FILE_SIZE}
+      total-size-cap: ${LOG_TOTAL_SIZE_CAP}
+  level:
+    root: ${LOG_LEVEL_ROOT}
+    com.ZzicGo: ${LOG_LEVEL_ZZICGO}
+    org.hibernate.SQL: ${LOG_LEVEL_HIBERNATE_SQL}
+    org.hibernate.type.descriptor.sql: ${LOG_LEVEL_HIBERNATE_SQL_TYPE}
+    org.hibernate.orm.jdbc.bind: ${LOG_LEVEL_HIBERNATE_BIND}
+    org.springframework.web: ${LOG_LEVEL_SPRING_WEB}
+    org.springframework.security: ${LOG_LEVEL_SPRING_SECURITY}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ${MANAGEMENT_EXPOSED_ENDPOINTS}
+  endpoint:
+    health:
+      show-details: ${MANAGEMENT_HEALTH_SHOW_DETAILS}
 
 jwt:
   secret: ${JWT_SECRET}
