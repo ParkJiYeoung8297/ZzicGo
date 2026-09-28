@@ -1,21 +1,65 @@
-server:
-  port: 8080
-
 spring:
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/{DB이름}?serverTimezone=Asia/Seoul
-    username: {유저명}
-    password: {비밀번호}
+    driver-class-name: ${DB_DRIVER_CLASS_NAME}
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?${DB_URL_OPTIONS}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: ${DB_HIKARI_MAXIMUM_POOL_SIZE}
+      minimum-idle: ${DB_HIKARI_MINIMUM_IDLE}
+      idle-timeout: ${DB_HIKARI_IDLE_TIMEOUT_MS}
+      connection-timeout: ${DB_HIKARI_CONNECTION_TIMEOUT_MS}
+      max-lifetime: ${DB_HIKARI_MAX_LIFETIME_MS}
+
+  servlet:
+    multipart:
+      max-file-size: ${MULTIPART_MAX_FILE_SIZE}
+      max-request-size: ${MULTIPART_MAX_REQUEST_SIZE}
 
   jpa:
     hibernate:
-      ddl-auto: create  # 처음 이후에는 update로 수정
+      ddl-auto: ${JPA_DDL_AUTO}
     properties:
       hibernate:
-        format_sql: true
-    show-sql: true
+        format_sql: ${JPA_FORMAT_SQL}
+    show-sql: ${JPA_SHOW_SQL}
+    open-in-view: ${JPA_OPEN_IN_VIEW}
+    defer-datasource-initialization: ${JPA_DEFER_DATASOURCE_INITIALIZATION}
 
-logging:
-  level:
-    org.hibernate.SQL: debug
+server:
+  port: ${SERVER_PORT}
+  timezone: ${SERVER_TIMEZONE}
+  forward-headers-strategy: ${SERVER_FORWARD_HEADERS_STRATEGY}
+
+cors:
+  allowed-origin: ${CORS_ALLOWED_ORIGIN}
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
+    region:
+      static: ${AWS_S3_REGION}
+    s3:
+      bucket: ${AWS_S3_BUCKET_NAME}
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-expire-ms: ${JWT_ACCESS_EXPIRE_MS}
+  refresh-expire-ms: ${JWT_REFRESH_EXPIRE_MS}
+
+oauth:
+  naver:
+    client-id: ${NAVER_CLIENT_ID}
+    client-secret: ${NAVER_CLIENT_SECRET}
+    redirect-uri: ${NAVER_REDIRECT_URI}
+    token-uri: ${NAVER_TOKEN_URI}
+    profile-uri: ${NAVER_PROFILE_URI}
+
+  kakao:
+    client-id: ${KAKAO_CLIENT_ID}
+    client-secret: ${KAKAO_CLIENT_SECRET}
+    redirect-uri: ${KAKAO_REDIRECT_URI}
+    token-uri: ${KAKAO_TOKEN_URI}
+    profile-uri: ${KAKAO_PROFILE_URI}
