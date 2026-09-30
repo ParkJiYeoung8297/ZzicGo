@@ -38,8 +38,6 @@ jobs:
             exit 1
           fi
 
-          tar -czf monitoring-deploy.tar.gz monitoring
-
       - name: Prepare SSH key
         shell: bash
         env:
@@ -60,11 +58,11 @@ jobs:
         run: |
           set -euo pipefail
 
-          scp \
+          scp -r \
             -i private_key.pem \
             -o UserKnownHostsFile=known_hosts \
-            monitoring-deploy.tar.gz \
-            "$EC2_USER@$EC2_HOST:/tmp/zzicgo-monitoring-${GITHUB_SHA}.tar.gz"
+            monitoring \
+            "$EC2_USER@$EC2_HOST:/home/$EC2_USER/"
 
       - name: Run monitoring deploy script on EC2
         shell: bash
@@ -78,10 +76,10 @@ jobs:
             -i private_key.pem \
             -o UserKnownHostsFile=known_hosts \
             "$EC2_USER@$EC2_HOST" \
-            "sudo bash /home/$EC2_USER/monitoring-deploy.sh /tmp/zzicgo-monitoring-${GITHUB_SHA}.tar.gz"
+            "sudo bash /home/$EC2_USER/monitoring/monitoring-deploy.sh"
 
       - name: Remove local SSH material
         if: always()
         shell: bash
         run: |
-          rm -f private_key.pem known_hosts monitoring-deploy.tar.gz
+          rm -f private_key.pem known_hosts
