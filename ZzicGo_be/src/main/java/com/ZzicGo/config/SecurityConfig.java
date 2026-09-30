@@ -58,6 +58,7 @@ public class SecurityConfig {
         );
         configuration.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);  // 쿠키/인증정보 포함 요청
         configuration.setExposedHeaders(List.of("X-Request-ID"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
