@@ -1,0 +1,87 @@
+name: Deploy Monitoring Configuration to EC2
+
+on:
+  push:
+    branches:
+      - develop
+    paths:
+      - "monitoring/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: monitoring-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy Alloy and Nginx monitoring config
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate deployment files
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          test -f monitoring/alloy/config.alloy
+          test -f monitoring/alloy/alloy.service.d/zzicgo.conf
+          test -f monitoring/nginx/zzicgo-logging.conf
+
+          if git ls-files --error-unmatch monitoring/alloy/zzicgo.env >/dev/null 2>&1; then
+            echo "::error::monitoring/alloy/zzicgo.env must never be committed"
+            exit 1
+          fi
+
+          tar -czf monitoring-deploy.tar.gz monitoring
+
+      - name: Prepare SSH key
+        shell: bash
+        env:
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+        run: |
+          set -euo pipefail
+
+          install -m 600 /dev/null private_key.pem
+          printf '%s\n' "$EC2_SSH_KEY" | tr -d '\r' > private_key.pem
+          ssh-keyscan -H "$EC2_HOST" > known_hosts
+
+      - name: Upload monitoring directory
+        shell: bash
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+        run: |
+          set -euo pipefail
+
+          scp \
+            -i private_key.pem \
+            -o UserKnownHostsFile=known_hosts \
+            monitoring-deploy.tar.gz \
+            "$EC2_USER@$EC2_HOST:/tmp/zzicgo-monitoring-${GITHUB_SHA}.tar.gz"
+
+      - name: Run monitoring deploy script on EC2
+        shell: bash
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+        run: |
+          set -euo pipefail
+
+          ssh \
+            -i private_key.pem \
+            -o UserKnownHostsFile=known_hosts \
+            "$EC2_USER@$EC2_HOST" \
+            "sudo bash /home/$EC2_USER/monitoring-deploy.sh /tmp/zzicgo-monitoring-${GITHUB_SHA}.tar.gz"
+
+      - name: Remove local SSH material
+        if: always()
+        shell: bash
+        run: |
+          rm -f private_key.pem known_hosts monitoring-deploy.tar.gz
