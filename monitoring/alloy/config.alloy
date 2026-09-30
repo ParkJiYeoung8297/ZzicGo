@@ -1,0 +1,155 @@
+logging {
+	level  = "info"
+	format = "logfmt"
+}
+
+// Start only from newly appended lines on the first run. Alloy's positions in
+// /var/lib/alloy take over after that, so restarts don't duplicate old logs.
+local.file_match "spring" {
+	path_targets = [{
+		"__path__" = sys.env("ZZICGO_APP_LOG_PATH"),
+	}]
+}
+
+loki.source.file "spring" {
+	targets       = local.file_match.spring.targets
+	forward_to    = [loki.process.spring.receiver]
+	tail_from_end = true
+}
+
+loki.process "spring" {
+	forward_to = [loki.write.grafana_cloud.receiver]
+
+	stage.json {
+		expressions = {
+			application = "",
+			environment = "",
+			event       = "",
+			level       = "",
+			timestamp   = "",
+		}
+		drop_malformed = true
+	}
+
+	stage.timestamp {
+		source            = "timestamp"
+		format            = "RFC3339Nano"
+		action_on_failure = "skip"
+	}
+
+	// requestId deliberately remains in the JSON body. It must never become a
+	// Loki label because every request has a different value.
+	stage.labels {
+		values = {
+			application = "",
+			environment = "",
+			event       = "",
+			level       = "",
+		}
+	}
+}
+
+local.file_match "nginx_access" {
+	path_targets = [{
+		"__path__" = sys.env("ZZICGO_NGINX_ACCESS_LOG_PATH"),
+	}]
+}
+
+loki.source.file "nginx_access" {
+	targets       = local.file_match.nginx_access.targets
+	forward_to    = [loki.process.nginx_access.receiver]
+	tail_from_end = true
+}
+
+loki.process "nginx_access" {
+	forward_to = [loki.write.grafana_cloud.receiver]
+
+	// monitoring/nginx/zzicgo-logging.conf writes this file as JSON and uses
+	// $uri rather than $request_uri so query strings are never recorded.
+	stage.json {
+		expressions = {
+			application = "",
+			environment = "",
+			event       = "",
+			level       = "",
+			method      = "",
+			status      = "",
+			timestamp   = "",
+		}
+		drop_malformed = true
+	}
+
+	stage.timestamp {
+		source            = "timestamp"
+		format            = "RFC3339"
+		action_on_failure = "skip"
+	}
+
+	stage.labels {
+		values = {
+			application = "",
+			environment = "",
+			event       = "",
+			level       = "",
+			method      = "",
+			status      = "",
+		}
+	}
+}
+
+local.file_match "nginx_error" {
+	path_targets = [{
+		"__path__" = sys.env("ZZICGO_NGINX_ERROR_LOG_PATH"),
+	}]
+}
+
+loki.source.file "nginx_error" {
+	targets       = local.file_match.nginx_error.targets
+	forward_to    = [loki.process.nginx_error.receiver]
+	tail_from_end = true
+}
+
+loki.process "nginx_error" {
+	forward_to = [loki.write.grafana_cloud.receiver]
+
+	// Nginx error messages can include a request URI. Remove its query portion
+	// before the line leaves the EC2 instance.
+	stage.replace {
+		expression = "\\?[^ ]+"
+		replace    = "?<redacted>"
+	}
+
+	stage.regex {
+		expression = "\\[(?P<level>debug|info|notice|warn|error|crit|alert|emerg)\\]"
+	}
+
+	stage.template {
+		source   = "level"
+		template = "{{ ToUpper .Value }}"
+	}
+
+	stage.static_labels {
+		values = {
+			application = "zzicgo-nginx",
+			environment = sys.env("ZZICGO_ENVIRONMENT"),
+			event       = "nginx_error",
+		}
+	}
+
+	stage.labels {
+		values = {
+			level = "",
+		}
+	}
+}
+
+loki.write "grafana_cloud" {
+	endpoint {
+		url = sys.env("GRAFANA_CLOUD_LOKI_URL")
+
+		basic_auth {
+			username = sys.env("GRAFANA_CLOUD_LOKI_USERNAME")
+			password = sys.env("GRAFANA_CLOUD_API_TOKEN")
+		}
+	}
+}

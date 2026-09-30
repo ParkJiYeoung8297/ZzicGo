@@ -103,7 +103,7 @@ ZzicGo_admin/
 ```text
 zzicgo-api.service       # 사용자 API, 예: 8080
 zzicgo-admin.service     # 향후 관리자 API, 예: 8081
-grafana-alloy.service    # telemetry 수집기
+alloy.service            # telemetry 수집기
 nginx.service
 ```
 
