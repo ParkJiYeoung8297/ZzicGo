@@ -1,6 +1,11 @@
+.env
+.env.*
+firebase-service-account.json
 example-application.txt
-
-ZzicGo_be/src/main/resources/application.yml
+application-example.txt
+*.log
+*.log.*.gz
+logs/
 
 HELP.md
 .gradle
@@ -39,5 +44,3 @@ out/
 
 ### VS Code ###
 .vscode/
-
-ZzicGo_be/src/main/resources/application-example.txt
