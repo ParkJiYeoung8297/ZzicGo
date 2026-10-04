@@ -44,19 +44,21 @@ public class RequestIdFilter extends OncePerRequestFilter {
                 long durationMs = (System.nanoTime() - startedAt) / 1_000_000;
                 int status = resolveStatus(response, completedNormally);
 
-                log.atInfo()
-                        .addKeyValue("event", "http_request")
-                        .addKeyValue("method", request.getMethod())
-                        .addKeyValue("path", request.getRequestURI())
-                        .addKeyValue("status", status)
-                        .addKeyValue("durationMs", durationMs)
-                        .log(
-                                "{} {} → {} ({}ms)",
-                                request.getMethod(),
-                                request.getRequestURI(),
-                                status,
-                                durationMs
-                        );
+                if (shouldLogRequest(request, status)) {
+                    log.atInfo()
+                            .addKeyValue("event", "http_request")
+                            .addKeyValue("method", request.getMethod())
+                            .addKeyValue("path", request.getRequestURI())
+                            .addKeyValue("status", status)
+                            .addKeyValue("durationMs", durationMs)
+                            .log(
+                                    "{} {} → {} ({}ms)",
+                                    request.getMethod(),
+                                    request.getRequestURI(),
+                                    status,
+                                    durationMs
+                            );
+                }
             }
         } finally {
             MDC.remove(REQUEST_ID_MDC_KEY);
@@ -68,6 +70,13 @@ public class RequestIdFilter extends OncePerRequestFilter {
             return HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
         }
         return response.getStatus();
+    }
+
+    private boolean shouldLogRequest(HttpServletRequest request, int status) {
+        boolean successfulHealthCheck = "/actuator/health".equals(request.getRequestURI())
+                && status >= HttpServletResponse.SC_OK
+                && status < HttpServletResponse.SC_MULTIPLE_CHOICES;
+        return !successfulHealthCheck;
     }
 
     private String resolveRequestId(String candidate) {
