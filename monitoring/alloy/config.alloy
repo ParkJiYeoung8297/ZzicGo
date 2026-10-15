@@ -153,3 +153,67 @@ loki.write "grafana_cloud" {
 		}
 	}
 }
+
+// Traces are independent of the Loki log pipeline above. Only the local Java
+// processes can submit OTLP; do not expose this port through Nginx/security groups.
+otelcol.receiver.otlp "backend_traces" {
+	http {
+		endpoint = "127.0.0.1:4318"
+	}
+
+	output {
+		traces = [otelcol.processor.attributes.trace_privacy.input]
+	}
+}
+
+// Keep timings, operation names and hierarchy. Raw query text and full URLs can
+// carry personal data or signed tokens and are unnecessary for timing analysis.
+otelcol.processor.attributes "trace_privacy" {
+	action {
+		key    = "db.statement"
+		action = "delete"
+	}
+	action {
+		key    = "db.query.text"
+		action = "delete"
+	}
+	action {
+		key    = "http.url"
+		action = "delete"
+	}
+	action {
+		key    = "http.target"
+		action = "delete"
+	}
+	action {
+		key    = "url.full"
+		action = "delete"
+	}
+	action {
+		key    = "url.query"
+		action = "delete"
+	}
+	output {
+		traces = [otelcol.processor.batch.backend_traces.input]
+	}
+}
+
+otelcol.processor.batch "backend_traces" {
+	timeout         = "5s"
+	send_batch_size = 512
+	output {
+		traces = [otelcol.exporter.otlphttp.grafana_cloud.input]
+	}
+}
+
+otelcol.auth.basic "grafana_otlp" {
+	username = sys.env("GRAFANA_CLOUD_OTLP_USERNAME")
+	password = sys.env("GRAFANA_CLOUD_OTLP_TOKEN")
+}
+
+otelcol.exporter.otlphttp "grafana_cloud" {
+	client {
+		endpoint = sys.env("GRAFANA_CLOUD_OTLP_ENDPOINT")
+		auth     = otelcol.auth.basic.grafana_otlp.handler
+	}
+}
