@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="평일 아침 7시, 세 가지 질문으로 쌓는 CS 습관.">
+<title>Daily CS — 하루 세 질문</title>
+<link rel="stylesheet" href="./style.css">
+<script src="./markdown.js" defer></script><script src="./config.js" defer></script><script src="./app.js" defer></script>
+</head>
+<body>
+<header><a class="brand" href="./index.html"><span class="brand-icon">c</span> daily cs</a><span class="header-note">매일 쌓이는 개발자의 기본기</span></header>
+<main>
+<section class="intro"><div class="eyebrow">하루 20분, CS 면접 준비</div><h1 id="hero-title">오늘의 세 질문이<br>내일의 자신감이 되도록</h1><p id="hero-description">1분 동안 내 말로 답해보고, 모범 답안과 비교해 보세요.</p><div class="schedule"><span class="dot"></span> 평일 오전 7시 공개 <span class="timezone">한국 시간 기준</span></div></section>
+<section class="daily" aria-labelledby="daily-title">
+<div class="day-heading"><div><div class="eyebrow" id="day-label" hidden>오늘의 학습</div><h2 id="daily-title">오늘의 학습</h2></div><label class="date-control"><span>학습 날짜</span><input id="date" type="date" required></label></div>
+<div id="day-introduction" hidden></div>
+<div class="view-options"><div><strong>펼쳐서 읽기</strong><p id="reading-mode-description">필요한 답변만 하나씩 열어보세요.</p></div><label class="view-switch"><input id="reading-mode" type="checkbox" role="switch" aria-label="펼쳐서 읽기" aria-describedby="reading-mode-description"><span class="switch-track" aria-hidden="true"></span></label></div>
+<div class="progress-row"><span id="progress-label">나의 풀이 기록</span><span id="progress-count">0 / 0</span></div><div class="progress-track"><div id="progress-bar"></div></div>
+<div id="status" role="status" aria-live="polite"></div><div id="questions"></div>
+<section id="day-review" class="review-card" aria-label="오늘의 핵심 복습" hidden></section>
+<button id="retry" class="retry" hidden>다시 불러오기</button>
+<aside class="feedback"><div><strong>함께 더 좋은 학습 공간을 만들어요</strong><p>문제나 사용 경험에 대한 의견을 들려주세요.</p></div><a href="https://forms.gle/QwQfFRSaxW1B96eb9" target="_blank" rel="noopener noreferrer" aria-label="의견 보내기 · 설문지 새 탭에서 열기">의견 보내기 <span aria-hidden="true">↗</span></a></aside>
+<p class="storage-note">♥ 풀이 체크는 이 브라우저에 저장돼요. 로그인 없이 누구나 공부할 수 있어요.</p>
+</section>
+</main><footer><a class="brand" href="./index.html">daily<span>cs</span></a><span>매일 조금씩, 내 것으로.</span></footer>
+</body></html>

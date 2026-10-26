@@ -61,7 +61,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return request.getRequestURI().equals("/api/z1/auth/refresh");
+        return request.getRequestURI().equals("/api/z1/auth/refresh")
+                || ("GET".equals(request.getMethod())
+                && request.getServletPath().matches("/api/z1/cs/days/[^/]+"));
     }
 
 }
