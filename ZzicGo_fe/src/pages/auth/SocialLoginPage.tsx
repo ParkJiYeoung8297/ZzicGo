@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 // src/pages/auth/SocialLoginPage.tsx
 import { useSocialLogin } from "../../hooks/useSocialLogin";
 import SocialButton from "../../components/auth/SocialButton";
@@ -36,6 +37,14 @@ export default function SocialLoginPage() {
           icon={<RiKakaoTalkFill className="text-2xl" />}
           onClick={() => handleSocialLogin("kakao")}
         />
+
+        <Link
+          to="/cs"
+          className="mt-2 flex min-h-12 items-center justify-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-5 py-3 text-sm font-semibold text-blue-600 transition hover:bg-blue-100 hover:text-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-500"
+        >
+          비로그인으로 매일 CS 풀기
+          <span aria-hidden="true">→</span>
+        </Link>
 
         {/* <SocialButton
           provider="google"
