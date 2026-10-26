@@ -39,6 +39,8 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/z1/cs/admin/**").hasRole("ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/z1/cs/days/*").permitAll()
                         .requestMatchers(PERMIT_ALL_URL_ARRAY).permitAll()  // 누구나 접근 가능한 url
                         .anyRequest().authenticated()  //그 외에는 인증 요청
                 )
@@ -62,6 +64,14 @@ public class SecurityConfig {
         configuration.setExposedHeaders(List.of("X-Request-ID"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        // Only the anonymous CS read endpoint is available to arbitrary website origins.
+        CorsConfiguration publicCs = new CorsConfiguration();
+        publicCs.setAllowedOrigins(List.of("*"));
+        publicCs.setAllowedMethods(List.of("GET", "OPTIONS"));
+        publicCs.setAllowedHeaders(List.of("Accept", "Content-Type"));
+        publicCs.setAllowCredentials(false);
+        publicCs.setExposedHeaders(List.of("X-Request-ID"));
+        source.registerCorsConfiguration("/api/z1/cs/days/*", publicCs);
         source.registerCorsConfiguration("/**",configuration);
         return source;
     }

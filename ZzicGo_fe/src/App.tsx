@@ -21,6 +21,7 @@ import EditHistoryPage from "./pages/EditHistoryPage";
 import MyPage from "./pages/mypage/MyPage";
 import EditProfilePage from "./pages/mypage/EditProfilePage";
 
+import DailyCsPage from "./pages/DailyCsPage";
 import MainPage from "./pages/MainPage";
 import FindChallengesPage from "./pages/FindChallengesPage";
 import ChallengeHistoryRoomPage from "./pages/ChallengeHistoryRoomPage";
@@ -32,6 +33,8 @@ import OAuthCallbackPage from "./pages/auth/OAuthCallbackPage";
 
 const queryClient = new QueryClient();
 const router = createBrowserRouter([
+  // Public page: outside the app login layout.
+  { path: "/cs", element: <DailyCsPage /> },
 
   // ✅ 1️⃣ Splash — 첫 진입
   {
