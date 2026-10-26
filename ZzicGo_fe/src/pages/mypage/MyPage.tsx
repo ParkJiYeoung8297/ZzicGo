@@ -1,5 +1,5 @@
 // src/pages/MyPage.tsx
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import UserAvatar from "../../components/mypage/UserAvatar";
 import InfoRow from "../../components/mypage/InfoRow";
 import ActivityHeatmap from "../../components/mypage/ActivityHeatmap";
@@ -90,8 +90,17 @@ export default function MyPage() {
           </div>
         </div>
 
+          <Link
+            to="/cs"
+            className="mx-5 mt-6 flex items-center justify-between rounded-xl bg-blue-50 px-4 py-4 font-semibold text-blue-600 transition hover:bg-blue-100 hover:text-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+          >
+            <span>매일 CS 풀기</span>
+            <span aria-hidden="true">→</span>
+          </Link>
+
         {/* 🔥 5. 설정 */}
-        <div className="bg-white mt-6 rounded-xl shadow px-4 py-2">
+        <div className="mx-5 bg-white mt-6 rounded-xl shadow px-4 py-2">
+
           <InfoRow
             title="서비스 이용약관"
             onClick={() =>

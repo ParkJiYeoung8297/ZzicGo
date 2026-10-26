@@ -1,7 +1,7 @@
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 import InstallPromptBanner from "./components/InstallPromptBanner"
 import AuthExpiredModal from "./components/auth/AuthExpiredModal";
@@ -80,6 +80,11 @@ const router = createBrowserRouter([
 export default function App() {
 
   const [authExpired, setAuthExpired] = useState(false);
+  const pathname = useSyncExternalStore(
+    router.subscribe,
+    () => router.state.location.pathname,
+  );
+  const isDailyCsPage = pathname === "/cs" || pathname === "/cs/";
 
   useEffect(() => {
     const handler = () => setAuthExpired(true);
@@ -95,7 +100,7 @@ export default function App() {
     <>
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
-        <InstallPromptBanner /> {/* ✅ 앱 전체에서 배너 감시 */}
+        {!isDailyCsPage && <InstallPromptBanner />}
       </QueryClientProvider>
 
       <AuthExpiredModal
