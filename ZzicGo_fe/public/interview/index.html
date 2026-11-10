@@ -25,6 +25,16 @@
     </div>
     <label class="option"><input type="checkbox" id="noRepeat" checked> 이미 나온 질문은 다시 안 나오게</label>
     <p class="status" id="status" role="status"></p>
+
+    <section class="stopwatch" aria-labelledby="stopwatch-title">
+      <h2 id="stopwatch-title">답변 시간</h2>
+      <output class="stopwatch-display" id="stopwatch-display" aria-live="off">00:00</output>
+      <div class="stopwatch-controls">
+        <button class="stopwatch-start" id="stopwatch-start" type="button">시작</button>
+        <button id="stopwatch-stop" type="button" disabled>정지</button>
+        <button id="stopwatch-reset" type="button">초기화</button>
+      </div>
+    </section>
   </main>
   <script src="/interview/app.js" defer></script>
 </body>

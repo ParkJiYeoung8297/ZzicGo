@@ -7,9 +7,58 @@
   const resetButton = $("reset");
   const noRepeatEl = $("noRepeat");
   const statusEl = $("status");
+  const stopwatchDisplay = $("stopwatch-display");
+  const stopwatchStart = $("stopwatch-start");
+  const stopwatchStop = $("stopwatch-stop");
+  const stopwatchReset = $("stopwatch-reset");
 
   let questions = [];
   const used = new Set();
+  let elapsedMs = 0;
+  let startedAt = null;
+  let stopwatchInterval = null;
+
+  function formatElapsed(milliseconds) {
+    const totalSeconds = Math.floor(milliseconds / 1000);
+    const seconds = totalSeconds % 60;
+    const minutes = Math.floor(totalSeconds / 60) % 60;
+    const hours = Math.floor(totalSeconds / 3600);
+    const pad = (value) => String(value).padStart(2, "0");
+    return hours > 0
+      ? `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
+      : `${pad(Math.floor(totalSeconds / 60))}:${pad(seconds)}`;
+  }
+
+  function renderStopwatch() {
+    const currentElapsed = elapsedMs + (startedAt === null ? 0 : performance.now() - startedAt);
+    stopwatchDisplay.textContent = formatElapsed(currentElapsed);
+  }
+
+  function startStopwatch() {
+    if (startedAt !== null) return;
+    startedAt = performance.now();
+    stopwatchInterval = window.setInterval(renderStopwatch, 200);
+    stopwatchStart.disabled = true;
+    stopwatchStop.disabled = false;
+    renderStopwatch();
+  }
+
+  function stopStopwatch() {
+    if (startedAt === null) return;
+    elapsedMs += performance.now() - startedAt;
+    startedAt = null;
+    window.clearInterval(stopwatchInterval);
+    stopwatchInterval = null;
+    stopwatchStart.disabled = false;
+    stopwatchStop.disabled = true;
+    renderStopwatch();
+  }
+
+  function resetStopwatch() {
+    stopStopwatch();
+    elapsedMs = 0;
+    renderStopwatch();
+  }
 
   function currentPool() {
     const category = filterEl.value;
@@ -53,6 +102,9 @@
 
   drawButton.addEventListener("click", draw);
   resetButton.addEventListener("click", reset);
+  stopwatchStart.addEventListener("click", startStopwatch);
+  stopwatchStop.addEventListener("click", stopStopwatch);
+  stopwatchReset.addEventListener("click", resetStopwatch);
   filterEl.addEventListener("change", updateStatus);
   noRepeatEl.addEventListener("change", updateStatus);
   document.addEventListener("keydown", (event) => {

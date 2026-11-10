@@ -66,3 +66,24 @@ button:disabled { cursor: wait; opacity: .55; }
 button.primary { flex: 1; border: 0; background: var(--accent); color: var(--accent-text); font-weight: 700; }
 .option { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 12px; color: var(--sub); font-size: 14px; }
 .status { min-height: 20px; margin: 8px 0 0; color: var(--sub); font-size: 13px; }
+.stopwatch {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--card);
+}
+.stopwatch h2 { margin: 0; color: var(--sub); font-size: 13px; font-weight: 600; }
+.stopwatch-display {
+  display: block;
+  margin: 8px 0 14px;
+  color: var(--text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: clamp(32px, 9vw, 44px);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .04em;
+}
+.stopwatch-controls { display: flex; justify-content: center; gap: 8px; }
+.stopwatch-controls button { min-width: 82px; }
+.stopwatch-controls .stopwatch-start { border-color: transparent; background: var(--accent); color: var(--accent-text); font-weight: 700; }
