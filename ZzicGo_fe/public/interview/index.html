@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f7f9">
+  <title>면접 질문 뽑기</title>
+  <link rel="stylesheet" href="/interview/style.css">
+  <script src="/interview/config.js" defer></script>
+</head>
+<body>
+  <main>
+    <h1>🎲 프로젝트 면접 질문 뽑기</h1>
+    <section class="card" aria-live="polite">
+      <div class="category" id="category"></div>
+      <div class="question placeholder" id="question">질문을 불러오는 중이에요…</div>
+    </section>
+    <div class="controls">
+      <label class="visually-hidden" for="filter">질문 카테고리</label>
+      <select id="filter" aria-label="질문 카테고리" disabled>
+        <option value="">전체 카테고리</option>
+      </select>
+      <button class="primary" id="draw" disabled>뽑기</button>
+      <button class="ghost" id="reset" disabled>초기화</button>
+    </div>
+    <label class="option"><input type="checkbox" id="noRepeat" checked> 이미 나온 질문은 다시 안 나오게</label>
+    <p class="status" id="status" role="status"></p>
+  </main>
+  <script src="/interview/app.js" defer></script>
+</body>
+</html>

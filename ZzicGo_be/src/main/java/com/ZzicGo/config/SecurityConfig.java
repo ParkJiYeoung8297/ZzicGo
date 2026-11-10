@@ -41,6 +41,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/z1/cs/admin/**").hasRole("ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/z1/cs/days/*").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/z1/interview/questions").permitAll()
                         .requestMatchers(PERMIT_ALL_URL_ARRAY).permitAll()  // 누구나 접근 가능한 url
                         .anyRequest().authenticated()  //그 외에는 인증 요청
                 )
@@ -72,6 +73,7 @@ public class SecurityConfig {
         publicCs.setAllowCredentials(false);
         publicCs.setExposedHeaders(List.of("X-Request-ID"));
         source.registerCorsConfiguration("/api/z1/cs/days/*", publicCs);
+        source.registerCorsConfiguration("/api/z1/interview/questions", publicCs);
         source.registerCorsConfiguration("/**",configuration);
         return source;
     }

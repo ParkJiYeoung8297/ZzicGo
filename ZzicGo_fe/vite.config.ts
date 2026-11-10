@@ -1,6 +1,28 @@
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig, loadEnv, type Plugin, type PreviewServer, type ViteDevServer } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from "vite-plugin-pwa";  // 추가
+
+function standalonePages(): Plugin {
+  const pageFor = (pathname: string) => ({
+    "/interview": "/interview/index.html",
+    "/interview/": "/interview/index.html",
+  }[pathname]);
+  const rewrite = (server: ViteDevServer | PreviewServer) => {
+    server.middlewares.use((request, _response, next) => {
+      const url = request.url ?? "";
+      const pathname = url.split("?")[0];
+      const page = pageFor(pathname);
+      if (page) request.url = `${page}${url.includes("?") ? `?${url.split("?").slice(1).join("?")}` : ""}`;
+      next();
+    });
+  };
+
+  return {
+    name: "standalone-pages",
+    configureServer: rewrite,
+    configurePreviewServer: rewrite,
+  };
+}
 
 
 
@@ -17,8 +39,8 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
-
     plugins: [
+      standalonePages(),
       react(),
       VitePWA({
         registerType: "autoUpdate",
@@ -45,5 +67,12 @@ export default defineConfig(({ mode }) => {
         },
       }),
     ],
+    build: {
+      rollupOptions: {
+        input: {
+          app: "index.html",
+        },
+      },
+    },
   };
 });
