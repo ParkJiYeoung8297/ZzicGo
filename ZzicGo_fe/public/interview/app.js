@@ -8,8 +8,7 @@
   const noRepeatEl = $("noRepeat");
   const statusEl = $("status");
   const stopwatchDisplay = $("stopwatch-display");
-  const stopwatchStart = $("stopwatch-start");
-  const stopwatchStop = $("stopwatch-stop");
+  const stopwatchToggle = $("stopwatch-toggle");
   const stopwatchReset = $("stopwatch-reset");
 
   let questions = [];
@@ -31,31 +30,37 @@
 
   function renderStopwatch() {
     const currentElapsed = elapsedMs + (startedAt === null ? 0 : performance.now() - startedAt);
-    stopwatchDisplay.textContent = formatElapsed(currentElapsed);
+    const formatted = formatElapsed(currentElapsed);
+    if (stopwatchDisplay.textContent !== formatted) stopwatchDisplay.textContent = formatted;
   }
 
-  function startStopwatch() {
-    if (startedAt !== null) return;
+  function toggleStopwatch() {
+    if (startedAt !== null) {
+      elapsedMs += performance.now() - startedAt;
+      startedAt = null;
+      window.clearInterval(stopwatchInterval);
+      stopwatchInterval = null;
+      stopwatchToggle.textContent = "시작";
+      stopwatchToggle.setAttribute("aria-pressed", "false");
+      renderStopwatch();
+      return;
+    }
+
     startedAt = performance.now();
     stopwatchInterval = window.setInterval(renderStopwatch, 200);
-    stopwatchStart.disabled = true;
-    stopwatchStop.disabled = false;
-    renderStopwatch();
-  }
-
-  function stopStopwatch() {
-    if (startedAt === null) return;
-    elapsedMs += performance.now() - startedAt;
-    startedAt = null;
-    window.clearInterval(stopwatchInterval);
-    stopwatchInterval = null;
-    stopwatchStart.disabled = false;
-    stopwatchStop.disabled = true;
+    stopwatchToggle.textContent = "정지";
+    stopwatchToggle.setAttribute("aria-pressed", "true");
     renderStopwatch();
   }
 
   function resetStopwatch() {
-    stopStopwatch();
+    if (startedAt !== null) {
+      window.clearInterval(stopwatchInterval);
+      stopwatchInterval = null;
+      startedAt = null;
+      stopwatchToggle.textContent = "시작";
+      stopwatchToggle.setAttribute("aria-pressed", "false");
+    }
     elapsedMs = 0;
     renderStopwatch();
   }
@@ -102,8 +107,7 @@
 
   drawButton.addEventListener("click", draw);
   resetButton.addEventListener("click", reset);
-  stopwatchStart.addEventListener("click", startStopwatch);
-  stopwatchStop.addEventListener("click", stopStopwatch);
+  stopwatchToggle.addEventListener("click", toggleStopwatch);
   stopwatchReset.addEventListener("click", resetStopwatch);
   filterEl.addEventListener("change", updateStatus);
   noRepeatEl.addEventListener("change", updateStatus);
