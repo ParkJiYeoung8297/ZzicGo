@@ -46,6 +46,14 @@ export default function SocialLoginPage() {
           <span aria-hidden="true">→</span>
         </Link>
 
+        <a
+          href="/interview"
+          className="flex min-h-12 items-center justify-center gap-2 rounded-full border border-indigo-100 bg-indigo-50 px-5 py-3 text-sm font-semibold text-indigo-600 transition hover:bg-indigo-100 hover:text-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-500"
+        >
+          비로그인으로 인터뷰 연습하기
+          <span aria-hidden="true">→</span>
+        </a>
+
         {/* <SocialButton
           provider="google"
           text="Google로 시작하기"

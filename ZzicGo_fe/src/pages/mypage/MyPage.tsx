@@ -98,6 +98,14 @@ export default function MyPage() {
             <span aria-hidden="true">→</span>
           </Link>
 
+          <a
+            href="/interview"
+            className="mx-5 mt-3 flex items-center justify-between rounded-xl bg-indigo-50 px-4 py-4 font-semibold text-indigo-600 transition hover:bg-indigo-100 hover:text-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+          >
+            <span>인터뷰 질문 뽑기</span>
+            <span aria-hidden="true">→</span>
+          </a>
+
         {/* 🔥 5. 설정 */}
         <div className="mx-5 bg-white mt-6 rounded-xl shadow px-4 py-2">
 
