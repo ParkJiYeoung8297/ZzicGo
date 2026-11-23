@@ -44,6 +44,9 @@ export default defineConfig(({ mode }) => {
       react(),
       VitePWA({
         registerType: "autoUpdate",
+        workbox: {
+          navigateFallbackDenylist: [/^\/interview(?:\/.*)?$/],
+        },
         manifest: {
           name: "ZzicGo",
           short_name: "ZzicGo",
